@@ -106,11 +106,22 @@ function Classify() {
       });
       setProgress(100);
 
+      const r = analysis.result;
       const { error: saveErr } = await supabase
         .from("classifications")
         .update({
           status: "completed",
-          ...analysis.result,
+          wool_class: r.wool_class,
+          wool_class_name_sv: r.wool_class_name_sv,
+          wool_class_name_en: r.wool_class_name_en,
+          confidence: r.confidence,
+          shear_recommendation: r.shear_recommendation,
+          weeks_until_optimal: r.weeks_until_optimal,
+          recommendation_text_sv: r.recommendation_text_sv,
+          recommendation_text_en: r.recommendation_text_en,
+          reasoning_sv: r.reasoning_sv,
+          needs_retake: r.needs_retake,
+          retake_reason_sv: r.retake_reason_sv,
           raw_ai_response: analysis.raw_ai_response,
           completed_at: new Date().toISOString(),
         })

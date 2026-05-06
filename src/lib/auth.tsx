@@ -19,6 +19,7 @@ type AuthCtx = {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
+  isAdmin: boolean;
   loading: boolean;
   refreshProfile: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -28,6 +29,7 @@ const Ctx = createContext<AuthCtx>({
   user: null,
   session: null,
   profile: null,
+  isAdmin: false,
   loading: true,
   refreshProfile: async () => {},
   signOut: async () => {},
@@ -36,21 +38,26 @@ const Ctx = createContext<AuthCtx>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const loadProfile = async (userId: string) => {
-    const { data } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
-    setProfile((data as Profile) ?? null);
+    const [{ data: p }, { data: r }] = await Promise.all([
+      supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
+      supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle(),
+    ]);
+    setProfile((p as Profile) ?? null);
+    setIsAdmin(!!r);
   };
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
       if (s?.user) {
-        // defer to avoid deadlock
         setTimeout(() => loadProfile(s.user.id), 0);
       } else {
         setProfile(null);
+        setIsAdmin(false);
       }
     });
 
@@ -69,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user: session?.user ?? null,
         session,
         profile,
+        isAdmin,
         loading,
         refreshProfile: async () => {
           if (session?.user) await loadProfile(session.user.id);

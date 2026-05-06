@@ -1,10 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Scissors, Sheet } from "lucide-react";
+import { Scissors, Sheet, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
+import { BackButton } from "@/components/BackButton";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
 type Classification = {
@@ -76,8 +81,24 @@ function Result() {
     toast.success(t("saved"));
   };
 
+  const remove = async () => {
+    // Best-effort: delete photos from storage, then row.
+    if (data?.photo_urls?.length) {
+      await supabase.storage.from("sheep-photos").remove(data.photo_urls);
+    }
+    const { error } = await supabase.from("classifications").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success(t("deleted"));
+    navigate({ to: "/app" });
+  };
+
   if (!data) {
-    return <div className="py-20 text-center text-muted-foreground">...</div>;
+    return (
+      <div className="space-y-4">
+        <BackButton />
+        <div className="py-20 text-center text-muted-foreground">...</div>
+      </div>
+    );
   }
 
   const recText = lang === "sv" ? data.recommendation_text_sv : data.recommendation_text_en;
@@ -85,10 +106,13 @@ function Result() {
 
   if (data.status !== "completed") {
     return (
-      <div className="py-16 flex flex-col items-center text-center gap-4">
-        <div className="text-6xl animate-pulse">🐑</div>
-        <p className="text-lg font-medium text-primary">{t("analyzing")}</p>
-        {data.status === "failed" && <p className="text-destructive">{t("error")}</p>}
+      <div className="space-y-4">
+        <BackButton />
+        <div className="py-16 flex flex-col items-center text-center gap-4">
+          <div className="text-6xl animate-pulse">🐑</div>
+          <p className="text-lg font-medium text-primary">{t("analyzing")}</p>
+          {data.status === "failed" && <p className="text-destructive">{t("error")}</p>}
+        </div>
       </div>
     );
   }
@@ -102,9 +126,28 @@ function Result() {
 
   return (
     <div className="space-y-5 pb-4">
-      <Link to="/app" className="inline-flex items-center gap-2 text-muted-foreground text-sm">
-        <ArrowLeft className="w-4 h-4" /> {t("back")}
-      </Link>
+      <div className="flex items-center justify-between">
+        <BackButton />
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+              <Trash2 className="w-4 h-4 mr-1" /> {t("delete")}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("delete")}?</AlertDialogTitle>
+              <AlertDialogDescription>{t("deleteConfirm")}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+              <AlertDialogAction onClick={remove} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                {t("delete")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
 
       {photos.length > 0 && (
         <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1">

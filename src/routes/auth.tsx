@@ -26,16 +26,31 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: window.location.origin + "/onboarding" },
         });
         if (error) throw error;
-        navigate({ to: "/onboarding" });
+        if (!data.session) {
+          // Email confirmation required
+          toast.success(
+            "Konto skapat! Kolla din e-post för att bekräfta din adress, logga sedan in.",
+            { duration: 8000 },
+          );
+          navigate({ to: "/auth", search: { mode: "signin" } });
+        } else {
+          navigate({ to: "/onboarding" });
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        if (error) {
+          if (error.message.toLowerCase().includes("not confirmed")) {
+            toast.error("Bekräfta din e-post först — kolla din inkorg.", { duration: 6000 });
+            return;
+          }
+          throw error;
+        }
         navigate({ to: "/app" });
       }
     } catch (err) {

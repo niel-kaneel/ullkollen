@@ -14,16 +14,279 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      classifications: {
+        Row: {
+          age_category: string | null
+          breed: string | null
+          completed_at: string | null
+          confidence: string | null
+          created_at: string
+          id: string
+          months_since_last_shear: number | null
+          needs_retake: boolean | null
+          photo_urls: string[] | null
+          raw_ai_response: Json | null
+          reasoning_sv: string | null
+          recommendation_text_en: string | null
+          recommendation_text_sv: string | null
+          retake_reason_sv: string | null
+          shear_recommendation: string | null
+          sheep_id: string | null
+          status: string
+          user_id: string
+          weeks_until_optimal: number | null
+          wool_class: string | null
+          wool_class_name_en: string | null
+          wool_class_name_sv: string | null
+        }
+        Insert: {
+          age_category?: string | null
+          breed?: string | null
+          completed_at?: string | null
+          confidence?: string | null
+          created_at?: string
+          id?: string
+          months_since_last_shear?: number | null
+          needs_retake?: boolean | null
+          photo_urls?: string[] | null
+          raw_ai_response?: Json | null
+          reasoning_sv?: string | null
+          recommendation_text_en?: string | null
+          recommendation_text_sv?: string | null
+          retake_reason_sv?: string | null
+          shear_recommendation?: string | null
+          sheep_id?: string | null
+          status?: string
+          user_id: string
+          weeks_until_optimal?: number | null
+          wool_class?: string | null
+          wool_class_name_en?: string | null
+          wool_class_name_sv?: string | null
+        }
+        Update: {
+          age_category?: string | null
+          breed?: string | null
+          completed_at?: string | null
+          confidence?: string | null
+          created_at?: string
+          id?: string
+          months_since_last_shear?: number | null
+          needs_retake?: boolean | null
+          photo_urls?: string[] | null
+          raw_ai_response?: Json | null
+          reasoning_sv?: string | null
+          recommendation_text_en?: string | null
+          recommendation_text_sv?: string | null
+          retake_reason_sv?: string | null
+          shear_recommendation?: string | null
+          sheep_id?: string | null
+          status?: string
+          user_id?: string
+          weeks_until_optimal?: number | null
+          wool_class?: string | null
+          wool_class_name_en?: string | null
+          wool_class_name_sv?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classifications_sheep_id_fkey"
+            columns: ["sheep_id"]
+            isOneToOne: false
+            referencedRelation: "sheep"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          farm_name: string | null
+          full_name: string | null
+          home_lat: number | null
+          home_lng: number | null
+          id: string
+          language: string | null
+          phone: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          farm_name?: string | null
+          full_name?: string | null
+          home_lat?: number | null
+          home_lng?: number | null
+          id: string
+          language?: string | null
+          phone?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          farm_name?: string | null
+          full_name?: string | null
+          home_lat?: number | null
+          home_lng?: number | null
+          id?: string
+          language?: string | null
+          phone?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      shearers: {
+        Row: {
+          active: boolean | null
+          approved: boolean | null
+          breed_specialties: string[] | null
+          created_at: string
+          display_name: string
+          email: string | null
+          home_lat: number | null
+          home_lng: number | null
+          hourly_rate_sek: number | null
+          id: string
+          languages: string[] | null
+          phone: string | null
+          user_id: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          approved?: boolean | null
+          breed_specialties?: string[] | null
+          created_at?: string
+          display_name: string
+          email?: string | null
+          home_lat?: number | null
+          home_lng?: number | null
+          hourly_rate_sek?: number | null
+          id?: string
+          languages?: string[] | null
+          phone?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          approved?: boolean | null
+          breed_specialties?: string[] | null
+          created_at?: string
+          display_name?: string
+          email?: string | null
+          home_lat?: number | null
+          home_lng?: number | null
+          hourly_rate_sek?: number | null
+          id?: string
+          languages?: string[] | null
+          phone?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      sheep: {
+        Row: {
+          age_category: string | null
+          breed: string | null
+          created_at: string
+          id: string
+          name: string | null
+          owner_id: string
+          tag_id: string | null
+        }
+        Insert: {
+          age_category?: string | null
+          breed?: string | null
+          created_at?: string
+          id?: string
+          name?: string | null
+          owner_id: string
+          tag_id?: string | null
+        }
+        Update: {
+          age_category?: string | null
+          breed?: string | null
+          created_at?: string
+          id?: string
+          name?: string | null
+          owner_id?: string
+          tag_id?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      admin_list_users: {
+        Args: never
+        Returns: {
+          classifications_count: number
+          created_at: string
+          email: string
+          farm_name: string
+          full_name: string
+          id: string
+          is_admin: boolean
+          sheep_count: number
+        }[]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      nearest_shearers: {
+        Args: {
+          max_km?: number
+          max_results?: number
+          user_lat: number
+          user_lng: number
+        }
+        Returns: {
+          breed_specialties: string[]
+          display_name: string
+          distance_km: number
+          email: string
+          hourly_rate_sek: number
+          id: string
+          languages: string[]
+          phone: string
+        }[]
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +413,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const

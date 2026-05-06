@@ -18,6 +18,7 @@ import { Route as AppShearersRouteImport } from './routes/app.shearers'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
 import { Route as AppFlockRouteImport } from './routes/app.flock'
 import { Route as AppClassifyRouteImport } from './routes/app.classify'
+import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppResultIdRouteImport } from './routes/app.result.$id'
 
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -65,6 +66,11 @@ const AppClassifyRoute = AppClassifyRouteImport.update({
   path: '/classify',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAdminRoute = AppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppResultIdRoute = AppResultIdRouteImport.update({
   id: '/result/$id',
   path: '/result/$id',
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/app/admin': typeof AppAdminRoute
   '/app/classify': typeof AppClassifyRoute
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
@@ -87,6 +94,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/app/admin': typeof AppAdminRoute
   '/app/classify': typeof AppClassifyRoute
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
@@ -100,6 +108,7 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/app/admin': typeof AppAdminRoute
   '/app/classify': typeof AppClassifyRoute
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/auth'
     | '/onboarding'
+    | '/app/admin'
     | '/app/classify'
     | '/app/flock'
     | '/app/profile'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/onboarding'
+    | '/app/admin'
     | '/app/classify'
     | '/app/flock'
     | '/app/profile'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/auth'
     | '/onboarding'
+    | '/app/admin'
     | '/app/classify'
     | '/app/flock'
     | '/app/profile'
@@ -217,6 +229,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppClassifyRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/admin': {
+      id: '/app/admin'
+      path: '/admin'
+      fullPath: '/app/admin'
+      preLoaderRoute: typeof AppAdminRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/result/$id': {
       id: '/app/result/$id'
       path: '/result/$id'
@@ -228,6 +247,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppAdminRoute: typeof AppAdminRoute
   AppClassifyRoute: typeof AppClassifyRoute
   AppFlockRoute: typeof AppFlockRoute
   AppProfileRoute: typeof AppProfileRoute
@@ -237,6 +257,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAdminRoute: AppAdminRoute,
   AppClassifyRoute: AppClassifyRoute,
   AppFlockRoute: AppFlockRoute,
   AppProfileRoute: AppProfileRoute,
@@ -256,3 +277,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/lib/auth";
 import { useTranslation } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
+import { classifyWool } from "@/lib/wool-ai.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/classify")({
@@ -96,16 +97,25 @@ function Classify() {
       await supabase.from("classifications").update({ photo_urls: paths }).eq("id", classId);
       setProgress(60);
 
-      // 4. Invoke Edge Function
-      const { data: result, error: fnErr } = await supabase.functions.invoke("classify-wool", {
-        body: {
-          classification_id: classId,
+      // 4. Run the AI analysis through the app server, then store the result
+      const analysis = await classifyWool({
+        data: {
           image_urls,
           metadata: meta,
         },
       });
       setProgress(100);
-      if (fnErr) throw fnErr;
+
+      const { error: saveErr } = await supabase
+        .from("classifications")
+        .update({
+          status: "completed",
+          ...analysis.result,
+          raw_ai_response: analysis.raw_ai_response,
+          completed_at: new Date().toISOString(),
+        })
+        .eq("id", classId);
+      if (saveErr) throw saveErr;
 
       navigate({ to: "/app/result/$id", params: { id: classId } });
     } catch (err) {

@@ -13,6 +13,12 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppShearersRouteImport } from './routes/app.shearers'
+import { Route as AppProfileRouteImport } from './routes/app.profile'
+import { Route as AppFlockRouteImport } from './routes/app.flock'
+import { Route as AppClassifyRouteImport } from './routes/app.classify'
+import { Route as AppResultIdRouteImport } from './routes/app.result.$id'
 
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
@@ -34,37 +40,114 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppShearersRoute = AppShearersRouteImport.update({
+  id: '/shearers',
+  path: '/shearers',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFlockRoute = AppFlockRouteImport.update({
+  id: '/flock',
+  path: '/flock',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppClassifyRoute = AppClassifyRouteImport.update({
+  id: '/classify',
+  path: '/classify',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppResultIdRoute = AppResultIdRouteImport.update({
+  id: '/result/$id',
+  path: '/result/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/app': typeof AppRoute
+  '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/app/classify': typeof AppClassifyRoute
+  '/app/flock': typeof AppFlockRoute
+  '/app/profile': typeof AppProfileRoute
+  '/app/shearers': typeof AppShearersRoute
+  '/app/': typeof AppIndexRoute
+  '/app/result/$id': typeof AppResultIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/app': typeof AppRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/app/classify': typeof AppClassifyRoute
+  '/app/flock': typeof AppFlockRoute
+  '/app/profile': typeof AppProfileRoute
+  '/app/shearers': typeof AppShearersRoute
+  '/app': typeof AppIndexRoute
+  '/app/result/$id': typeof AppResultIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/app': typeof AppRoute
+  '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/app/classify': typeof AppClassifyRoute
+  '/app/flock': typeof AppFlockRoute
+  '/app/profile': typeof AppProfileRoute
+  '/app/shearers': typeof AppShearersRoute
+  '/app/': typeof AppIndexRoute
+  '/app/result/$id': typeof AppResultIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/auth' | '/onboarding'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/auth'
+    | '/onboarding'
+    | '/app/classify'
+    | '/app/flock'
+    | '/app/profile'
+    | '/app/shearers'
+    | '/app/'
+    | '/app/result/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app' | '/auth' | '/onboarding'
-  id: '__root__' | '/' | '/app' | '/auth' | '/onboarding'
+  to:
+    | '/'
+    | '/auth'
+    | '/onboarding'
+    | '/app/classify'
+    | '/app/flock'
+    | '/app/profile'
+    | '/app/shearers'
+    | '/app'
+    | '/app/result/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/auth'
+    | '/onboarding'
+    | '/app/classify'
+    | '/app/flock'
+    | '/app/profile'
+    | '/app/shearers'
+    | '/app/'
+    | '/app/result/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AppRoute: typeof AppRoute
+  AppRoute: typeof AppRouteWithChildren
   AuthRoute: typeof AuthRoute
   OnboardingRoute: typeof OnboardingRoute
 }
@@ -99,12 +182,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/shearers': {
+      id: '/app/shearers'
+      path: '/shearers'
+      fullPath: '/app/shearers'
+      preLoaderRoute: typeof AppShearersRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/profile': {
+      id: '/app/profile'
+      path: '/profile'
+      fullPath: '/app/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/flock': {
+      id: '/app/flock'
+      path: '/flock'
+      fullPath: '/app/flock'
+      preLoaderRoute: typeof AppFlockRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/classify': {
+      id: '/app/classify'
+      path: '/classify'
+      fullPath: '/app/classify'
+      preLoaderRoute: typeof AppClassifyRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/result/$id': {
+      id: '/app/result/$id'
+      path: '/result/$id'
+      fullPath: '/app/result/$id'
+      preLoaderRoute: typeof AppResultIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppClassifyRoute: typeof AppClassifyRoute
+  AppFlockRoute: typeof AppFlockRoute
+  AppProfileRoute: typeof AppProfileRoute
+  AppShearersRoute: typeof AppShearersRoute
+  AppIndexRoute: typeof AppIndexRoute
+  AppResultIdRoute: typeof AppResultIdRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppClassifyRoute: AppClassifyRoute,
+  AppFlockRoute: AppFlockRoute,
+  AppProfileRoute: AppProfileRoute,
+  AppShearersRoute: AppShearersRoute,
+  AppIndexRoute: AppIndexRoute,
+  AppResultIdRoute: AppResultIdRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AppRoute: AppRoute,
+  AppRoute: AppRouteWithChildren,
   AuthRoute: AuthRoute,
   OnboardingRoute: OnboardingRoute,
 }

@@ -1,6 +1,6 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useRef } from "react";
-import { Camera, X, ArrowLeft } from "lucide-react";
+import { Camera, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth";
 import { useTranslation } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 import { classifyWool } from "@/lib/wool-ai.functions";
+import { BackButton } from "@/components/BackButton";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/classify")({
@@ -154,9 +155,7 @@ function Classify() {
 
   return (
     <div className="space-y-5">
-      <Link to="/app" className="inline-flex items-center gap-2 text-muted-foreground text-sm">
-        <ArrowLeft className="w-4 h-4" /> {t("back")}
-      </Link>
+      <BackButton />
 
       {step === 1 && (
         <>

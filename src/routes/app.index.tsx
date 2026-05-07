@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Plus, Sparkles, Trash2 } from "lucide-react";
+import { Plus, Sparkles, Trash2, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useTranslation } from "@/lib/i18n";
@@ -84,6 +84,13 @@ function Home() {
         <Link to="/app/classify">
           <Plus className="w-6 h-6 mr-2" strokeWidth={3} />
           {t("newClassification")}
+        </Link>
+      </Button>
+
+      <Button asChild variant="outline" className="w-full h-14 rounded-2xl text-base">
+        <Link to="/app/bookings">
+          <Calendar className="w-5 h-5 mr-2" />
+          Mina bokningar
         </Link>
       </Button>
 

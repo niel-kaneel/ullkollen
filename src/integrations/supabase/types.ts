@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           age_category: string | null
           breed: string | null
+          breed_code: string | null
           completed_at: string | null
           confidence: string | null
           created_at: string
@@ -42,6 +43,7 @@ export type Database = {
         Insert: {
           age_category?: string | null
           breed?: string | null
+          breed_code?: string | null
           completed_at?: string | null
           confidence?: string | null
           created_at?: string
@@ -66,6 +68,7 @@ export type Database = {
         Update: {
           age_category?: string | null
           breed?: string | null
+          breed_code?: string | null
           completed_at?: string | null
           confidence?: string | null
           created_at?: string
@@ -194,6 +197,7 @@ export type Database = {
         Row: {
           age_category: string | null
           breed: string | null
+          breed_code: string | null
           created_at: string
           id: string
           name: string | null
@@ -203,6 +207,7 @@ export type Database = {
         Insert: {
           age_category?: string | null
           breed?: string | null
+          breed_code?: string | null
           created_at?: string
           id?: string
           name?: string | null
@@ -212,6 +217,7 @@ export type Database = {
         Update: {
           age_category?: string | null
           breed?: string | null
+          breed_code?: string | null
           created_at?: string
           id?: string
           name?: string | null

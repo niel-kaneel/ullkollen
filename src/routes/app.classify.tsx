@@ -16,34 +16,7 @@ export const Route = createFileRoute("/app/classify")({
   component: Classify,
 });
 
-const BREEDS = [
-  // Svenska lantraser (native, sorted by population)
-  "Gotlandsfår",
-  "Finullsfår",
-  "Ryafår",
-  "Gutefår",
-  "Dalapälsfår",
-  "Värmlandsfår",
-  "Roslagsfår",
-  "Helsingefår",
-  "Åsenfår",
-  "Svärdsjöfår",
-  "Klövsjöfår",
-  "Gestrikefår",
-  "Fjällnäsfår",
-  "Tabacktorpsfår",
-  // Produktions- / importraser
-  "Texel",
-  "Suffolk",
-  "Leicester",
-  "Dorset",
-  "Oxford Down",
-  "Shropshire",
-  "Jämtlandsfår",
-  // Fallback
-  "Korsning",
-  "Annan / Vet ej",
-];
+import { BREEDS, BREED_BY_CODE } from "@/lib/breeds";
 
 function Classify() {
   const { t, lang } = useTranslation();
@@ -58,7 +31,7 @@ function Classify() {
 
   const [meta, setMeta] = useState({
     sheepName: "",
-    breed: "Gotlandsfår",
+    breed_code: "gotland",
     age_category: "Tacka" as "Lamm" | "Tacka" | "Bagge",
     months_since_last_shear: 6,
   });
@@ -91,7 +64,8 @@ function Classify() {
         .insert({
           user_id: user.id,
           status: "processing",
-          breed: meta.breed,
+          breed: BREED_BY_CODE[meta.breed_code]?.name_sv ?? null,
+          breed_code: meta.breed_code,
           age_category: meta.age_category,
           months_since_last_shear: meta.months_since_last_shear,
           photo_urls: [],
@@ -292,10 +266,10 @@ function Classify() {
             </div>
             <div>
               <Label className="text-base">{t("breed")}</Label>
-              <Select value={meta.breed} onValueChange={(v) => setMeta({ ...meta, breed: v })}>
+              <Select value={meta.breed_code} onValueChange={(v) => setMeta({ ...meta, breed_code: v })}>
                 <SelectTrigger className="h-14 mt-2 rounded-xl text-base"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {BREEDS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                  {BREEDS.map((b) => <SelectItem key={b.code} value={b.code}>{b.name_sv}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

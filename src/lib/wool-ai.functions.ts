@@ -270,10 +270,29 @@ export const classifyWool = createServerFn({ method: "POST" })
       // best-effort, never fail classification because of stats
     }
 
+    const labels = data.image_labels ?? [];
+    const photoList = data.image_urls
+      .map((_, i) => `  ${i + 1}. ${labels[i] ?? "unlabeled"}`)
+      .join("\n");
+
     const userText = `Metadata:
 Breed: ${data.metadata?.breed ?? "unknown"}
 Age: ${data.metadata?.age_category ?? "unknown"}
-Months since last shear: ${data.metadata?.months_since_last_shear ?? "unknown"}${priorBlock}`;
+Months since last shear: ${data.metadata?.months_since_last_shear ?? "unknown"}
+
+Photos provided in order:
+${photoList}${priorBlock}
+
+Follow the CONFIDENCE RULES and REASONING REQUIREMENT strictly. If a required
+photo type is missing, request a retake instead of guessing.`;
+
+    // Interleave each image with a labeled text block so the model knows
+    // exactly which photo it's looking at.
+    const userContent: Array<Record<string, unknown>> = [{ type: "text", text: userText }];
+    data.image_urls.forEach((url, i) => {
+      userContent.push({ type: "text", text: `Photo ${i + 1} — label: ${labels[i] ?? "unlabeled"}` });
+      userContent.push({ type: "image_url", image_url: { url } });
+    });
 
     const response = await fetch(AI_GATEWAY_URL, {
       method: "POST",
@@ -285,13 +304,7 @@ Months since last shear: ${data.metadata?.months_since_last_shear ?? "unknown"}$
         model: MODEL,
         messages: [
           { role: "system", content: WOOL_SYSTEM_PROMPT },
-          {
-            role: "user",
-            content: [
-              { type: "text", text: userText },
-              ...data.image_urls.map((url) => ({ type: "image_url", image_url: { url } })),
-            ],
-          },
+          { role: "user", content: userContent },
         ],
         response_format: { type: "json_object" },
       }),

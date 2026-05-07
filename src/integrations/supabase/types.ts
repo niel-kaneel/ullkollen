@@ -112,6 +112,7 @@ export type Database = {
           id: string
           language: string | null
           phone: string | null
+          production_place_number: string | null
           role: string
           updated_at: string
         }
@@ -126,6 +127,7 @@ export type Database = {
           id: string
           language?: string | null
           phone?: string | null
+          production_place_number?: string | null
           role?: string
           updated_at?: string
         }
@@ -140,6 +142,7 @@ export type Database = {
           id?: string
           language?: string | null
           phone?: string | null
+          production_place_number?: string | null
           role?: string
           updated_at?: string
         }
@@ -199,30 +202,30 @@ export type Database = {
           breed: string | null
           breed_code: string | null
           created_at: string
+          ear_tag_id: string | null
           id: string
           name: string | null
           owner_id: string
-          tag_id: string | null
         }
         Insert: {
           age_category?: string | null
           breed?: string | null
           breed_code?: string | null
           created_at?: string
+          ear_tag_id?: string | null
           id?: string
           name?: string | null
           owner_id: string
-          tag_id?: string | null
         }
         Update: {
           age_category?: string | null
           breed?: string | null
           breed_code?: string | null
           created_at?: string
+          ear_tag_id?: string | null
           id?: string
           name?: string | null
           owner_id?: string
-          tag_id?: string | null
         }
         Relationships: []
       }

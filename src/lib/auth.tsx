@@ -13,6 +13,7 @@ type Profile = {
   home_lat: number | null;
   home_lng: number | null;
   language: string | null;
+  production_place_number: string | null;
 };
 
 type AuthCtx = {

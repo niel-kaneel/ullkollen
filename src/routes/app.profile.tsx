@@ -17,7 +17,7 @@ function ProfilePage() {
   const { t, lang, setLang } = useTranslation();
   const { user, profile, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ full_name: "", farm_name: "", phone: "", address: "" });
+  const [form, setForm] = useState({ full_name: "", farm_name: "", phone: "", address: "", production_place_number: "" });
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -28,6 +28,7 @@ function ProfilePage() {
         farm_name: profile.farm_name ?? "",
         phone: profile.phone ?? "",
         address: profile.address ?? "",
+        production_place_number: profile.production_place_number ?? "",
       });
       if (profile.home_lat && profile.home_lng) setCoords({ lat: profile.home_lat, lng: profile.home_lng });
     }
@@ -70,6 +71,14 @@ function ProfilePage() {
       <Field label={t("farmName")} value={form.farm_name} onChange={(v) => setForm({ ...form, farm_name: v })} />
       <Field label={t("phone")} value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} type="tel" />
       <Field label={t("address")} value={form.address} onChange={(v) => setForm({ ...form, address: v })} />
+      <Field
+        label={lang === "sv" ? "Produktionsplatsnummer (gårdsmärkning)" : "Production place number (farm ID)"}
+        helper={lang === "sv"
+          ? "Ditt gårdsnummer från Jordbruksverket. Exempel: 12345"
+          : "Your farm ID from the Swedish Board of Agriculture. Example: 12345"}
+        value={form.production_place_number}
+        onChange={(v) => setForm({ ...form, production_place_number: v.replace(/\s+/g, "") })}
+      />
 
       <Button variant="outline" onClick={updateLocation} className="w-full h-14 rounded-xl border-2 text-base">
         <MapPin className="w-5 h-5 mr-2" />
@@ -102,11 +111,12 @@ function ProfilePage() {
   );
 }
 
-function Field({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (v: string) => void; type?: string }) {
+function Field({ label, value, onChange, type = "text", helper }: { label: string; value: string; onChange: (v: string) => void; type?: string; helper?: string }) {
   return (
     <div>
       <Label className="text-base">{label}</Label>
       <Input type={type} value={value} onChange={(e) => onChange(e.target.value)} className="h-14 text-base mt-2 rounded-xl" />
+      {helper && <p className="text-xs text-muted-foreground mt-1">{helper}</p>}
     </div>
   );
 }

@@ -17,34 +17,32 @@ export const Route = createFileRoute("/app/classify")({
 });
 
 const BREEDS = [
-  // Svenska lantraser
+  // Svenska lantraser (native, sorted by population)
   "Gotlandsfår",
   "Finullsfår",
+  "Ryafår",
   "Gutefår",
-  "Helsingefår",
-  "Jämtlandsfår",
+  "Dalapälsfår",
   "Värmlandsfår",
   "Roslagsfår",
-  "Dala Pälsfår",
-  "Skogsfår",
-  "Tabacktorpsfår",
+  "Helsingefår",
   "Åsenfår",
-  "Allmogefår",
-  "Ryafår",
-  "Svensk Lantras",
-  // Internationella raser i Sverige
+  "Svärdsjöfår",
+  "Klövsjöfår",
+  "Gestrikefår",
+  "Fjällnäsfår",
+  "Tabacktorpsfår",
+  // Produktions- / importraser
   "Texel",
   "Suffolk",
-  "Oxford Down",
-  "Dorset",
-  "Dorper",
-  "Shropshire",
   "Leicester",
-  "Border Leicester",
-  "Romney",
-  "Romanovfår",
-  "Merinofår",
-  "Annan",
+  "Dorset",
+  "Oxford Down",
+  "Shropshire",
+  "Jämtlandsfår",
+  // Fallback
+  "Korsning",
+  "Annan / Vet ej",
 ];
 
 function Classify() {

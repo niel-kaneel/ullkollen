@@ -19,6 +19,7 @@ import { Route as AppShearersRouteImport } from './routes/app.shearers'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
 import { Route as AppFlockRouteImport } from './routes/app.flock'
 import { Route as AppClassifyRouteImport } from './routes/app.classify'
+import { Route as AppBookingsRouteImport } from './routes/app.bookings'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppResultIdRouteImport } from './routes/app.result.$id'
 
@@ -72,6 +73,11 @@ const AppClassifyRoute = AppClassifyRouteImport.update({
   path: '/classify',
   getParentRoute: () => AppRoute,
 } as any)
+const AppBookingsRoute = AppBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAdminRoute = AppAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
   '/app/admin': typeof AppAdminRoute
+  '/app/bookings': typeof AppBookingsRoute
   '/app/classify': typeof AppClassifyRoute
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
   '/app/admin': typeof AppAdminRoute
+  '/app/bookings': typeof AppBookingsRoute
   '/app/classify': typeof AppClassifyRoute
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
@@ -117,6 +125,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
   '/app/admin': typeof AppAdminRoute
+  '/app/bookings': typeof AppBookingsRoute
   '/app/classify': typeof AppClassifyRoute
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
@@ -133,6 +142,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/onboarding'
     | '/app/admin'
+    | '/app/bookings'
     | '/app/classify'
     | '/app/flock'
     | '/app/profile'
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/onboarding'
     | '/app/admin'
+    | '/app/bookings'
     | '/app/classify'
     | '/app/flock'
     | '/app/profile'
@@ -160,6 +171,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/onboarding'
     | '/app/admin'
+    | '/app/bookings'
     | '/app/classify'
     | '/app/flock'
     | '/app/profile'
@@ -248,6 +260,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppClassifyRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/bookings': {
+      id: '/app/bookings'
+      path: '/bookings'
+      fullPath: '/app/bookings'
+      preLoaderRoute: typeof AppBookingsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/admin': {
       id: '/app/admin'
       path: '/admin'
@@ -267,6 +286,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRoute
+  AppBookingsRoute: typeof AppBookingsRoute
   AppClassifyRoute: typeof AppClassifyRoute
   AppFlockRoute: typeof AppFlockRoute
   AppProfileRoute: typeof AppProfileRoute
@@ -278,6 +298,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRoute,
+  AppBookingsRoute: AppBookingsRoute,
   AppClassifyRoute: AppClassifyRoute,
   AppFlockRoute: AppFlockRoute,
   AppProfileRoute: AppProfileRoute,
@@ -298,3 +319,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

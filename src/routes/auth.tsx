@@ -130,7 +130,7 @@ function AuthPage() {
             const r = await lovable.auth.signInWithOAuth("apple", { redirect_uri: window.location.origin + "/app" });
             if (r.error) { toast.error(r.error.message); setBusy(false); }
           }}
-          className="w-full h-14 text-base rounded-2xl bg-foreground text-background border-2 border-foreground gap-3 hover:bg-foreground/90"
+          className="w-full h-14 text-base rounded-2xl bg-foreground text-background border-2 border-foreground gap-3 transition-all hover:bg-foreground/85 hover:text-background hover:shadow-md"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
             <path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.5-.2-2.8.9-3.6.9-.8 0-1.9-.9-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.6.8 1.2 1.7 2.5 3 2.4 1.2-.05 1.7-.8 3.1-.8s1.9.8 3.1.7c1.3-.02 2.1-1.2 2.9-2.4.9-1.4 1.3-2.7 1.3-2.8-.03-.01-2.5-1-2.6-3.9zM14 5.4c.6-.8 1.1-1.9.9-3-1 .04-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1.1.1 2.3-.6 2.9-1.4z"/>

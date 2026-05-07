@@ -24,7 +24,11 @@ type AdminUser = {
   email: string;
   created_at: string;
   full_name: string | null;
+  first_name: string | null;
+  last_name: string | null;
   farm_name: string | null;
+  phone: string | null;
+  address: string | null;
   is_admin: boolean;
   classifications_count: number;
   sheep_count: number;
@@ -495,8 +499,34 @@ function UserActions({
 
 function UserDetailPanel({ detail }: { detail: Detail | undefined }) {
   if (!detail) return <p className="text-sm text-muted-foreground">Loading…</p>;
+  const p = (detail.profile ?? {}) as Record<string, string | null>;
+  const contactRows: Array<[string, string | null | undefined]> = [
+    ["Förnamn", p.first_name],
+    ["Efternamn", p.last_name],
+    ["Telefon", p.phone],
+    ["Adress", p.address],
+    ["Gård", p.farm_name],
+  ];
+  const hasContact = contactRows.some(([, v]) => v);
   return (
     <div className="space-y-3">
+      {hasContact && (
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+            Kontaktuppgifter
+          </p>
+          <div className="bg-card rounded-lg p-2.5 grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1 text-xs">
+            {contactRows.map(([label, val]) =>
+              val ? (
+                <div key={label} className="flex gap-1.5 min-w-0">
+                  <span className="text-muted-foreground shrink-0">{label}:</span>
+                  <span className="font-medium truncate">{val}</span>
+                </div>
+              ) : null,
+            )}
+          </div>
+        </div>
+      )}
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
           <FileText className="w-3 h-3 inline mr-1" /> Sheep ({detail.sheep.length})

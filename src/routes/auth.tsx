@@ -20,6 +20,10 @@ function AuthPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [busy, setBusy] = useState(false);
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -27,14 +31,23 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
+        const fullName = `${firstName} ${lastName}`.trim();
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin + "/onboarding" },
+          options: {
+            emailRedirectTo: window.location.origin + "/onboarding",
+            data: {
+              first_name: firstName || null,
+              last_name: lastName || null,
+              full_name: fullName || null,
+              phone: phone || null,
+              address: address || null,
+            },
+          },
         });
         if (error) throw error;
         if (!data.session) {
-          // Email confirmation required
           toast.success(
             "Konto skapat! Kolla din e-post för att bekräfta din adress, logga sedan in.",
             { duration: 8000 },
@@ -85,6 +98,29 @@ function AuthPage() {
           <Label htmlFor="password" className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{t("password")}</Label>
           <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="h-14 text-base mt-2 rounded-xl bg-background" autoComplete={mode === "signup" ? "new-password" : "current-password"} />
         </div>
+        {mode === "signup" && (
+          <div className="space-y-4 pt-2 border-t border-border">
+            <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">Valfria uppgifter</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="first_name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Förnamn</Label>
+                <Input id="first_name" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="h-12 text-base mt-2 rounded-xl bg-background" autoComplete="given-name" />
+              </div>
+              <div>
+                <Label htmlFor="last_name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Efternamn</Label>
+                <Input id="last_name" value={lastName} onChange={(e) => setLastName(e.target.value)} className="h-12 text-base mt-2 rounded-xl bg-background" autoComplete="family-name" />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="phone" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Telefon</Label>
+              <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12 text-base mt-2 rounded-xl bg-background" autoComplete="tel" />
+            </div>
+            <div>
+              <Label htmlFor="address" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Adress</Label>
+              <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} className="h-12 text-base mt-2 rounded-xl bg-background" autoComplete="street-address" />
+            </div>
+          </div>
+        )}
         <Button
           type="submit"
           disabled={busy}

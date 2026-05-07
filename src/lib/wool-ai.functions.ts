@@ -159,7 +159,8 @@ Allowed values:
 Respond with ONLY the JSON object — no markdown fences, no commentary.`;
 
 const InputSchema = z.object({
-  image_urls: z.array(z.string().url()).min(1).max(3),
+  image_urls: z.array(z.string().url()).min(1).max(4),
+  image_labels: z.array(z.string()).min(1).max(4).optional(),
   metadata: z
     .object({
       breed: z.string().optional(),

@@ -87,6 +87,13 @@ function Home() {
         </Link>
       </Button>
 
+      <Button asChild variant="outline" className="w-full h-14 rounded-2xl text-base">
+        <Link to="/app/bookings">
+          <Calendar className="w-5 h-5 mr-2" />
+          Mina bokningar
+        </Link>
+      </Button>
+
       <div>
         <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.25em] mb-3">{t("recent")}</h3>
         {rows.length === 0 ? (

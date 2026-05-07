@@ -242,37 +242,45 @@ function Admin() {
   };
 
   return (
-    <div className="space-y-5 pb-4">
+    <div className="space-y-6 pb-8">
       <BackButton />
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <Shield className="w-6 h-6 text-primary" />
-          <h2 className="text-xl font-bold text-primary">{t("admin")}</h2>
+
+      <div className="bg-card border border-border rounded-2xl shadow-soft p-5 md:p-6">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary grid place-items-center shrink-0">
+              <Shield className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-xl md:text-2xl font-bold text-primary leading-tight">{t("admin")}</h2>
+              <p className="text-xs text-muted-foreground">Användare, support och dataexport</p>
+            </div>
+          </div>
+          <Button size="sm" variant="outline" onClick={exportAll} className="rounded-lg shrink-0">
+            <Download className="w-4 h-4 mr-1.5" /> Export all
+          </Button>
         </div>
-        <Button size="sm" variant="outline" onClick={exportAll} className="rounded-lg">
-          <Download className="w-4 h-4 mr-1" /> Export all
-        </Button>
+
+        <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-2.5">
+          <Stat label={t("totalUsers")} value={totals.users} />
+          <Stat label={t("totalClassifications")} value={totals.classifications} />
+          <Stat label={t("totalSheep")} value={totals.sheep} />
+          <Stat label="Open support" value={totals.openSupport} />
+        </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-2">
-        <Stat label={t("totalUsers")} value={totals.users} />
-        <Stat label={t("totalClassifications")} value={totals.classifications} />
-        <Stat label={t("totalSheep")} value={totals.sheep} />
-        <Stat label="Open support" value={totals.openSupport} />
-      </div>
-
-      <div className="grid grid-cols-2 gap-2 bg-secondary p-1 rounded-xl">
+      <div className="inline-flex w-full md:w-auto p-1 bg-secondary rounded-xl gap-1">
         <button
           onClick={() => setTab("users")}
-          className={`py-2 rounded-lg text-sm font-semibold ${tab === "users" ? "bg-card shadow-sm" : "text-muted-foreground"}`}
+          className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-semibold inline-flex items-center justify-center gap-1.5 transition-colors ${tab === "users" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
         >
-          <Users className="w-4 h-4 inline mr-1" /> {t("users")}
+          <Users className="w-4 h-4" /> {t("users")} ({users.length})
         </button>
         <button
           onClick={() => setTab("support")}
-          className={`py-2 rounded-lg text-sm font-semibold ${tab === "support" ? "bg-card shadow-sm" : "text-muted-foreground"}`}
+          className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-semibold inline-flex items-center justify-center gap-1.5 transition-colors ${tab === "support" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
         >
-          <Inbox className="w-4 h-4 inline mr-1" /> Support ({totals.openSupport})
+          <Inbox className="w-4 h-4" /> Support ({totals.openSupport})
         </button>
       </div>
 
@@ -285,47 +293,66 @@ function Admin() {
             className="h-11 rounded-xl"
           />
 
-          <div className="space-y-2">
-            {filtered.map((u) => (
-              <div key={u.id} className="bg-card border border-border rounded-2xl shadow-soft overflow-hidden">
-                <button
-                  onClick={() => openUser(u.id)}
-                  className="w-full text-left p-4 flex items-start justify-between gap-3"
+          <div className="space-y-2.5">
+            {filtered.map((u) => {
+              const initials = (u.full_name || u.email || "?")
+                .split(/[\s@.]+/)
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((s) => s[0]?.toUpperCase())
+                .join("");
+              const isOpen = openId === u.id;
+              return (
+                <div
+                  key={u.id}
+                  className={`bg-card border rounded-2xl shadow-soft overflow-hidden transition-colors ${isOpen ? "border-primary/40" : "border-border"}`}
                 >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold truncate">{u.full_name || u.email}</p>
-                      {u.is_admin && (
-                        <span className="text-[10px] uppercase bg-primary text-primary-foreground px-1.5 py-0.5 rounded font-bold">
-                          admin
-                        </span>
-                      )}
+                  <button
+                    onClick={() => openUser(u.id)}
+                    className="w-full text-left p-4 flex items-center gap-3 hover:bg-secondary/40 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-primary/10 text-primary grid place-items-center text-sm font-bold shrink-0">
+                      {initials || "?"}
                     </div>
-                    <p className="text-xs text-muted-foreground truncate">{u.email}</p>
-                    {u.farm_name && <p className="text-xs text-muted-foreground truncate">🏡 {u.farm_name}</p>}
-                    <p className="text-[11px] text-muted-foreground mt-1">
-                      {t("joined")}: {new Date(u.created_at).toLocaleDateString("sv-SE")} · {u.classifications_count} {t("classifications").toLowerCase()} · {u.sheep_count} {t("sheepCount").toLowerCase()}
-                    </p>
-                  </div>
-                  {openId === u.id ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
-                </button>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-semibold truncate">{u.full_name || u.email}</p>
+                        {u.is_admin && (
+                          <span className="text-[10px] uppercase bg-primary text-primary-foreground px-1.5 py-0.5 rounded font-bold tracking-wider">
+                            admin
+                          </span>
+                        )}
+                      </div>
+                      {u.full_name && (
+                        <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                      )}
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground mt-1">
+                        {u.farm_name && <span className="truncate max-w-[12rem]">🏡 {u.farm_name}</span>}
+                        <span>{new Date(u.created_at).toLocaleDateString("sv-SE")}</span>
+                        <span>· {u.classifications_count} {t("classifications").toLowerCase()}</span>
+                        <span>· {u.sheep_count} {t("sheepCount").toLowerCase()}</span>
+                      </div>
+                    </div>
+                    {isOpen ? <ChevronUp className="w-5 h-5 text-muted-foreground shrink-0" /> : <ChevronDown className="w-5 h-5 text-muted-foreground shrink-0" />}
+                  </button>
 
-                {openId === u.id && (
-                  <div className="border-t border-border p-4 space-y-4 bg-secondary/30">
-                    <UserActions
-                      user={u}
-                      busy={busyId === u.id}
-                      callAdmin={callAdmin}
-                      onChanged={loadUsers}
-                      onExport={() => exportUser(u)}
-                      onToggleAdmin={() => toggleAdmin(u)}
-                      onDelete={() => deleteUser(u)}
-                    />
-                    <UserDetailPanel detail={details[u.id]} />
-                  </div>
-                )}
-              </div>
-            ))}
+                  {isOpen && (
+                    <div className="border-t border-border p-4 space-y-5 bg-secondary/30">
+                      <UserActions
+                        user={u}
+                        busy={busyId === u.id}
+                        callAdmin={callAdmin}
+                        onChanged={loadUsers}
+                        onExport={() => exportUser(u)}
+                        onToggleAdmin={() => toggleAdmin(u)}
+                        onDelete={() => deleteUser(u)}
+                      />
+                      <UserDetailPanel detail={details[u.id]} />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             {filtered.length === 0 && <p className="text-center text-muted-foreground py-10 text-sm">—</p>}
           </div>
         </>
@@ -391,31 +418,47 @@ function UserActions({
   };
 
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-xs">Display name</Label>
-          <div className="flex gap-2">
-            <Input value={fullName} onChange={(e) => setFullName(e.target.value)} />
-            <Button size="sm" onClick={saveName}>Save</Button>
+    <div className="space-y-4">
+      <div className="bg-card border border-border rounded-xl p-4 space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Konto</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="space-y-1.5 min-w-0">
+            <Label className="text-xs">Display name</Label>
+            <div className="flex gap-2 min-w-0">
+              <Input className="min-w-0 flex-1" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+              <Button size="sm" onClick={saveName} className="shrink-0">Save</Button>
+            </div>
           </div>
-        </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs">Login email</Label>
-          <div className="flex gap-2">
-            <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
-            <Button size="sm" onClick={updateEmail}><Mail className="w-4 h-4" /></Button>
+          <div className="space-y-1.5 min-w-0">
+            <Label className="text-xs">Login email</Label>
+            <div className="flex gap-2 min-w-0">
+              <Input className="min-w-0 flex-1" value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
+              <Button size="sm" onClick={updateEmail} className="shrink-0" aria-label="Update email">
+                <Mail className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
-        </div>
-        <div className="space-y-1.5 sm:col-span-2">
-          <Label className="text-xs">Set new password</Label>
-          <div className="flex gap-2">
-            <Input value={pwd} onChange={(e) => setPwd(e.target.value)} type="text" placeholder="min 8 chars" />
-            <Button size="sm" onClick={setPassword}><KeyRound className="w-4 h-4 mr-1" /> Set</Button>
-            <Button size="sm" variant="outline" onClick={sendReset}><Send className="w-4 h-4 mr-1" /> Reset email</Button>
+          <div className="space-y-1.5 md:col-span-2 min-w-0">
+            <Label className="text-xs">Set new password</Label>
+            <div className="flex flex-wrap gap-2 min-w-0">
+              <Input
+                className="min-w-0 flex-1 basis-40"
+                value={pwd}
+                onChange={(e) => setPwd(e.target.value)}
+                type="text"
+                placeholder="min 8 chars"
+              />
+              <Button size="sm" onClick={setPassword} className="shrink-0">
+                <KeyRound className="w-4 h-4 mr-1" /> Set
+              </Button>
+              <Button size="sm" variant="outline" onClick={sendReset} className="shrink-0">
+                <Send className="w-4 h-4 mr-1" /> Reset email
+              </Button>
+            </div>
           </div>
         </div>
       </div>
+
       <div className="flex gap-2 flex-wrap">
         <Button size="sm" variant="outline" disabled={busy} onClick={onToggleAdmin}>
           {user.is_admin ? <ShieldOff className="w-4 h-4 mr-1" /> : <ShieldCheck className="w-4 h-4 mr-1" />}
@@ -426,7 +469,7 @@ function UserActions({
         </Button>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button size="sm" variant="outline" disabled={busy} className="text-destructive">
+            <Button size="sm" variant="outline" disabled={busy} className="text-destructive ml-auto">
               <Trash2 className="w-4 h-4 mr-1" /> Delete
             </Button>
           </AlertDialogTrigger>
@@ -596,9 +639,11 @@ function SupportInbox({ rows, onChanged }: { rows: SupportRow[]; onChanged: () =
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="bg-card border border-border rounded-2xl p-3 text-center shadow-soft">
-      <p className="text-2xl font-black text-primary">{value}</p>
-      <p className="text-[10px] uppercase text-muted-foreground tracking-wide leading-tight mt-1">{label}</p>
+    <div className="bg-secondary/60 border border-border/60 rounded-xl px-3 py-3 text-center">
+      <p className="text-2xl md:text-3xl font-black text-primary leading-none">{value}</p>
+      <p className="text-[10px] uppercase text-muted-foreground tracking-wider leading-tight mt-1.5 break-words">
+        {label}
+      </p>
     </div>
   );
 }

@@ -242,37 +242,45 @@ function Admin() {
   };
 
   return (
-    <div className="space-y-5 pb-4">
+    <div className="space-y-6 pb-8">
       <BackButton />
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <Shield className="w-6 h-6 text-primary" />
-          <h2 className="text-xl font-bold text-primary">{t("admin")}</h2>
+
+      <div className="bg-card border border-border rounded-2xl shadow-soft p-5 md:p-6">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary grid place-items-center shrink-0">
+              <Shield className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-xl md:text-2xl font-bold text-primary leading-tight">{t("admin")}</h2>
+              <p className="text-xs text-muted-foreground">Användare, support och dataexport</p>
+            </div>
+          </div>
+          <Button size="sm" variant="outline" onClick={exportAll} className="rounded-lg shrink-0">
+            <Download className="w-4 h-4 mr-1.5" /> Export all
+          </Button>
         </div>
-        <Button size="sm" variant="outline" onClick={exportAll} className="rounded-lg">
-          <Download className="w-4 h-4 mr-1" /> Export all
-        </Button>
+
+        <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-2.5">
+          <Stat label={t("totalUsers")} value={totals.users} />
+          <Stat label={t("totalClassifications")} value={totals.classifications} />
+          <Stat label={t("totalSheep")} value={totals.sheep} />
+          <Stat label="Open support" value={totals.openSupport} />
+        </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-2">
-        <Stat label={t("totalUsers")} value={totals.users} />
-        <Stat label={t("totalClassifications")} value={totals.classifications} />
-        <Stat label={t("totalSheep")} value={totals.sheep} />
-        <Stat label="Open support" value={totals.openSupport} />
-      </div>
-
-      <div className="grid grid-cols-2 gap-2 bg-secondary p-1 rounded-xl">
+      <div className="inline-flex w-full md:w-auto p-1 bg-secondary rounded-xl gap-1">
         <button
           onClick={() => setTab("users")}
-          className={`py-2 rounded-lg text-sm font-semibold ${tab === "users" ? "bg-card shadow-sm" : "text-muted-foreground"}`}
+          className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-semibold inline-flex items-center justify-center gap-1.5 transition-colors ${tab === "users" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
         >
-          <Users className="w-4 h-4 inline mr-1" /> {t("users")}
+          <Users className="w-4 h-4" /> {t("users")} ({users.length})
         </button>
         <button
           onClick={() => setTab("support")}
-          className={`py-2 rounded-lg text-sm font-semibold ${tab === "support" ? "bg-card shadow-sm" : "text-muted-foreground"}`}
+          className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-semibold inline-flex items-center justify-center gap-1.5 transition-colors ${tab === "support" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
         >
-          <Inbox className="w-4 h-4 inline mr-1" /> Support ({totals.openSupport})
+          <Inbox className="w-4 h-4" /> Support ({totals.openSupport})
         </button>
       </div>
 

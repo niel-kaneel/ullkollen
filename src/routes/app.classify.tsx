@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useRef } from "react";
-import { Camera, X } from "lucide-react";
+import { Camera, X, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +27,8 @@ function Classify() {
   const [previews, setPreviews] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState(0);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
 
   const [meta, setMeta] = useState({
     sheepName: "",
@@ -219,27 +220,39 @@ function Classify() {
                 </button>
               </div>
             ))}
-            {photos.length < 3 && (
-              <button
-                onClick={() => fileRef.current?.click()}
-                className="aspect-square rounded-2xl border-2 border-dashed border-border bg-card flex flex-col items-center justify-center gap-1 text-muted-foreground active:scale-95 transition"
-              >
-                <Camera className="w-8 h-8" />
-                <span className="text-xs font-semibold">
-                  {photos.length === 0
-                    ? (lang === "sv" ? "Ta bild 1" : "Take photo 1")
-                    : photos.length === 1
-                    ? (lang === "sv" ? "Ta bild 2" : "Take photo 2")
-                    : (lang === "sv" ? "Ta bild 3" : "Take photo 3")}
-                </span>
-              </button>
-            )}
           </div>
+
+          {photos.length < 3 && (
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => cameraRef.current?.click()}
+                className="h-14 rounded-2xl border-2 border-dashed border-border bg-card flex items-center justify-center gap-2 text-foreground font-semibold active:scale-95 transition"
+              >
+                <Camera className="w-5 h-5" />
+                <span className="text-sm">{lang === "sv" ? "Ta bild" : "Take photo"}</span>
+              </button>
+              <button
+                onClick={() => galleryRef.current?.click()}
+                className="h-14 rounded-2xl border-2 border-dashed border-border bg-card flex items-center justify-center gap-2 text-foreground font-semibold active:scale-95 transition"
+              >
+                <ImagePlus className="w-5 h-5" />
+                <span className="text-sm">{lang === "sv" ? "Från galleri" : "From gallery"}</span>
+              </button>
+            </div>
+          )}
           <input
-            ref={fileRef}
+            ref={cameraRef}
             type="file"
             accept="image/*"
             capture="environment"
+            onChange={onPick}
+            className="hidden"
+          />
+          <input
+            ref={galleryRef}
+            type="file"
+            accept="image/*"
+            multiple
             onChange={onPick}
             className="hidden"
           />

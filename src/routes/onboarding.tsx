@@ -94,13 +94,22 @@ function Onboarding() {
 
         <div>
           <Label className="text-base">{t("role")}</Label>
-          <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v as "farmer" | "shearer" })}>
-            <SelectTrigger className="h-14 mt-2 rounded-xl text-base"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="farmer">{t("farmer")}</SelectItem>
-              <SelectItem value="shearer">{t("shearerRole")}</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="grid grid-cols-2 gap-3 mt-2">
+            <RoleCard
+              active={form.role === "farmer"}
+              onClick={() => setForm({ ...form, role: "farmer" })}
+              emoji="🐑"
+              title={t("farmer")}
+              desc={lang === "sv" ? "Jag har får och vill klassificera ull" : "I keep sheep and want to classify wool"}
+            />
+            <RoleCard
+              active={form.role === "shearer"}
+              onClick={() => setForm({ ...form, role: "shearer" })}
+              emoji="✂️"
+              title={t("shearerRole")}
+              desc={lang === "sv" ? "Jag klipper får åt andra" : "I shear sheep for others"}
+            />
+          </div>
         </div>
 
         <Button type="button" variant="outline" onClick={fetchLocation} className="w-full h-14 rounded-xl text-base border-2">
@@ -122,5 +131,31 @@ function Field({ label, value, onChange, type = "text", required }: { label: str
       <Label className="text-base">{label}</Label>
       <Input type={type} required={required} value={value} onChange={(e) => onChange(e.target.value)} className="h-14 text-base mt-2 rounded-xl" />
     </div>
+  );
+}
+
+function RoleCard({
+  active, onClick, emoji, title, desc,
+}: { active: boolean; onClick: () => void; emoji: string; title: string; desc: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`relative text-left p-4 rounded-2xl border-2 transition active:scale-[0.98] ${
+        active
+          ? "border-primary bg-primary/5 shadow-card"
+          : "border-border bg-card hover:border-primary/40"
+      }`}
+    >
+      <div className="text-3xl mb-2">{emoji}</div>
+      <div className={`font-semibold text-base ${active ? "text-primary" : "text-foreground"}`}>{title}</div>
+      <div className="text-xs text-muted-foreground mt-1 leading-snug">{desc}</div>
+      {active && (
+        <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
+          ✓
+        </span>
+      )}
+    </button>
   );
 }

@@ -16,34 +16,7 @@ export const Route = createFileRoute("/app/classify")({
   component: Classify,
 });
 
-const BREEDS = [
-  // Svenska lantraser (native, sorted by population)
-  "Gotlandsfår",
-  "Finullsfår",
-  "Ryafår",
-  "Gutefår",
-  "Dalapälsfår",
-  "Värmlandsfår",
-  "Roslagsfår",
-  "Helsingefår",
-  "Åsenfår",
-  "Svärdsjöfår",
-  "Klövsjöfår",
-  "Gestrikefår",
-  "Fjällnäsfår",
-  "Tabacktorpsfår",
-  // Produktions- / importraser
-  "Texel",
-  "Suffolk",
-  "Leicester",
-  "Dorset",
-  "Oxford Down",
-  "Shropshire",
-  "Jämtlandsfår",
-  // Fallback
-  "Korsning",
-  "Annan / Vet ej",
-];
+import { BREEDS, BREED_BY_CODE } from "@/lib/breeds";
 
 function Classify() {
   const { t, lang } = useTranslation();

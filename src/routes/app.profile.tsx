@@ -17,7 +17,7 @@ function ProfilePage() {
   const { t, lang, setLang } = useTranslation();
   const { user, profile, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ full_name: "", farm_name: "", phone: "", address: "" });
+  const [form, setForm] = useState({ full_name: "", farm_name: "", phone: "", address: "", production_place_number: "" });
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -28,6 +28,7 @@ function ProfilePage() {
         farm_name: profile.farm_name ?? "",
         phone: profile.phone ?? "",
         address: profile.address ?? "",
+        production_place_number: profile.production_place_number ?? "",
       });
       if (profile.home_lat && profile.home_lng) setCoords({ lat: profile.home_lat, lng: profile.home_lng });
     }

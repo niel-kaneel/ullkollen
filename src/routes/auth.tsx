@@ -7,6 +7,7 @@ import { useTranslation } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 import { SheepLogo } from "@/components/SheepLogo";
 import { toast } from "sonner";
+import { lovable } from "@/integrations/lovable";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>) => ({ mode: (s.mode as string) === "signup" ? "signup" : "signin" }),

@@ -463,7 +463,7 @@ function UserDetailPanel({ detail }: { detail: Detail | undefined }) {
             const r = s as Record<string, string | null>;
             return (
               <div key={r.id as string} className="text-xs bg-card rounded-lg px-2 py-1 flex justify-between gap-2">
-                <span className="truncate">{r.name || r.tag_id || (r.id as string).slice(0, 6)}</span>
+                <span className="truncate">{r.ear_tag_id || r.name || (r.id as string).slice(0, 6)}</span>
                 <span className="text-muted-foreground shrink-0">
                   {breedLabel(r.breed_code, "sv")} · {r.age_category}
                 </span>

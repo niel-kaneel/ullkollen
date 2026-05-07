@@ -31,7 +31,7 @@ function Classify() {
 
   const [meta, setMeta] = useState({
     sheepName: "",
-    breed: "Gotlandsfår",
+    breed_code: "gotland",
     age_category: "Tacka" as "Lamm" | "Tacka" | "Bagge",
     months_since_last_shear: 6,
   });

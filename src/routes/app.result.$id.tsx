@@ -1,7 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Scissors, Sheet, Trash2 } from "lucide-react";
+import { Scissors, Sheet, Trash2, Pencil, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTranslation } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
@@ -44,6 +48,9 @@ function Result() {
   const [data, setData] = useState<Classification | null>(null);
   const [photos, setPhotos] = useState<string[]>([]);
   const [polling, setPolling] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<Partial<Classification>>({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -92,6 +99,38 @@ function Result() {
     navigate({ to: "/app" });
   };
 
+  const startEdit = () => {
+    if (!data) return;
+    setDraft({
+      wool_class: data.wool_class,
+      wool_class_name_sv: data.wool_class_name_sv,
+      wool_class_name_en: data.wool_class_name_en,
+      confidence: data.confidence,
+      shear_recommendation: data.shear_recommendation,
+      recommendation_text_sv: data.recommendation_text_sv,
+      recommendation_text_en: data.recommendation_text_en,
+      reasoning_sv: data.reasoning_sv,
+    });
+    setEditing(true);
+    setPolling(false);
+  };
+
+  const cancelEdit = () => {
+    setEditing(false);
+    setDraft({});
+  };
+
+  const saveEdit = async () => {
+    if (!data) return;
+    setSaving(true);
+    const { error } = await supabase.from("classifications").update(draft).eq("id", id);
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    setData({ ...data, ...draft } as Classification);
+    setEditing(false);
+    toast.success(lang === "sv" ? "Sparat" : "Saved");
+  };
+
   if (!data) {
     return (
       <div className="space-y-4">
@@ -128,25 +167,44 @@ function Result() {
     <div className="space-y-5 pb-4">
       <div className="flex items-center justify-between">
         <BackButton />
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">
-              <Trash2 className="w-4 h-4 mr-1" /> {t("delete")}
+        <div className="flex items-center gap-1">
+          {!editing && data.status === "completed" && data.wool_class && (
+            <Button variant="ghost" size="sm" onClick={startEdit}>
+              <Pencil className="w-4 h-4 mr-1" /> {lang === "sv" ? "Redigera" : "Edit"}
             </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{t("delete")}?</AlertDialogTitle>
-              <AlertDialogDescription>{t("deleteConfirm")}</AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
-              <AlertDialogAction onClick={remove} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                {t("delete")}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+          )}
+          {editing && (
+            <>
+              <Button variant="ghost" size="sm" onClick={cancelEdit} disabled={saving}>
+                <X className="w-4 h-4 mr-1" /> {t("cancel")}
+              </Button>
+              <Button size="sm" onClick={saveEdit} disabled={saving}>
+                <Check className="w-4 h-4 mr-1" /> {saving ? "..." : (lang === "sv" ? "Spara" : "Save")}
+              </Button>
+            </>
+          )}
+          {!editing && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                  <Trash2 className="w-4 h-4 mr-1" /> {t("delete")}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t("delete")}?</AlertDialogTitle>
+                  <AlertDialogDescription>{t("deleteConfirm")}</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+                  <AlertDialogAction onClick={remove} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    {t("delete")}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+        </div>
       </div>
 
       {photos.length > 0 && (
@@ -164,6 +222,51 @@ function Result() {
           <Button onClick={() => navigate({ to: "/app/classify" })} className="mt-4 w-full h-12 rounded-xl">
             {t("newClassification")}
           </Button>
+        </div>
+      ) : editing ? (
+        <div className="space-y-4 bg-card rounded-3xl p-5 border border-border">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="wc">{lang === "sv" ? "Klass" : "Class"}</Label>
+              <Input id="wc" value={draft.wool_class ?? ""} onChange={(e) => setDraft({ ...draft, wool_class: e.target.value })} />
+            </div>
+            <div>
+              <Label>{t("confidence")}</Label>
+              <Select value={draft.confidence ?? ""} onValueChange={(v) => setDraft({ ...draft, confidence: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="high">{t("high")}</SelectItem>
+                  <SelectItem value="medium">{t("medium")}</SelectItem>
+                  <SelectItem value="low">{t("low")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="cn">{lang === "sv" ? "Klassnamn (SV)" : "Class name (SV)"}</Label>
+            <Input id="cn" value={draft.wool_class_name_sv ?? ""} onChange={(e) => setDraft({ ...draft, wool_class_name_sv: e.target.value })} />
+          </div>
+          <div>
+            <Label>{t("recommendation")}</Label>
+            <Select value={draft.shear_recommendation ?? ""} onValueChange={(v) => setDraft({ ...draft, shear_recommendation: v })}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="shear_now">shear_now</SelectItem>
+                <SelectItem value="shear_urgent">shear_urgent</SelectItem>
+                <SelectItem value="wait">wait</SelectItem>
+                <SelectItem value="do_not_shear_lambing">do_not_shear_lambing</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="rt">{lang === "sv" ? "Rekommendationstext" : "Recommendation text"}</Label>
+            <Textarea id="rt" rows={2} value={(lang === "sv" ? draft.recommendation_text_sv : draft.recommendation_text_en) ?? ""}
+              onChange={(e) => setDraft({ ...draft, [lang === "sv" ? "recommendation_text_sv" : "recommendation_text_en"]: e.target.value })} />
+          </div>
+          <div>
+            <Label htmlFor="rs">{lang === "sv" ? "Motivering" : "Reasoning"}</Label>
+            <Textarea id="rs" rows={4} value={draft.reasoning_sv ?? ""} onChange={(e) => setDraft({ ...draft, reasoning_sv: e.target.value })} />
+          </div>
         </div>
       ) : (
         <>

@@ -24,7 +24,11 @@ type AdminUser = {
   email: string;
   created_at: string;
   full_name: string | null;
+  first_name: string | null;
+  last_name: string | null;
   farm_name: string | null;
+  phone: string | null;
+  address: string | null;
   is_admin: boolean;
   classifications_count: number;
   sheep_count: number;

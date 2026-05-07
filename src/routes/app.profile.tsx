@@ -71,6 +71,14 @@ function ProfilePage() {
       <Field label={t("farmName")} value={form.farm_name} onChange={(v) => setForm({ ...form, farm_name: v })} />
       <Field label={t("phone")} value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} type="tel" />
       <Field label={t("address")} value={form.address} onChange={(v) => setForm({ ...form, address: v })} />
+      <Field
+        label={lang === "sv" ? "Produktionsplatsnummer (gårdsmärkning)" : "Production place number (farm ID)"}
+        helper={lang === "sv"
+          ? "Ditt gårdsnummer från Jordbruksverket. Exempel: 12345"
+          : "Your farm ID from the Swedish Board of Agriculture. Example: 12345"}
+        value={form.production_place_number}
+        onChange={(v) => setForm({ ...form, production_place_number: v.replace(/\s+/g, "") })}
+      />
 
       <Button variant="outline" onClick={updateLocation} className="w-full h-14 rounded-xl border-2 text-base">
         <MapPin className="w-5 h-5 mr-2" />

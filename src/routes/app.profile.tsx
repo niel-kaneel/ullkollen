@@ -88,6 +88,13 @@ function ProfilePage() {
         {t("save")}
       </Button>
 
+      <Button asChild variant="outline" className="w-full h-14 rounded-2xl text-base">
+        <Link to="/app/support">
+          <LifeBuoy className="w-5 h-5 mr-2" />
+          {lang === "sv" ? "Kontakta support" : "Contact support"}
+        </Link>
+      </Button>
+
       <button onClick={doSignOut} className="w-full text-destructive text-sm py-4 flex items-center justify-center gap-2">
         <LogOut className="w-4 h-4" /> {t("signOut")}
       </button>

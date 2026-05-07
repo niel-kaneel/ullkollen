@@ -22,6 +22,7 @@ type AuthCtx = {
   profile: Profile | null;
   isAdmin: boolean;
   loading: boolean;
+  profileLoading: boolean;
   refreshProfile: () => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -32,6 +33,7 @@ const Ctx = createContext<AuthCtx>({
   profile: null,
   isAdmin: false,
   loading: true,
+  profileLoading: true,
   refreshProfile: async () => {},
   signOut: async () => {},
 });
@@ -41,31 +43,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   const loadProfile = async (userId: string) => {
-    const [{ data: p }, { data: r }] = await Promise.all([
-      supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
-      supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle(),
-    ]);
-    setProfile((p as Profile) ?? null);
-    setIsAdmin(!!r);
+    setProfileLoading(true);
+    try {
+      const [{ data: p }, { data: r }] = await Promise.all([
+        supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
+        supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle(),
+      ]);
+      setProfile((p as Profile) ?? null);
+      setIsAdmin(!!r);
+    } finally {
+      setProfileLoading(false);
+    }
   };
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
       if (s?.user) {
+        setProfileLoading(true);
         setTimeout(() => loadProfile(s.user.id), 0);
       } else {
         setProfile(null);
         setIsAdmin(false);
+        setProfileLoading(false);
       }
     });
 
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       if (data.session?.user) loadProfile(data.session.user.id).finally(() => setLoading(false));
-      else setLoading(false);
+      else { setLoading(false); setProfileLoading(false); }
     });
 
     return () => sub.subscription.unsubscribe();
@@ -79,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         profile,
         isAdmin,
         loading,
+        profileLoading,
         refreshProfile: async () => {
           if (session?.user) await loadProfile(session.user.id);
         },

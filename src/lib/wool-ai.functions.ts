@@ -2,7 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-const MODEL = "google/gemini-3-flash-preview";
+// Use the strongest multimodal model available — wool classification
+// rewards careful visual reasoning over speed.
+const MODEL = "google/gemini-2.5-pro";
 const AI_GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
 const WOOL_SYSTEM_PROMPT = `You are a wool classification assistant trained on the Svensk Ullstandard 2.0
@@ -88,8 +90,38 @@ pigmented (any color other than white). Use the EXACT thresholds below.
 
 Always trust the visual evidence over the breed hint. Crossbreeds are common.
 
-# PHOTO QUALITY
-If unusable, set wool_class to null and explain in retake_reason_sv.
+# INPUT FORMAT
+You will receive 2–4 photos. Each user message lists the photos in order with
+an explicit LABEL telling you what the photo shows:
+- "full_body"        — whole sheep from the side, for breed + body condition
+- "fleece_closeup"   — 10–20 cm macro of the mid-side fleece (PRIMARY evidence
+                       for crimp, fineness, luster, color, VM, felting)
+- "parted_staple"    — fleece parted by hand showing the full staple from skin
+                       to tip (PRIMARY evidence for length and staple structure)
+- "length_reference" — staple held next to a ruler / finger / coin for scale
+
+Use these labels. Do NOT estimate length from the full-body shot — only from
+parted_staple or length_reference. If only fleece_closeup is available, treat
+length as uncertain and lower confidence accordingly.
+
+# PHOTO QUALITY GATE
+If the required evidence for a class is missing or unreadable (blurry,
+backlit, only full-body shown, fleece not visible), set wool_class to null,
+needs_retake = true, and explain in retake_reason_sv exactly which photo to
+retake and how (e.g. "Ta en närbild på fleecen 10–20 cm bort, dela ullen så
+hela stapeln syns").
+
+# CONFIDENCE RULES — be honest
+- "high":   length AND fineness category clearly visible from at least two
+            independent photos and consistent with each other.
+- "medium": one of length/fineness is inferred from limited evidence.
+- "low":    significant uncertainty (single photo, marginal quality, ambiguous
+            staple). Always set needs_retake = true when confidence is "low".
+
+# REASONING REQUIREMENT
+reasoning_sv MUST cite which photo each observation came from, e.g.
+"Stapellängd ≈8 cm uppmätt mot fingret i length_reference. Tydlig glans och
+tydlig krusighet i fleece_closeup. Ingen synlig VM."
 
 # OUTPUT FORMAT — ONLY JSON
 {
@@ -108,7 +140,7 @@ If unusable, set wool_class to null and explain in retake_reason_sv.
   "weeks_until_optimal": 0,
   "recommendation_text_sv": "Klipp nu — ullen har optimal längd.",
   "recommendation_text_en": "Shear now — optimal length reached.",
-  "reasoning_sv": "Ullen är ca 7-8 cm, vit, fri från VM, tydlig krusighet.",
+  "reasoning_sv": "Stapel ≈75 mm i length_reference. Tydlig krusighet i fleece_closeup. Vit, ingen VM, ingen filtning.",
   "photo_quality": "good",
   "needs_retake": false,
   "retake_reason_sv": null
@@ -127,7 +159,8 @@ Allowed values:
 Respond with ONLY the JSON object — no markdown fences, no commentary.`;
 
 const InputSchema = z.object({
-  image_urls: z.array(z.string().url()).min(1).max(3),
+  image_urls: z.array(z.string().url()).min(1).max(4),
+  image_labels: z.array(z.string()).min(1).max(4).optional(),
   metadata: z
     .object({
       breed: z.string().optional(),
@@ -199,7 +232,7 @@ function normalizeResult(result: WoolResult) {
     recommendation_text_en: result.recommendation_text_en ?? null,
     reasoning_sv: result.reasoning_sv ?? null,
     photo_quality: result.photo_quality ?? "acceptable",
-    needs_retake: result.needs_retake ?? !result.wool_class,
+    needs_retake: result.needs_retake ?? (!result.wool_class || result.confidence === "low"),
     retake_reason_sv: result.retake_reason_sv ?? null,
   };
 }
@@ -237,10 +270,29 @@ export const classifyWool = createServerFn({ method: "POST" })
       // best-effort, never fail classification because of stats
     }
 
+    const labels = data.image_labels ?? [];
+    const photoList = data.image_urls
+      .map((_, i) => `  ${i + 1}. ${labels[i] ?? "unlabeled"}`)
+      .join("\n");
+
     const userText = `Metadata:
 Breed: ${data.metadata?.breed ?? "unknown"}
 Age: ${data.metadata?.age_category ?? "unknown"}
-Months since last shear: ${data.metadata?.months_since_last_shear ?? "unknown"}${priorBlock}`;
+Months since last shear: ${data.metadata?.months_since_last_shear ?? "unknown"}
+
+Photos provided in order:
+${photoList}${priorBlock}
+
+Follow the CONFIDENCE RULES and REASONING REQUIREMENT strictly. If a required
+photo type is missing, request a retake instead of guessing.`;
+
+    // Interleave each image with a labeled text block so the model knows
+    // exactly which photo it's looking at.
+    const userContent: Array<Record<string, unknown>> = [{ type: "text", text: userText }];
+    data.image_urls.forEach((url, i) => {
+      userContent.push({ type: "text", text: `Photo ${i + 1} — label: ${labels[i] ?? "unlabeled"}` });
+      userContent.push({ type: "image_url", image_url: { url } });
+    });
 
     const response = await fetch(AI_GATEWAY_URL, {
       method: "POST",
@@ -252,13 +304,7 @@ Months since last shear: ${data.metadata?.months_since_last_shear ?? "unknown"}$
         model: MODEL,
         messages: [
           { role: "system", content: WOOL_SYSTEM_PROMPT },
-          {
-            role: "user",
-            content: [
-              { type: "text", text: userText },
-              ...data.image_urls.map((url) => ({ type: "image_url", image_url: { url } })),
-            ],
-          },
+          { role: "user", content: userContent },
         ],
         response_format: { type: "json_object" },
       }),

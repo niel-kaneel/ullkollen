@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useRef } from "react";
-import { Camera, X, ImagePlus } from "lucide-react";
+import { Camera, X, ImagePlus, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,17 +18,84 @@ export const Route = createFileRoute("/app/classify")({
 
 import { BREEDS, BREED_BY_CODE } from "@/lib/breeds";
 
+// Structured shot slots — each tells the AI exactly what it's looking at,
+// which dramatically improves classification quality.
+type ShotKey = "full_body" | "fleece_closeup" | "parted_staple" | "length_reference";
+
+type ShotDef = {
+  key: ShotKey;
+  required: boolean;
+  emoji: string;
+  title_sv: string;
+  title_en: string;
+  desc_sv: string;
+  desc_en: string;
+};
+
+const SHOTS: ShotDef[] = [
+  {
+    key: "full_body",
+    required: true,
+    emoji: "🐑",
+    title_sv: "Hela fåret från sidan",
+    title_en: "Whole sheep from the side",
+    desc_sv: "Stå ca 2 m bort. Hela kroppen i bild, dagsljus.",
+    desc_en: "Stand ~2 m away. Full body in frame, daylight.",
+  },
+  {
+    key: "fleece_closeup",
+    required: true,
+    emoji: "🔍",
+    title_sv: "Närbild på fleecen (mittsidan)",
+    title_en: "Close-up of the fleece (mid-side)",
+    desc_sv: "10–20 cm från ullen på mittsidan. Skärp på fibrerna.",
+    desc_en: "10–20 cm from the wool on the mid-side. Focus on fibres.",
+  },
+  {
+    key: "parted_staple",
+    required: false,
+    emoji: "✋",
+    title_sv: "Delad fleece – stapel från hud till topp",
+    title_en: "Parted fleece – staple from skin to tip",
+    desc_sv: "Dela ullen med fingrarna så hela längden syns.",
+    desc_en: "Part the wool with your fingers so full length is visible.",
+  },
+  {
+    key: "length_reference",
+    required: false,
+    emoji: "📏",
+    title_sv: "Stapel med referens (linjal/finger/mynt)",
+    title_en: "Staple with reference (ruler/finger/coin)",
+    desc_sv: "Lyft en lock och håll en linjal eller finger bredvid.",
+    desc_en: "Lift a lock and hold a ruler or finger next to it.",
+  },
+];
+
+type CapturedShot = {
+  file: File;
+  preview: string;
+  quality: PhotoQuality;
+};
+
+type PhotoQuality = {
+  ok: boolean;
+  sharpness: number; // Laplacian-like variance, 0-1+
+  brightness: number; // 0-255
+  warning_sv: string | null;
+  warning_en: string | null;
+};
+
 function Classify() {
   const { t, lang } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState<1 | 2>(1);
-  const [photos, setPhotos] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
+  const [shots, setShots] = useState<Partial<Record<ShotKey, CapturedShot>>>({});
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState(0);
   const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
+  const targetShot = useRef<ShotKey | null>(null);
 
   const [meta, setMeta] = useState({
     sheepName: "",
@@ -37,7 +104,8 @@ function Classify() {
     months_since_last_shear: 6,
   });
 
-  const downscaleImage = async (file: File, maxDim = 1280, quality = 0.82): Promise<File> => {
+  // Downscale + compress; bumped to 1600px so fleece detail survives for the AI.
+  const downscaleImage = async (file: File, maxDim = 1600, quality = 0.86): Promise<File> => {
     try {
       const bitmap = await createImageBitmap(file);
       const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
@@ -57,30 +125,112 @@ function Classify() {
     }
   };
 
-  const onPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
-    if (!files.length) return;
-    e.target.value = "";
-    const processed = await Promise.all(files.map((f) => downscaleImage(f)));
-    setPhotos((p) => [...p, ...processed].slice(0, 3));
-    setPreviews((p) => [...p, ...processed.map((f) => URL.createObjectURL(f))].slice(0, 3));
+  // On-device quality check: estimates sharpness via mean abs Laplacian on a
+  // downscaled greyscale, plus average brightness. Cheap, runs in <50ms.
+  const analyzeQuality = async (file: File): Promise<PhotoQuality> => {
+    try {
+      const bitmap = await createImageBitmap(file);
+      const w = 256;
+      const h = Math.max(1, Math.round((bitmap.height / bitmap.width) * 256));
+      const c = document.createElement("canvas");
+      c.width = w;
+      c.height = h;
+      const ctx = c.getContext("2d");
+      if (!ctx) return { ok: true, sharpness: 1, brightness: 128, warning_sv: null, warning_en: null };
+      ctx.drawImage(bitmap, 0, 0, w, h);
+      const { data } = ctx.getImageData(0, 0, w, h);
+      const grey = new Float32Array(w * h);
+      let bSum = 0;
+      for (let i = 0, p = 0; i < data.length; i += 4, p++) {
+        const v = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+        grey[p] = v;
+        bSum += v;
+      }
+      const brightness = bSum / (w * h);
+      // 4-neighbour Laplacian variance proxy
+      let sum = 0;
+      let sum2 = 0;
+      let n = 0;
+      for (let y = 1; y < h - 1; y++) {
+        for (let x = 1; x < w - 1; x++) {
+          const i = y * w + x;
+          const lap = 4 * grey[i] - grey[i - 1] - grey[i + 1] - grey[i - w] - grey[i + w];
+          sum += lap;
+          sum2 += lap * lap;
+          n++;
+        }
+      }
+      const mean = sum / n;
+      const variance = sum2 / n - mean * mean;
+      // Normalise: typical sharp photo ~600-2000, blurry <150
+      const sharpness = Math.min(2, variance / 400);
+
+      let warning_sv: string | null = null;
+      let warning_en: string | null = null;
+      if (sharpness < 0.35) {
+        warning_sv = "Bilden ser oskarp ut – ta om med stadig hand.";
+        warning_en = "Image looks blurry – retake with a steady hand.";
+      } else if (brightness < 55) {
+        warning_sv = "Bilden är för mörk – gå ut i dagsljus.";
+        warning_en = "Image is too dark – move into daylight.";
+      } else if (brightness > 230) {
+        warning_sv = "Bilden är överexponerad – undvik direkt motljus.";
+        warning_en = "Image is overexposed – avoid direct backlight.";
+      }
+      return { ok: !warning_sv, sharpness, brightness, warning_sv, warning_en };
+    } catch {
+      return { ok: true, sharpness: 1, brightness: 128, warning_sv: null, warning_en: null };
+    }
   };
 
-  const remove = (i: number) => {
-    setPhotos((p) => p.filter((_, idx) => idx !== i));
-    setPreviews((p) => p.filter((_, idx) => idx !== i));
+  const onPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = (e.target.files ?? [])[0];
+    e.target.value = "";
+    if (!file || !targetShot.current) return;
+    const slot = targetShot.current;
+    targetShot.current = null;
+
+    const processed = await downscaleImage(file);
+    const quality = await analyzeQuality(processed);
+    const preview = URL.createObjectURL(processed);
+    setShots((s) => ({ ...s, [slot]: { file: processed, preview, quality } }));
+    if (quality.warning_sv) {
+      toast.warning(lang === "sv" ? quality.warning_sv : quality.warning_en ?? "");
+    }
   };
+
+  const removeShot = (key: ShotKey) => {
+    setShots((s) => {
+      const next = { ...s };
+      delete next[key];
+      return next;
+    });
+  };
+
+  const openCapture = (key: ShotKey, mode: "camera" | "gallery") => {
+    targetShot.current = key;
+    if (mode === "camera") cameraRef.current?.click();
+    else galleryRef.current?.click();
+  };
+
+  const requiredShotKeys = SHOTS.filter((s) => s.required).map((s) => s.key);
+  const hasRequired = requiredShotKeys.every((k) => shots[k]);
+  const totalShots = Object.values(shots).filter(Boolean).length;
 
   const submit = async () => {
     if (!user) return;
-    if (photos.length < 2) {
-      toast.error(t("needAtLeast2Photos"));
+    if (!hasRequired) {
+      toast.error(lang === "sv" ? "Lägg till båda obligatoriska bilderna." : "Add both required photos.");
       return;
     }
     setBusy(true);
     setProgress(0);
     try {
-      // 1. Insert classification row to get an id
+      const ordered = SHOTS.filter((s) => shots[s.key]).map((s) => ({
+        key: s.key,
+        file: shots[s.key]!.file,
+      }));
+
       const { data: row, error } = await supabase
         .from("classifications")
         .insert({
@@ -97,36 +247,35 @@ function Classify() {
       if (error) throw error;
       const classId = row.id as string;
 
-      // 2. Upload photos in parallel
       let uploaded = 0;
-      const paths = await Promise.all(
-        photos.map(async (f, i) => {
-          const ext = (f.type === "image/jpeg" ? "jpg" : f.name.split(".").pop()) || "jpg";
-          const path = `${user.id}/${classId}/photo_${i + 1}.${ext}`;
-          const { error: upErr } = await supabase.storage.from("sheep-photos").upload(path, f, {
-            contentType: f.type || "image/jpeg",
+      const uploads = await Promise.all(
+        ordered.map(async (shot, i) => {
+          const path = `${user.id}/${classId}/${i + 1}_${shot.key}.jpg`;
+          const { error: upErr } = await supabase.storage.from("sheep-photos").upload(path, shot.file, {
+            contentType: "image/jpeg",
             upsert: true,
           });
           if (upErr) throw upErr;
           uploaded++;
-          setProgress(Math.round((uploaded / photos.length) * 50));
-          return path;
+          setProgress(Math.round((uploaded / ordered.length) * 50));
+          return { path, key: shot.key };
         }),
       );
 
-      // 3. Get signed URLs for the AI to consume
       const signed = await Promise.all(
-        paths.map((p) => supabase.storage.from("sheep-photos").createSignedUrl(p, 3600)),
+        uploads.map((u) => supabase.storage.from("sheep-photos").createSignedUrl(u.path, 3600)),
       );
-      const image_urls = signed.map((s) => s.data?.signedUrl).filter(Boolean) as string[];
+      const labeled_images = uploads
+        .map((u, i) => ({ label: u.key, url: signed[i].data?.signedUrl ?? "" }))
+        .filter((x) => x.url);
 
-      await supabase.from("classifications").update({ photo_urls: paths }).eq("id", classId);
+      await supabase.from("classifications").update({ photo_urls: uploads.map((u) => u.path) }).eq("id", classId);
       setProgress(60);
 
-      // 4. Run the AI analysis through the app server, then store the result
       const analysis = await classifyWool({
         data: {
-          image_urls,
+          image_urls: labeled_images.map((l) => l.url),
+          image_labels: labeled_images.map((l) => l.label),
           metadata: meta,
         },
       });
@@ -188,81 +337,40 @@ function Classify() {
             <h2 className="font-display text-2xl font-bold text-primary">{t("takePhotos")}</h2>
             <p className="text-sm text-muted-foreground mt-1">
               {lang === "sv"
-                ? "Följ guiden nedan så blir AI-klassificeringen mer träffsäker."
-                : "Follow the guide below for the most accurate AI result."}
+                ? "Ta varje bild i sin egen ruta. Fler bilder = säkrare AI-bedömning."
+                : "Capture each shot in its own slot. More shots = more confident AI grading."}
             </p>
           </div>
 
-          {/* Photo guide */}
-          <div className="bg-card border border-border rounded-3xl p-4 shadow-soft space-y-3">
-            <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground font-semibold">
-              {lang === "sv" ? "Så tar du bra bilder" : "How to take good photos"}
+          <div className="bg-card border border-border rounded-3xl p-4 shadow-soft">
+            <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground font-semibold mb-1">
+              {lang === "sv" ? "Bästa bilder" : "Best photos"}
             </p>
-            <PhotoTip
-              num={1}
-              emoji="🐑"
-              title={lang === "sv" ? "Hela fåret från sidan" : "Whole sheep from the side"}
-              desc={lang === "sv"
-                ? "Stå ca 2 m bort. Fåret stilla, hela kroppen i bild, dagsljus."
-                : "Stand ~2 m away. Sheep still, full body in frame, daylight."}
-            />
-            <PhotoTip
-              num={2}
-              emoji="🔍"
-              title={lang === "sv" ? "Närbild på ullen" : "Close-up of the wool"}
-              desc={lang === "sv"
-                ? "10–20 cm från ullen. Skärp på fibrerna — undvik skugga och rörelseoskärpa."
-                : "10–20 cm from the wool. Focus on the fibres — avoid shadow and motion blur."}
-            />
-            <PhotoTip
-              num={3}
-              emoji="📏"
-              title={lang === "sv" ? "Stapelns längd (valfritt)" : "Staple length (optional)"}
-              desc={lang === "sv"
-                ? "Lyft en lock ull och håll en linjal eller finger bredvid som referens."
-                : "Lift a lock of wool and hold a ruler or finger next to it for scale."}
-            />
-            <div className="dashed-divider" />
             <p className="text-xs text-muted-foreground leading-relaxed">
               💡 {lang === "sv"
-                ? "Tips: ta bilderna utomhus i jämnt dagsljus, undvik direkt motljus och håll mobilen stadigt."
-                : "Tip: shoot outdoors in even daylight, avoid backlight and hold the phone steady."}
+                ? "Utomhus i jämnt dagsljus, undvik direkt motljus, håll mobilen stadigt och kom nära fleecen för närbilden."
+                : "Outdoors in even daylight, avoid backlight, hold the phone steady, and get close to the fleece on the close-up."}
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            {previews.map((src, i) => (
-              <div key={i} className="relative aspect-square rounded-2xl overflow-hidden bg-secondary">
-                <img src={src} alt="" className="w-full h-full object-cover" />
-                <button
-                  onClick={() => remove(i)}
-                  className="absolute top-1 right-1 w-7 h-7 bg-background/90 rounded-full flex items-center justify-center"
-                  aria-label={t("retake")}
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
+          <div className="space-y-3">
+            {SHOTS.map((s, i) => {
+              const captured = shots[s.key];
+              return (
+                <ShotSlot
+                  key={s.key}
+                  num={i + 1}
+                  shot={s}
+                  captured={captured}
+                  lang={lang}
+                  onCamera={() => openCapture(s.key, "camera")}
+                  onGallery={() => openCapture(s.key, "gallery")}
+                  onRemove={() => removeShot(s.key)}
+                />
+              );
+            })}
           </div>
 
-          {photos.length < 3 && (
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => cameraRef.current?.click()}
-                className="h-14 rounded-2xl border-2 border-dashed border-border bg-card flex items-center justify-center gap-2 text-foreground font-semibold active:scale-95 transition"
-              >
-                <Camera className="w-5 h-5" />
-                <span className="text-sm">{lang === "sv" ? "Ta bild" : "Take photo"}</span>
-              </button>
-              <button
-                onClick={() => galleryRef.current?.click()}
-                className="h-14 rounded-2xl border-2 border-dashed border-border bg-card flex items-center justify-center gap-2 text-foreground font-semibold active:scale-95 transition"
-              >
-                <ImagePlus className="w-5 h-5" />
-                <span className="text-sm">{lang === "sv" ? "Från galleri" : "From gallery"}</span>
-              </button>
-            </div>
-          )}
           <input
             ref={cameraRef}
             type="file"
@@ -275,15 +383,19 @@ function Classify() {
             ref={galleryRef}
             type="file"
             accept="image/*"
-            multiple
             onChange={onPick}
             className="hidden"
           />
 
+          <div className="text-xs text-muted-foreground text-center">
+            {lang === "sv"
+              ? `${totalShots}/4 bilder · ${hasRequired ? "redo" : "lägg till båda obligatoriska"}`
+              : `${totalShots}/4 photos · ${hasRequired ? "ready" : "add both required shots"}`}
+          </div>
 
           <Button
             onClick={() => setStep(2)}
-            disabled={photos.length < 2}
+            disabled={!hasRequired}
             size="lg"
             className="w-full h-14 text-base rounded-2xl bg-primary hover:bg-primary/90"
           >
@@ -344,19 +456,112 @@ function Classify() {
   );
 }
 
-function PhotoTip({ num, emoji, title, desc }: { num: number; emoji: string; title: string; desc: string }) {
+function ShotSlot({
+  num,
+  shot,
+  captured,
+  lang,
+  onCamera,
+  onGallery,
+  onRemove,
+}: {
+  num: number;
+  shot: ShotDef;
+  captured?: CapturedShot;
+  lang: "sv" | "en";
+  onCamera: () => void;
+  onGallery: () => void;
+  onRemove: () => void;
+}) {
+  const title = lang === "sv" ? shot.title_sv : shot.title_en;
+  const desc = lang === "sv" ? shot.desc_sv : shot.desc_en;
+  const warn = captured?.quality.warning_sv
+    ? lang === "sv"
+      ? captured.quality.warning_sv
+      : captured.quality.warning_en
+    : null;
+
   return (
-    <div className="flex gap-3 items-start">
-      <div className="relative flex-shrink-0 w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center text-2xl">
-        {emoji}
-        <span className="absolute -top-1 -left-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center">
-          {num}
-        </span>
+    <div className="bg-card border border-border rounded-2xl p-3 shadow-soft">
+      <div className="flex gap-3 items-start">
+        <div className="relative flex-shrink-0 w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center text-2xl">
+          {shot.emoji}
+          <span className="absolute -top-1 -left-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center">
+            {num}
+          </span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-semibold text-foreground">{title}</p>
+            {shot.required ? (
+              <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/10 text-primary font-bold">
+                {lang === "sv" ? "Krävs" : "Required"}
+              </span>
+            ) : (
+              <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-secondary text-muted-foreground font-bold">
+                {lang === "sv" ? "Valfri" : "Optional"}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">{desc}</p>
+        </div>
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-foreground">{title}</p>
-        <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">{desc}</p>
-      </div>
+
+      {captured ? (
+        <div className="mt-3 flex gap-3">
+          <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-secondary flex-shrink-0">
+            <img src={captured.preview} alt="" className="w-full h-full object-cover" />
+            <button
+              onClick={onRemove}
+              className="absolute top-1 right-1 w-6 h-6 bg-background/90 rounded-full flex items-center justify-center"
+              aria-label="remove"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <div className="flex-1 min-w-0 text-xs">
+            {warn ? (
+              <div className="flex gap-1.5 items-start text-amber-600 dark:text-amber-400">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold">{warn}</p>
+                  <button onClick={onCamera} className="underline mt-1">
+                    {lang === "sv" ? "Ta om" : "Retake"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex gap-1.5 items-start text-emerald-600 dark:text-emerald-400">
+                <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <p className="font-semibold">{lang === "sv" ? "Bra bild" : "Good photo"}</p>
+              </div>
+            )}
+            <button
+              onClick={onCamera}
+              className="block mt-2 text-muted-foreground underline"
+            >
+              {lang === "sv" ? "Byt bild" : "Replace"}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <button
+            onClick={onCamera}
+            className="h-11 rounded-xl border-2 border-dashed border-border bg-background flex items-center justify-center gap-2 text-foreground font-semibold active:scale-95 transition"
+          >
+            <Camera className="w-4 h-4" />
+            <span className="text-xs">{lang === "sv" ? "Ta bild" : "Take"}</span>
+          </button>
+          <button
+            onClick={onGallery}
+            className="h-11 rounded-xl border-2 border-dashed border-border bg-background flex items-center justify-center gap-2 text-foreground font-semibold active:scale-95 transition"
+          >
+            <ImagePlus className="w-4 h-4" />
+            <span className="text-xs">{lang === "sv" ? "Galleri" : "Gallery"}</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -61,28 +61,42 @@ function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col px-6 py-10 bg-background">
-      <Link to="/" className="text-muted-foreground text-sm mb-8">← {t("back")}</Link>
-      <div className="flex flex-col items-center mb-8">
-        <SheepLogo className="w-16 h-16 text-primary mb-3" />
-        <h1 className="text-2xl font-bold text-primary">{mode === "signup" ? t("signUp") : t("signIn")}</h1>
+    <div className="min-h-screen flex flex-col px-6 py-8">
+      <Link to="/" className="text-muted-foreground text-sm mb-6 hover:text-primary transition">← {t("back")}</Link>
+      <div className="flex flex-col items-center mb-10">
+        <div className="p-4 rounded-full bg-card border border-border shadow-soft mb-4">
+          <SheepLogo className="w-12 h-12 text-primary" />
+        </div>
+        <span className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground font-semibold mb-2">
+          {t("appName")}
+        </span>
+        <h1 className="font-display text-3xl font-bold text-primary">
+          {mode === "signup" ? t("signUp") : t("signIn")}
+        </h1>
+        <div className="dashed-divider w-16 mt-4" />
       </div>
-      <form onSubmit={onSubmit} className="space-y-5">
+      <form onSubmit={onSubmit} className="space-y-5 bg-card border border-border rounded-3xl p-6 shadow-card">
         <div>
-          <Label htmlFor="email" className="text-base">{t("email")}</Label>
-          <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="h-14 text-base mt-2 rounded-xl" autoComplete="email" />
+          <Label htmlFor="email" className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{t("email")}</Label>
+          <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="h-14 text-base mt-2 rounded-xl bg-background" autoComplete="email" />
         </div>
         <div>
-          <Label htmlFor="password" className="text-base">{t("password")}</Label>
-          <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="h-14 text-base mt-2 rounded-xl" autoComplete={mode === "signup" ? "new-password" : "current-password"} />
+          <Label htmlFor="password" className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{t("password")}</Label>
+          <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="h-14 text-base mt-2 rounded-xl bg-background" autoComplete={mode === "signup" ? "new-password" : "current-password"} />
         </div>
-        <Button type="submit" disabled={busy} size="lg" className="w-full h-14 text-base rounded-2xl bg-primary hover:bg-primary/90">
+        <Button
+          type="submit"
+          disabled={busy}
+          size="lg"
+          className="w-full h-14 text-base font-semibold rounded-2xl shadow-card"
+          style={{ background: "var(--gradient-pine)" }}
+        >
           {busy ? "..." : mode === "signup" ? t("signUp") : t("signIn")}
         </Button>
       </form>
       <div className="mt-8 text-center text-sm text-muted-foreground">
         {mode === "signup" ? t("haveAccount") : t("noAccount")}{" "}
-        <Link to="/auth" search={{ mode: mode === "signup" ? "signin" : "signup" }} className="text-primary font-semibold underline">
+        <Link to="/auth" search={{ mode: mode === "signup" ? "signin" : "signup" }} className="text-primary font-semibold underline underline-offset-4">
           {mode === "signup" ? t("signIn") : t("signUp")}
         </Link>
       </div>

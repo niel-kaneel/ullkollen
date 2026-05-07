@@ -113,7 +113,7 @@ function AuthPage() {
             const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/app" });
             if (r.error) { toast.error(r.error.message); setBusy(false); }
           }}
-          className="w-full h-14 text-base rounded-2xl bg-card border-2 gap-3"
+          className="w-full h-14 text-base rounded-2xl bg-card text-foreground border-2 border-border gap-3 transition-all hover:bg-card hover:text-foreground hover:border-foreground/40 hover:shadow-md"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden>
             <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.5 14.6 2.5 12 2.5 6.7 2.5 2.4 6.8 2.4 12.1S6.7 21.7 12 21.7c6.9 0 9.5-4.8 9.5-7.3 0-.5-.05-.9-.13-1.3H12z"/>

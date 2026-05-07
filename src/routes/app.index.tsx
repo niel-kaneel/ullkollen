@@ -57,20 +57,30 @@ function Home() {
     <div className="space-y-6">
       <div className="pt-2 flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-primary">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground font-semibold">
+            {new Date().toLocaleDateString(lang === "sv" ? "sv-SE" : "en-GB", { weekday: "long", day: "numeric", month: "long" })}
+          </p>
+          <h2 className="font-display text-3xl font-bold text-primary mt-1">
             {lang === "sv" ? "Hej" : "Hi"}
-            {profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""} 👋
+            {profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
           </h2>
-          {profile?.farm_name && <p className="text-muted-foreground">{profile.farm_name}</p>}
+          {profile?.farm_name && (
+            <p className="text-sm text-muted-foreground mt-0.5">🌾 {profile.farm_name}</p>
+          )}
         </div>
         {isAdmin && (
-          <Button asChild variant="outline" size="sm" className="rounded-xl">
+          <Button asChild variant="outline" size="sm" className="rounded-full bg-card">
             <Link to="/app/admin">{t("admin")}</Link>
           </Button>
         )}
       </div>
 
-      <Button asChild size="lg" className="w-full h-20 text-lg rounded-3xl bg-primary hover:bg-primary/90 shadow-card">
+      <Button
+        asChild
+        size="lg"
+        className="w-full h-20 text-lg rounded-3xl shadow-card text-primary-foreground"
+        style={{ background: "var(--gradient-pine)" }}
+      >
         <Link to="/app/classify">
           <Plus className="w-6 h-6 mr-2" strokeWidth={3} />
           {t("newClassification")}
@@ -78,10 +88,10 @@ function Home() {
       </Button>
 
       <div>
-        <h3 className="text-base font-semibold text-muted-foreground uppercase tracking-wide mb-3">{t("recent")}</h3>
+        <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.25em] mb-3">{t("recent")}</h3>
         {rows.length === 0 ? (
-          <div className="bg-card border border-border rounded-2xl p-6 text-center text-muted-foreground">
-            <Sparkles className="w-10 h-10 mx-auto mb-2 text-accent opacity-60" />
+          <div className="bg-card border border-border rounded-3xl p-8 text-center text-muted-foreground shadow-soft">
+            <Sparkles className="w-10 h-10 mx-auto mb-3 text-accent" />
             <p className="text-sm">{t("noClassificationsYet")}</p>
           </div>
         ) : (

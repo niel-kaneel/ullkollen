@@ -64,7 +64,8 @@ function Classify() {
         .insert({
           user_id: user.id,
           status: "processing",
-          breed: meta.breed,
+          breed: BREED_BY_CODE[meta.breed_code]?.name_sv ?? null,
+          breed_code: meta.breed_code,
           age_category: meta.age_category,
           months_since_last_shear: meta.months_since_last_shear,
           photo_urls: [],
@@ -265,10 +266,10 @@ function Classify() {
             </div>
             <div>
               <Label className="text-base">{t("breed")}</Label>
-              <Select value={meta.breed} onValueChange={(v) => setMeta({ ...meta, breed: v })}>
+              <Select value={meta.breed_code} onValueChange={(v) => setMeta({ ...meta, breed_code: v })}>
                 <SelectTrigger className="h-14 mt-2 rounded-xl text-base"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {BREEDS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                  {BREEDS.map((b) => <SelectItem key={b.code} value={b.code}>{b.name_sv}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

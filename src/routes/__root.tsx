@@ -74,7 +74,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Ullkollen — Klassificera din ull med AI" },
       { name: "description", content: "Mobilapp för svenska fårbönder. Klassificera ull, få klipprekommendationer och hitta närmaste fårklippare." },
-      { name: "theme-color", content: "#2F5D3A" },
+      { name: "theme-color", content: "#1f4a2c" },
       { name: "author", content: "Ullkollen" },
       { property: "og:title", content: "Ullkollen — Klassificera din ull med AI" },
       { property: "og:description", content: "Mobilapp för svenska fårbönder. Klassificera ull, få klipprekommendationer och hitta närmaste fårklippare." },

@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const MODEL = "google/gemini-3-flash-preview";
 const AI_GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
@@ -211,10 +212,35 @@ export const classifyWool = createServerFn({ method: "POST" })
       throw new Error("AI-tjänsten saknar konfiguration.");
     }
 
+    // Aggregate prior knowledge from all past classifications: for the
+    // user's breed, what wool classes have other sheep been graded as?
+    let priorBlock = "";
+    try {
+      const { data: stats } = await supabaseAdmin.rpc("breed_class_stats");
+      if (stats && Array.isArray(stats)) {
+        const breed = data.metadata?.breed;
+        const relevant = breed
+          ? (stats as Array<{ breed_code: string; wool_class: string; n: number }>).filter(
+              (r) => r.breed_code === breed,
+            )
+          : [];
+        if (relevant.length) {
+          const total = relevant.reduce((s, r) => s + Number(r.n), 0);
+          const top = relevant
+            .slice(0, 5)
+            .map((r) => `${r.wool_class} (${Math.round((Number(r.n) / total) * 100)}%)`)
+            .join(", ");
+          priorBlock = `\n\nLEARNED PRIOR (from ${total} past classifications of breed "${breed}"): most common classes are ${top}. Use as a soft prior — visual evidence still wins.`;
+        }
+      }
+    } catch {
+      // best-effort, never fail classification because of stats
+    }
+
     const userText = `Metadata:
 Breed: ${data.metadata?.breed ?? "unknown"}
 Age: ${data.metadata?.age_category ?? "unknown"}
-Months since last shear: ${data.metadata?.months_since_last_shear ?? "unknown"}`;
+Months since last shear: ${data.metadata?.months_since_last_shear ?? "unknown"}${priorBlock}`;
 
     const response = await fetch(AI_GATEWAY_URL, {
       method: "POST",

@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppSupportRouteImport } from './routes/app.support'
 import { Route as AppShearersRouteImport } from './routes/app.shearers'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
 import { Route as AppFlockRouteImport } from './routes/app.flock'
@@ -44,6 +45,11 @@ const IndexRoute = IndexRouteImport.update({
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSupportRoute = AppSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
   getParentRoute: () => AppRoute,
 } as any)
 const AppShearersRoute = AppShearersRouteImport.update({
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
   '/app/shearers': typeof AppShearersRoute
+  '/app/support': typeof AppSupportRoute
   '/app/': typeof AppIndexRoute
   '/app/result/$id': typeof AppResultIdRoute
 }
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
   '/app/shearers': typeof AppShearersRoute
+  '/app/support': typeof AppSupportRoute
   '/app': typeof AppIndexRoute
   '/app/result/$id': typeof AppResultIdRoute
 }
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
   '/app/shearers': typeof AppShearersRoute
+  '/app/support': typeof AppSupportRoute
   '/app/': typeof AppIndexRoute
   '/app/result/$id': typeof AppResultIdRoute
 }
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
     | '/app/flock'
     | '/app/profile'
     | '/app/shearers'
+    | '/app/support'
     | '/app/'
     | '/app/result/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/app/flock'
     | '/app/profile'
     | '/app/shearers'
+    | '/app/support'
     | '/app'
     | '/app/result/$id'
   id:
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/app/flock'
     | '/app/profile'
     | '/app/shearers'
+    | '/app/support'
     | '/app/'
     | '/app/result/$id'
   fileRoutesById: FileRoutesById
@@ -199,6 +211,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/support': {
+      id: '/app/support'
+      path: '/support'
+      fullPath: '/app/support'
+      preLoaderRoute: typeof AppSupportRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/shearers': {
@@ -252,6 +271,7 @@ interface AppRouteChildren {
   AppFlockRoute: typeof AppFlockRoute
   AppProfileRoute: typeof AppProfileRoute
   AppShearersRoute: typeof AppShearersRoute
+  AppSupportRoute: typeof AppSupportRoute
   AppIndexRoute: typeof AppIndexRoute
   AppResultIdRoute: typeof AppResultIdRoute
 }
@@ -262,6 +282,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppFlockRoute: AppFlockRoute,
   AppProfileRoute: AppProfileRoute,
   AppShearersRoute: AppShearersRoute,
+  AppSupportRoute: AppSupportRoute,
   AppIndexRoute: AppIndexRoute,
   AppResultIdRoute: AppResultIdRoute,
 }

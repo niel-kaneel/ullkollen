@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { LogOut, MapPin } from "lucide-react";
+import { LifeBuoy, LogOut, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -86,6 +86,13 @@ function ProfilePage() {
 
       <Button onClick={save} disabled={busy} size="lg" className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-base">
         {t("save")}
+      </Button>
+
+      <Button asChild variant="outline" className="w-full h-14 rounded-2xl text-base">
+        <Link to="/app/support">
+          <LifeBuoy className="w-5 h-5 mr-2" />
+          {lang === "sv" ? "Kontakta support" : "Contact support"}
+        </Link>
       </Button>
 
       <button onClick={doSignOut} className="w-full text-destructive text-sm py-4 flex items-center justify-center gap-2">

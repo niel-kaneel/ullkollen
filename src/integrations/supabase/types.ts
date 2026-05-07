@@ -226,6 +226,42 @@ export type Database = {
         }
         Relationships: []
       }
+      support_messages: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          email: string | null
+          id: string
+          message: string
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          message: string
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          message?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -263,6 +299,15 @@ export type Database = {
           id: string
           is_admin: boolean
           sheep_count: number
+        }[]
+      }
+      admin_user_detail: { Args: { _user_id: string }; Returns: Json }
+      breed_class_stats: {
+        Args: never
+        Returns: {
+          breed_code: string
+          n: number
+          wool_class: string
         }[]
       }
       has_role: {

@@ -293,47 +293,66 @@ function Admin() {
             className="h-11 rounded-xl"
           />
 
-          <div className="space-y-2">
-            {filtered.map((u) => (
-              <div key={u.id} className="bg-card border border-border rounded-2xl shadow-soft overflow-hidden">
-                <button
-                  onClick={() => openUser(u.id)}
-                  className="w-full text-left p-4 flex items-start justify-between gap-3"
+          <div className="space-y-2.5">
+            {filtered.map((u) => {
+              const initials = (u.full_name || u.email || "?")
+                .split(/[\s@.]+/)
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((s) => s[0]?.toUpperCase())
+                .join("");
+              const isOpen = openId === u.id;
+              return (
+                <div
+                  key={u.id}
+                  className={`bg-card border rounded-2xl shadow-soft overflow-hidden transition-colors ${isOpen ? "border-primary/40" : "border-border"}`}
                 >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold truncate">{u.full_name || u.email}</p>
-                      {u.is_admin && (
-                        <span className="text-[10px] uppercase bg-primary text-primary-foreground px-1.5 py-0.5 rounded font-bold">
-                          admin
-                        </span>
-                      )}
+                  <button
+                    onClick={() => openUser(u.id)}
+                    className="w-full text-left p-4 flex items-center gap-3 hover:bg-secondary/40 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-primary/10 text-primary grid place-items-center text-sm font-bold shrink-0">
+                      {initials || "?"}
                     </div>
-                    <p className="text-xs text-muted-foreground truncate">{u.email}</p>
-                    {u.farm_name && <p className="text-xs text-muted-foreground truncate">🏡 {u.farm_name}</p>}
-                    <p className="text-[11px] text-muted-foreground mt-1">
-                      {t("joined")}: {new Date(u.created_at).toLocaleDateString("sv-SE")} · {u.classifications_count} {t("classifications").toLowerCase()} · {u.sheep_count} {t("sheepCount").toLowerCase()}
-                    </p>
-                  </div>
-                  {openId === u.id ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
-                </button>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-semibold truncate">{u.full_name || u.email}</p>
+                        {u.is_admin && (
+                          <span className="text-[10px] uppercase bg-primary text-primary-foreground px-1.5 py-0.5 rounded font-bold tracking-wider">
+                            admin
+                          </span>
+                        )}
+                      </div>
+                      {u.full_name && (
+                        <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                      )}
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground mt-1">
+                        {u.farm_name && <span className="truncate max-w-[12rem]">🏡 {u.farm_name}</span>}
+                        <span>{new Date(u.created_at).toLocaleDateString("sv-SE")}</span>
+                        <span>· {u.classifications_count} {t("classifications").toLowerCase()}</span>
+                        <span>· {u.sheep_count} {t("sheepCount").toLowerCase()}</span>
+                      </div>
+                    </div>
+                    {isOpen ? <ChevronUp className="w-5 h-5 text-muted-foreground shrink-0" /> : <ChevronDown className="w-5 h-5 text-muted-foreground shrink-0" />}
+                  </button>
 
-                {openId === u.id && (
-                  <div className="border-t border-border p-4 space-y-4 bg-secondary/30">
-                    <UserActions
-                      user={u}
-                      busy={busyId === u.id}
-                      callAdmin={callAdmin}
-                      onChanged={loadUsers}
-                      onExport={() => exportUser(u)}
-                      onToggleAdmin={() => toggleAdmin(u)}
-                      onDelete={() => deleteUser(u)}
-                    />
-                    <UserDetailPanel detail={details[u.id]} />
-                  </div>
-                )}
-              </div>
-            ))}
+                  {isOpen && (
+                    <div className="border-t border-border p-4 space-y-5 bg-secondary/30">
+                      <UserActions
+                        user={u}
+                        busy={busyId === u.id}
+                        callAdmin={callAdmin}
+                        onChanged={loadUsers}
+                        onExport={() => exportUser(u)}
+                        onToggleAdmin={() => toggleAdmin(u)}
+                        onDelete={() => deleteUser(u)}
+                      />
+                      <UserDetailPanel detail={details[u.id]} />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             {filtered.length === 0 && <p className="text-center text-muted-foreground py-10 text-sm">—</p>}
           </div>
         </>

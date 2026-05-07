@@ -20,6 +20,10 @@ function AuthPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [busy, setBusy] = useState(false);
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -27,14 +31,23 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
+        const fullName = `${firstName} ${lastName}`.trim();
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin + "/onboarding" },
+          options: {
+            emailRedirectTo: window.location.origin + "/onboarding",
+            data: {
+              first_name: firstName || null,
+              last_name: lastName || null,
+              full_name: fullName || null,
+              phone: phone || null,
+              address: address || null,
+            },
+          },
         });
         if (error) throw error;
         if (!data.session) {
-          // Email confirmation required
           toast.success(
             "Konto skapat! Kolla din e-post för att bekräfta din adress, logga sedan in.",
             { duration: 8000 },

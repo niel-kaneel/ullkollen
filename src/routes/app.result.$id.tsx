@@ -167,25 +167,44 @@ function Result() {
     <div className="space-y-5 pb-4">
       <div className="flex items-center justify-between">
         <BackButton />
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">
-              <Trash2 className="w-4 h-4 mr-1" /> {t("delete")}
+        <div className="flex items-center gap-1">
+          {!editing && data.status === "completed" && data.wool_class && (
+            <Button variant="ghost" size="sm" onClick={startEdit}>
+              <Pencil className="w-4 h-4 mr-1" /> {lang === "sv" ? "Redigera" : "Edit"}
             </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{t("delete")}?</AlertDialogTitle>
-              <AlertDialogDescription>{t("deleteConfirm")}</AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
-              <AlertDialogAction onClick={remove} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                {t("delete")}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+          )}
+          {editing && (
+            <>
+              <Button variant="ghost" size="sm" onClick={cancelEdit} disabled={saving}>
+                <X className="w-4 h-4 mr-1" /> {t("cancel")}
+              </Button>
+              <Button size="sm" onClick={saveEdit} disabled={saving}>
+                <Check className="w-4 h-4 mr-1" /> {saving ? "..." : (lang === "sv" ? "Spara" : "Save")}
+              </Button>
+            </>
+          )}
+          {!editing && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                  <Trash2 className="w-4 h-4 mr-1" /> {t("delete")}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t("delete")}?</AlertDialogTitle>
+                  <AlertDialogDescription>{t("deleteConfirm")}</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+                  <AlertDialogAction onClick={remove} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    {t("delete")}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+        </div>
       </div>
 
       {photos.length > 0 && (

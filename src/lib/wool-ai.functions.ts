@@ -234,7 +234,7 @@ function normalizeResult(result: WoolResult) {
     recommendation_text_en: result.recommendation_text_en ?? null,
     reasoning_sv: result.reasoning_sv ?? null,
     photo_quality: result.photo_quality ?? "acceptable",
-    needs_retake: result.needs_retake ?? (!result.wool_class || result.confidence === "low"),
+    needs_retake: result.needs_retake ?? !result.wool_class,
     retake_reason_sv: result.retake_reason_sv ?? null,
   };
 }

@@ -16,7 +16,36 @@ export const Route = createFileRoute("/app/classify")({
   component: Classify,
 });
 
-const BREEDS = ["Gotlandsfår", "Finull", "Leicester", "Texel", "Suffolk", "Roslagsfår", "Ryafår", "Värmlandsfår", "Annan"];
+const BREEDS = [
+  // Svenska lantraser
+  "Gotlandsfår",
+  "Finullsfår",
+  "Gutefår",
+  "Helsingefår",
+  "Jämtlandsfår",
+  "Värmlandsfår",
+  "Roslagsfår",
+  "Dala Pälsfår",
+  "Skogsfår",
+  "Tabacktorpsfår",
+  "Åsenfår",
+  "Allmogefår",
+  "Ryafår",
+  "Svensk Lantras",
+  // Internationella raser i Sverige
+  "Texel",
+  "Suffolk",
+  "Oxford Down",
+  "Dorset",
+  "Dorper",
+  "Shropshire",
+  "Leicester",
+  "Border Leicester",
+  "Romney",
+  "Romanovfår",
+  "Merinofår",
+  "Annan",
+];
 
 function Classify() {
   const { t, lang } = useTranslation();

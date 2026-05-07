@@ -298,41 +298,63 @@ photo type is missing, request a retake instead of guessing.`;
       userContent.push({ type: "image_url", image_url: { url } });
     });
 
-    const response = await fetch(AI_GATEWAY_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [
-          { role: "system", content: WOOL_SYSTEM_PROMPT },
-          { role: "user", content: userContent },
-        ],
-        response_format: { type: "json_object" },
-      }),
-    });
+    const callModel = async (model: string) => {
+      const response = await fetch(AI_GATEWAY_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: "system", content: WOOL_SYSTEM_PROMPT },
+            { role: "user", content: userContent },
+          ],
+          response_format: { type: "json_object" },
+        }),
+      });
 
-    if (!response.ok) {
-      const details = await response.text();
-      console.error(`Wool AI request failed: ${response.status} ${details}`);
-      throw new Error("AI-analysen kunde inte slutföras.");
+      if (!response.ok) {
+        const details = await response.text();
+        console.error(`Wool AI request failed (${model}): ${response.status} ${details}`);
+        throw new Error("AI-analysen kunde inte slutföras.");
+      }
+
+      const payload = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };
+      const rawText = payload.choices?.[0]?.message?.content;
+      if (!rawText) throw new Error("AI-svaret var tomt.");
+
+      return { parsed: ResultSchema.parse(parseJsonObject(rawText)), rawText };
+    };
+
+    // First pass with the fast model.
+    let { parsed, rawText } = await callModel(MODEL_FAST);
+    let modelUsed = MODEL_FAST;
+    let escalated = false;
+
+    // Escalate to the strong model if the cheap pass is uncertain.
+    const shouldEscalate =
+      !parsed.wool_class || parsed.confidence === "low" || parsed.needs_retake === true;
+
+    if (shouldEscalate) {
+      try {
+        const second = await callModel(MODEL_STRONG);
+        parsed = second.parsed;
+        rawText = second.rawText;
+        modelUsed = MODEL_STRONG;
+        escalated = true;
+      } catch (err) {
+        console.error("Escalation to strong model failed, keeping fast result:", err);
+      }
     }
-
-    const payload = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };
-    const rawText = payload.choices?.[0]?.message?.content;
-    if (!rawText) {
-      throw new Error("AI-svaret var tomt.");
-    }
-
-    const parsed = ResultSchema.parse(parseJsonObject(rawText));
 
     return {
       result: normalizeResult(parsed),
       raw_ai_response: {
         provider: "lovable-ai-gateway",
-        model: MODEL,
+        model: modelUsed,
+        escalated,
         content: rawText,
       },
     };

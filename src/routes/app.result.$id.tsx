@@ -48,6 +48,9 @@ function Result() {
   const [data, setData] = useState<Classification | null>(null);
   const [photos, setPhotos] = useState<string[]>([]);
   const [polling, setPolling] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<Partial<Classification>>({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     let cancelled = false;

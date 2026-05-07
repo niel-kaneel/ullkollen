@@ -188,12 +188,51 @@ function Classify() {
 
       {step === 1 && (
         <>
-          <h2 className="text-xl font-bold text-primary">{t("takePhotos")}</h2>
-          <ul className="space-y-2 text-sm text-muted-foreground bg-secondary/60 rounded-2xl p-4">
-            <li>📸 1. {t("photo1")}</li>
-            <li>📸 2. {t("photo2")}</li>
-            <li>📏 3. {t("photo3")}</li>
-          </ul>
+          <div>
+            <h2 className="font-display text-2xl font-bold text-primary">{t("takePhotos")}</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              {lang === "sv"
+                ? "Följ guiden nedan så blir AI-klassificeringen mer träffsäker."
+                : "Follow the guide below for the most accurate AI result."}
+            </p>
+          </div>
+
+          {/* Photo guide */}
+          <div className="bg-card border border-border rounded-3xl p-4 shadow-soft space-y-3">
+            <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground font-semibold">
+              {lang === "sv" ? "Så tar du bra bilder" : "How to take good photos"}
+            </p>
+            <PhotoTip
+              num={1}
+              emoji="🐑"
+              title={lang === "sv" ? "Hela fåret från sidan" : "Whole sheep from the side"}
+              desc={lang === "sv"
+                ? "Stå ca 2 m bort. Fåret stilla, hela kroppen i bild, dagsljus."
+                : "Stand ~2 m away. Sheep still, full body in frame, daylight."}
+            />
+            <PhotoTip
+              num={2}
+              emoji="🔍"
+              title={lang === "sv" ? "Närbild på ullen" : "Close-up of the wool"}
+              desc={lang === "sv"
+                ? "10–20 cm från ullen. Skärp på fibrerna — undvik skugga och rörelseoskärpa."
+                : "10–20 cm from the wool. Focus on the fibres — avoid shadow and motion blur."}
+            />
+            <PhotoTip
+              num={3}
+              emoji="📏"
+              title={lang === "sv" ? "Stapelns längd (valfritt)" : "Staple length (optional)"}
+              desc={lang === "sv"
+                ? "Lyft en lock ull och håll en linjal eller finger bredvid som referens."
+                : "Lift a lock of wool and hold a ruler or finger next to it for scale."}
+            />
+            <div className="dashed-divider" />
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              💡 {lang === "sv"
+                ? "Tips: ta bilderna utomhus i jämnt dagsljus, undvik direkt motljus och håll mobilen stadigt."
+                : "Tip: shoot outdoors in even daylight, avoid backlight and hold the phone steady."}
+            </p>
+          </div>
 
           <div className="grid grid-cols-3 gap-3">
             {previews.map((src, i) => (
@@ -214,7 +253,13 @@ function Classify() {
                 className="aspect-square rounded-2xl border-2 border-dashed border-border bg-card flex flex-col items-center justify-center gap-1 text-muted-foreground active:scale-95 transition"
               >
                 <Camera className="w-8 h-8" />
-                <span className="text-xs">{t("addPhoto")}</span>
+                <span className="text-xs font-semibold">
+                  {photos.length === 0
+                    ? (lang === "sv" ? "Ta bild 1" : "Take photo 1")
+                    : photos.length === 1
+                    ? (lang === "sv" ? "Ta bild 2" : "Take photo 2")
+                    : (lang === "sv" ? "Ta bild 3" : "Take photo 3")}
+                </span>
               </button>
             )}
           </div>
@@ -226,6 +271,7 @@ function Classify() {
             onChange={onPick}
             className="hidden"
           />
+
 
           <Button
             onClick={() => setStep(2)}
@@ -286,6 +332,23 @@ function Classify() {
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+function PhotoTip({ num, emoji, title, desc }: { num: number; emoji: string; title: string; desc: string }) {
+  return (
+    <div className="flex gap-3 items-start">
+      <div className="relative flex-shrink-0 w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center text-2xl">
+        {emoji}
+        <span className="absolute -top-1 -left-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center">
+          {num}
+        </span>
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-foreground">{title}</p>
+        <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">{desc}</p>
+      </div>
     </div>
   );
 }

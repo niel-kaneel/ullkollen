@@ -604,9 +604,11 @@ function SupportInbox({ rows, onChanged }: { rows: SupportRow[]; onChanged: () =
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="bg-card border border-border rounded-2xl p-3 text-center shadow-soft">
-      <p className="text-2xl font-black text-primary">{value}</p>
-      <p className="text-[10px] uppercase text-muted-foreground tracking-wide leading-tight mt-1">{label}</p>
+    <div className="bg-secondary/60 border border-border/60 rounded-xl px-3 py-3 text-center">
+      <p className="text-2xl md:text-3xl font-black text-primary leading-none">{value}</p>
+      <p className="text-[10px] uppercase text-muted-foreground tracking-wider leading-tight mt-1.5 break-words">
+        {label}
+      </p>
     </div>
   );
 }

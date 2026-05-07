@@ -223,6 +223,51 @@ function Result() {
             {t("newClassification")}
           </Button>
         </div>
+      ) : editing ? (
+        <div className="space-y-4 bg-card rounded-3xl p-5 border border-border">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="wc">{lang === "sv" ? "Klass" : "Class"}</Label>
+              <Input id="wc" value={draft.wool_class ?? ""} onChange={(e) => setDraft({ ...draft, wool_class: e.target.value })} />
+            </div>
+            <div>
+              <Label>{t("confidence")}</Label>
+              <Select value={draft.confidence ?? ""} onValueChange={(v) => setDraft({ ...draft, confidence: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="high">{t("high")}</SelectItem>
+                  <SelectItem value="medium">{t("medium")}</SelectItem>
+                  <SelectItem value="low">{t("low")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="cn">{lang === "sv" ? "Klassnamn (SV)" : "Class name (SV)"}</Label>
+            <Input id="cn" value={draft.wool_class_name_sv ?? ""} onChange={(e) => setDraft({ ...draft, wool_class_name_sv: e.target.value })} />
+          </div>
+          <div>
+            <Label>{t("recommendation")}</Label>
+            <Select value={draft.shear_recommendation ?? ""} onValueChange={(v) => setDraft({ ...draft, shear_recommendation: v })}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="shear_now">shear_now</SelectItem>
+                <SelectItem value="shear_urgent">shear_urgent</SelectItem>
+                <SelectItem value="wait">wait</SelectItem>
+                <SelectItem value="do_not_shear_lambing">do_not_shear_lambing</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="rt">{lang === "sv" ? "Rekommendationstext" : "Recommendation text"}</Label>
+            <Textarea id="rt" rows={2} value={(lang === "sv" ? draft.recommendation_text_sv : draft.recommendation_text_en) ?? ""}
+              onChange={(e) => setDraft({ ...draft, [lang === "sv" ? "recommendation_text_sv" : "recommendation_text_en"]: e.target.value })} />
+          </div>
+          <div>
+            <Label htmlFor="rs">{lang === "sv" ? "Motivering" : "Reasoning"}</Label>
+            <Textarea id="rs" rows={4} value={draft.reasoning_sv ?? ""} onChange={(e) => setDraft({ ...draft, reasoning_sv: e.target.value })} />
+          </div>
+        </div>
       ) : (
         <>
           <div className="text-center bg-card rounded-3xl p-6 shadow-card border border-border">

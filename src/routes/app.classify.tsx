@@ -37,12 +37,33 @@ function Classify() {
     months_since_last_shear: 6,
   });
 
-  const onPick = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const downscaleImage = async (file: File, maxDim = 1280, quality = 0.82): Promise<File> => {
+    try {
+      const bitmap = await createImageBitmap(file);
+      const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+      const w = Math.round(bitmap.width * scale);
+      const h = Math.round(bitmap.height * scale);
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return file;
+      ctx.drawImage(bitmap, 0, 0, w, h);
+      const blob: Blob | null = await new Promise((res) => canvas.toBlob(res, "image/jpeg", quality));
+      if (!blob) return file;
+      return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" });
+    } catch {
+      return file;
+    }
+  };
+
+  const onPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
-    setPhotos((p) => [...p, ...files].slice(0, 3));
-    setPreviews((p) => [...p, ...files.map((f) => URL.createObjectURL(f))].slice(0, 3));
     e.target.value = "";
+    const processed = await Promise.all(files.map((f) => downscaleImage(f)));
+    setPhotos((p) => [...p, ...processed].slice(0, 3));
+    setPreviews((p) => [...p, ...processed.map((f) => URL.createObjectURL(f))].slice(0, 3));
   };
 
   const remove = (i: number) => {
@@ -76,20 +97,22 @@ function Classify() {
       if (error) throw error;
       const classId = row.id as string;
 
-      // 2. Upload photos to sheep-photos/{user_id}/{classification_id}/
-      const paths: string[] = [];
-      for (let i = 0; i < photos.length; i++) {
-        const f = photos[i];
-        const ext = f.name.split(".").pop() || "jpg";
-        const path = `${user.id}/${classId}/photo_${i + 1}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("sheep-photos").upload(path, f, {
-          contentType: f.type || "image/jpeg",
-          upsert: true,
-        });
-        if (upErr) throw upErr;
-        paths.push(path);
-        setProgress(Math.round(((i + 1) / photos.length) * 50));
-      }
+      // 2. Upload photos in parallel
+      let uploaded = 0;
+      const paths = await Promise.all(
+        photos.map(async (f, i) => {
+          const ext = (f.type === "image/jpeg" ? "jpg" : f.name.split(".").pop()) || "jpg";
+          const path = `${user.id}/${classId}/photo_${i + 1}.${ext}`;
+          const { error: upErr } = await supabase.storage.from("sheep-photos").upload(path, f, {
+            contentType: f.type || "image/jpeg",
+            upsert: true,
+          });
+          if (upErr) throw upErr;
+          uploaded++;
+          setProgress(Math.round((uploaded / photos.length) * 50));
+          return path;
+        }),
+      );
 
       // 3. Get signed URLs for the AI to consume
       const signed = await Promise.all(

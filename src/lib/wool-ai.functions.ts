@@ -91,32 +91,34 @@ pigmented (any color other than white). Use the EXACT thresholds below.
 Always trust the visual evidence over the breed hint. Crossbreeds are common.
 
 # INPUT FORMAT
-You will receive 2–4 photos. Each user message lists the photos in order with
+You will receive 2–3 photos. Each user message lists the photos in order with
 an explicit LABEL telling you what the photo shows:
-- "full_body"        — whole sheep from the side, for breed + body condition
-- "fleece_closeup"   — 10–20 cm macro of the mid-side fleece (PRIMARY evidence
-                       for crimp, fineness, luster, color, VM, felting)
-- "parted_staple"    — fleece parted by hand showing the full staple from skin
-                       to tip (PRIMARY evidence for length and staple structure)
-- "length_reference" — staple held next to a ruler / finger / coin for scale
+- "full_body"        — whole sheep from 2–3 m, for breed + body condition AND
+                       a rough length estimate from the visible fleece bulk.
+- "fleece_closeup"   — 15–20 cm shot of the side or back fleece (PRIMARY
+                       evidence for crimp, fineness, luster, color, VM,
+                       felting). Length can also be estimated here from
+                       staple shadow / curl size.
+- "length_reference" — OPTIONAL. A lock stretched against a finger or ruler
+                       for a scale reference. May be absent.
 
-Use these labels. Do NOT estimate length from the full-body shot — only from
-parted_staple or length_reference. If only fleece_closeup is available, treat
-length as uncertain and lower confidence accordingly.
+Use whatever photos you have. Length reference is NICE to have but NOT
+required — you can estimate length from the close-up plus the breed hint.
 
-# PHOTO QUALITY GATE
-If the required evidence for a class is missing or unreadable (blurry,
-backlit, only full-body shown, fleece not visible), set wool_class to null,
-needs_retake = true, and explain in retake_reason_sv exactly which photo to
-retake and how (e.g. "Ta en närbild på fleecen 10–20 cm bort, dela ullen så
-hela stapeln syns").
+# PHOTO QUALITY GATE — BE GENEROUS
+Only set needs_retake = true when the photos are genuinely unusable
+(completely black, completely white, fingers covering lens, no sheep visible).
+If you can see the fleece at all, give your BEST classification with a
+"medium" or "low" confidence rather than refusing. Farmers in the field
+need a useful answer, not a perfectionist's rejection.
 
-# CONFIDENCE RULES — be honest
-- "high":   length AND fineness category clearly visible from at least two
-            independent photos and consistent with each other.
-- "medium": one of length/fineness is inferred from limited evidence.
-- "low":    significant uncertainty (single photo, marginal quality, ambiguous
-            staple). Always set needs_retake = true when confidence is "low".
+# CONFIDENCE RULES
+- "high":   length AND fineness clearly readable, consistent across photos.
+- "medium": typical case — fleece visible, length estimated from close-up
+            and/or breed hint. THIS IS THE DEFAULT for normal field photos.
+- "low":    fleece barely visible or photos poor but still interpretable.
+            Do NOT auto-set needs_retake just because confidence is "low" —
+            only set it for truly unusable photos.
 
 # REASONING REQUIREMENT
 reasoning_sv MUST cite which photo each observation came from, e.g.
@@ -232,7 +234,7 @@ function normalizeResult(result: WoolResult) {
     recommendation_text_en: result.recommendation_text_en ?? null,
     reasoning_sv: result.reasoning_sv ?? null,
     photo_quality: result.photo_quality ?? "acceptable",
-    needs_retake: result.needs_retake ?? (!result.wool_class || result.confidence === "low"),
+    needs_retake: result.needs_retake ?? !result.wool_class,
     retake_reason_sv: result.retake_reason_sv ?? null,
   };
 }

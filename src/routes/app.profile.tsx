@@ -111,11 +111,12 @@ function ProfilePage() {
   );
 }
 
-function Field({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (v: string) => void; type?: string }) {
+function Field({ label, value, onChange, type = "text", helper }: { label: string; value: string; onChange: (v: string) => void; type?: string; helper?: string }) {
   return (
     <div>
       <Label className="text-base">{label}</Label>
       <Input type={type} value={value} onChange={(e) => onChange(e.target.value)} className="h-14 text-base mt-2 rounded-xl" />
+      {helper && <p className="text-xs text-muted-foreground mt-1">{helper}</p>}
     </div>
   );
 }

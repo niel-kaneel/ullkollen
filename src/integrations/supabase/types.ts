@@ -153,6 +153,7 @@ export type Database = {
           active: boolean | null
           approved: boolean | null
           breed_specialties: string[] | null
+          certified_by_farklipparforbundet: boolean | null
           created_at: string
           display_name: string
           email: string | null
@@ -161,13 +162,19 @@ export type Database = {
           hourly_rate_sek: number | null
           id: string
           languages: string[] | null
+          listed_by_faravelsforbundet: boolean | null
+          notes: string | null
           phone: string | null
+          self_managed: boolean | null
+          service_areas: string[] | null
           user_id: string | null
+          website: string | null
         }
         Insert: {
           active?: boolean | null
           approved?: boolean | null
           breed_specialties?: string[] | null
+          certified_by_farklipparforbundet?: boolean | null
           created_at?: string
           display_name: string
           email?: string | null
@@ -176,13 +183,19 @@ export type Database = {
           hourly_rate_sek?: number | null
           id?: string
           languages?: string[] | null
+          listed_by_faravelsforbundet?: boolean | null
+          notes?: string | null
           phone?: string | null
+          self_managed?: boolean | null
+          service_areas?: string[] | null
           user_id?: string | null
+          website?: string | null
         }
         Update: {
           active?: boolean | null
           approved?: boolean | null
           breed_specialties?: string[] | null
+          certified_by_farklipparforbundet?: boolean | null
           created_at?: string
           display_name?: string
           email?: string | null
@@ -191,8 +204,13 @@ export type Database = {
           hourly_rate_sek?: number | null
           id?: string
           languages?: string[] | null
+          listed_by_faravelsforbundet?: boolean | null
+          notes?: string | null
           phone?: string | null
+          self_managed?: boolean | null
+          service_areas?: string[] | null
           user_id?: string | null
+          website?: string | null
         }
         Relationships: []
       }
@@ -329,13 +347,19 @@ export type Database = {
         }
         Returns: {
           breed_specialties: string[]
+          certified_by_farklipparforbundet: boolean
           display_name: string
           distance_km: number
           email: string
           hourly_rate_sek: number
           id: string
           languages: string[]
+          listed_by_faravelsforbundet: boolean
+          notes: string
           phone: string
+          self_managed: boolean
+          service_areas: string[]
+          website: string
         }[]
       }
     }

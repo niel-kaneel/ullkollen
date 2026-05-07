@@ -20,7 +20,7 @@ import { BREEDS, BREED_BY_CODE } from "@/lib/breeds";
 
 // Structured shot slots — each tells the AI exactly what it's looking at,
 // which dramatically improves classification quality.
-type ShotKey = "full_body" | "fleece_closeup" | "parted_staple" | "length_reference";
+type ShotKey = "full_body" | "fleece_closeup" | "length_reference";
 
 type ShotDef = {
   key: ShotKey;
@@ -37,37 +37,28 @@ const SHOTS: ShotDef[] = [
     key: "full_body",
     required: true,
     emoji: "🐑",
-    title_sv: "Hela fåret från sidan",
-    title_en: "Whole sheep from the side",
-    desc_sv: "Stå ca 2 m bort. Hela kroppen i bild, dagsljus.",
-    desc_en: "Stand ~2 m away. Full body in frame, daylight.",
+    title_sv: "Ta en bild på hela fåret",
+    title_en: "Take a photo of the whole sheep",
+    desc_sv: "Stå 2–3 meter bort, helkroppsbild.",
+    desc_en: "Stand 2–3 metres away, full-body shot.",
   },
   {
     key: "fleece_closeup",
     required: true,
     emoji: "🔍",
-    title_sv: "Närbild på fleecen (mittsidan)",
-    title_en: "Close-up of the fleece (mid-side)",
-    desc_sv: "10–20 cm från ullen på mittsidan. Skärp på fibrerna.",
-    desc_en: "10–20 cm from the wool on the mid-side. Focus on fibres.",
-  },
-  {
-    key: "parted_staple",
-    required: false,
-    emoji: "✋",
-    title_sv: "Delad fleece – stapel från hud till topp",
-    title_en: "Parted fleece – staple from skin to tip",
-    desc_sv: "Dela ullen med fingrarna så hela längden syns.",
-    desc_en: "Part the wool with your fingers so full length is visible.",
+    title_sv: "Närbild på ullen",
+    title_en: "Close-up of the wool",
+    desc_sv: "15–20 cm från ullen, sida eller rygg.",
+    desc_en: "15–20 cm from the wool, side or back.",
   },
   {
     key: "length_reference",
     required: false,
     emoji: "📏",
-    title_sv: "Stapel med referens (linjal/finger/mynt)",
-    title_en: "Staple with reference (ruler/finger/coin)",
-    desc_sv: "Lyft en lock och håll en linjal eller finger bredvid.",
-    desc_en: "Lift a lock and hold a ruler or finger next to it.",
+    title_sv: "Visa fiberlängden (rekommenderas)",
+    title_en: "Show the fibre length (recommended)",
+    desc_sv: "Sträck en lock mot ditt finger eller en linjal. Hoppa över om du inte kan.",
+    desc_en: "Stretch a lock against your finger or a ruler. Skip if you can't.",
   },
 ];
 
@@ -167,13 +158,13 @@ function Classify() {
 
       let warning_sv: string | null = null;
       let warning_en: string | null = null;
-      if (sharpness < 0.35) {
-        warning_sv = "Bilden ser oskarp ut – ta om med stadig hand.";
-        warning_en = "Image looks blurry – retake with a steady hand.";
-      } else if (brightness < 55) {
-        warning_sv = "Bilden är för mörk – gå ut i dagsljus.";
-        warning_en = "Image is too dark – move into daylight.";
-      } else if (brightness > 230) {
+      if (sharpness < 0.18) {
+        warning_sv = "Bilden ser väldigt oskarp ut – ta gärna om.";
+        warning_en = "Image looks very blurry – consider retaking.";
+      } else if (brightness < 35) {
+        warning_sv = "Bilden är väldigt mörk – mer ljus hjälper.";
+        warning_en = "Image is very dark – more light helps.";
+      } else if (brightness > 245) {
         warning_sv = "Bilden är överexponerad – undvik direkt motljus.";
         warning_en = "Image is overexposed – avoid direct backlight.";
       }
@@ -389,8 +380,8 @@ function Classify() {
 
           <div className="text-xs text-muted-foreground text-center">
             {lang === "sv"
-              ? `${totalShots}/4 bilder · ${hasRequired ? "redo" : "lägg till båda obligatoriska"}`
-              : `${totalShots}/4 photos · ${hasRequired ? "ready" : "add both required shots"}`}
+      ? `${totalShots}/3 bilder · ${hasRequired ? "redo" : "lägg till de två obligatoriska"}`
+              : `${totalShots}/3 photos · ${hasRequired ? "ready" : "add the two required shots"}`}
           </div>
 
           <Button

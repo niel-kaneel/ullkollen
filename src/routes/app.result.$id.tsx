@@ -99,6 +99,38 @@ function Result() {
     navigate({ to: "/app" });
   };
 
+  const startEdit = () => {
+    if (!data) return;
+    setDraft({
+      wool_class: data.wool_class,
+      wool_class_name_sv: data.wool_class_name_sv,
+      wool_class_name_en: data.wool_class_name_en,
+      confidence: data.confidence,
+      shear_recommendation: data.shear_recommendation,
+      recommendation_text_sv: data.recommendation_text_sv,
+      recommendation_text_en: data.recommendation_text_en,
+      reasoning_sv: data.reasoning_sv,
+    });
+    setEditing(true);
+    setPolling(false);
+  };
+
+  const cancelEdit = () => {
+    setEditing(false);
+    setDraft({});
+  };
+
+  const saveEdit = async () => {
+    if (!data) return;
+    setSaving(true);
+    const { error } = await supabase.from("classifications").update(draft).eq("id", id);
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    setData({ ...data, ...draft } as Classification);
+    setEditing(false);
+    toast.success(lang === "sv" ? "Sparat" : "Saved");
+  };
+
   if (!data) {
     return (
       <div className="space-y-4">

@@ -418,31 +418,47 @@ function UserActions({
   };
 
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-xs">Display name</Label>
-          <div className="flex gap-2">
-            <Input value={fullName} onChange={(e) => setFullName(e.target.value)} />
-            <Button size="sm" onClick={saveName}>Save</Button>
+    <div className="space-y-4">
+      <div className="bg-card border border-border rounded-xl p-4 space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Konto</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="space-y-1.5 min-w-0">
+            <Label className="text-xs">Display name</Label>
+            <div className="flex gap-2 min-w-0">
+              <Input className="min-w-0 flex-1" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+              <Button size="sm" onClick={saveName} className="shrink-0">Save</Button>
+            </div>
           </div>
-        </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs">Login email</Label>
-          <div className="flex gap-2">
-            <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
-            <Button size="sm" onClick={updateEmail}><Mail className="w-4 h-4" /></Button>
+          <div className="space-y-1.5 min-w-0">
+            <Label className="text-xs">Login email</Label>
+            <div className="flex gap-2 min-w-0">
+              <Input className="min-w-0 flex-1" value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
+              <Button size="sm" onClick={updateEmail} className="shrink-0" aria-label="Update email">
+                <Mail className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
-        </div>
-        <div className="space-y-1.5 sm:col-span-2">
-          <Label className="text-xs">Set new password</Label>
-          <div className="flex gap-2">
-            <Input value={pwd} onChange={(e) => setPwd(e.target.value)} type="text" placeholder="min 8 chars" />
-            <Button size="sm" onClick={setPassword}><KeyRound className="w-4 h-4 mr-1" /> Set</Button>
-            <Button size="sm" variant="outline" onClick={sendReset}><Send className="w-4 h-4 mr-1" /> Reset email</Button>
+          <div className="space-y-1.5 md:col-span-2 min-w-0">
+            <Label className="text-xs">Set new password</Label>
+            <div className="flex flex-wrap gap-2 min-w-0">
+              <Input
+                className="min-w-0 flex-1 basis-40"
+                value={pwd}
+                onChange={(e) => setPwd(e.target.value)}
+                type="text"
+                placeholder="min 8 chars"
+              />
+              <Button size="sm" onClick={setPassword} className="shrink-0">
+                <KeyRound className="w-4 h-4 mr-1" /> Set
+              </Button>
+              <Button size="sm" variant="outline" onClick={sendReset} className="shrink-0">
+                <Send className="w-4 h-4 mr-1" /> Reset email
+              </Button>
+            </div>
           </div>
         </div>
       </div>
+
       <div className="flex gap-2 flex-wrap">
         <Button size="sm" variant="outline" disabled={busy} onClick={onToggleAdmin}>
           {user.is_admin ? <ShieldOff className="w-4 h-4 mr-1" /> : <ShieldCheck className="w-4 h-4 mr-1" />}
@@ -453,7 +469,7 @@ function UserActions({
         </Button>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button size="sm" variant="outline" disabled={busy} className="text-destructive">
+            <Button size="sm" variant="outline" disabled={busy} className="text-destructive ml-auto">
               <Trash2 className="w-4 h-4 mr-1" /> Delete
             </Button>
           </AlertDialogTrigger>

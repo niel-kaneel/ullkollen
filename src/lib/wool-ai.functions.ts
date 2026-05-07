@@ -61,6 +61,24 @@ pigmented (any color other than white).
 2. Length-based: below min length → "Vänta 1-2 månader". At min, could grow → "Vänta 2-4 veckor". At/above optimal → "Klipp nu". Felting → "Klipp omgående". Overlength → "Klipp omgående".
 3. Seasonal default: if uncertain, "Vänta 2-4 veckor".
 
+# BREED → LIKELY WOOL TYPE HINTS (use as guidance, not a hard rule)
+
+If breed metadata is provided, use it as a prior on the likely classification:
+- Gotlandsfår        → likely P1/P1P (lustrous curly pelt)
+- Finullsfår         → likely F1/F1P (fine, fine-crimped)
+- Ryafår             → likely R1/R1P (long lustrous guard hair, fine undercoat)
+- Gutefår            → mixed, often U (primitive double-coat with kemp)
+- Dalapälsfår        → P type (often white pelt with corkscrew-curl on lambs)
+- Helsingefår        → V (vadmal type, double-coated)
+- Värmlandsfår       → mixed, often V
+- Texel / Suffolk    → S (stuffing type, short lean wool)
+- Leicester / Dorset → C (crossbred, longer wool)
+- Jämtlandsfår       → M or F (merino-influenced fineness)
+
+Always trust the visual evidence over the breed hint. The breed hint is a
+prior probability, not a verdict — many sheep don't match their breed's
+typical wool type, and crossbreeds are common.
+
 # PHOTO QUALITY
 If unusable, set wool_class to null and explain in retake_reason_sv.
 

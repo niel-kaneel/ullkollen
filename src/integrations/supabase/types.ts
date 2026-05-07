@@ -106,11 +106,13 @@ export type Database = {
           created_at: string
           email: string | null
           farm_name: string | null
+          first_name: string | null
           full_name: string | null
           home_lat: number | null
           home_lng: number | null
           id: string
           language: string | null
+          last_name: string | null
           phone: string | null
           production_place_number: string | null
           role: string
@@ -121,11 +123,13 @@ export type Database = {
           created_at?: string
           email?: string | null
           farm_name?: string | null
+          first_name?: string | null
           full_name?: string | null
           home_lat?: number | null
           home_lng?: number | null
           id: string
           language?: string | null
+          last_name?: string | null
           phone?: string | null
           production_place_number?: string | null
           role?: string
@@ -136,11 +140,13 @@ export type Database = {
           created_at?: string
           email?: string | null
           farm_name?: string | null
+          first_name?: string | null
           full_name?: string | null
           home_lat?: number | null
           home_lng?: number | null
           id?: string
           language?: string | null
+          last_name?: string | null
           phone?: string | null
           production_place_number?: string | null
           role?: string
@@ -312,13 +318,17 @@ export type Database = {
       admin_list_users: {
         Args: never
         Returns: {
+          address: string
           classifications_count: number
           created_at: string
           email: string
           farm_name: string
+          first_name: string
           full_name: string
           id: string
           is_admin: boolean
+          last_name: string
+          phone: string
           sheep_count: number
         }[]
       }

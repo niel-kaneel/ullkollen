@@ -253,6 +253,9 @@ function ShearerCard({ s, onTap }: { s: Shearer; onTap: () => void }) {
 }
 
 function DetailModal({ s, onClose }: { s: Shearer; onClose: () => void }) {
+  const { user, profile } = useAuth();
+  const [showBook, setShowBook] = useState(false);
+
   const source = s.certified_by_farklipparforbundet
     ? "Källa: Svenska Fårklipparförbundet"
     : s.listed_by_faravelsforbundet
@@ -339,19 +342,26 @@ function DetailModal({ s, onClose }: { s: Shearer; onClose: () => void }) {
                 <Mail className="w-4 h-4" /> E-post
               </a>
             )}
-            {s.website && (
-              <a href={s.website} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-[100px] bg-secondary text-secondary-foreground rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-1.5">
-                <Globe className="w-4 h-4" /> Hemsida
-              </a>
-            )}
           </div>
 
-          <button
-            onClick={() => toast.info("Bokningsfunktion kommer snart")}
-            className="w-full bg-primary text-primary-foreground rounded-xl py-3 font-semibold flex items-center justify-center gap-2"
-          >
-            Boka via Ullkollen <ChevronRight className="w-4 h-4" />
-          </button>
+          {!showBook ? (
+            <button
+              onClick={() => {
+                if (!user) { toast.error("Logga in för att boka"); return; }
+                setShowBook(true);
+              }}
+              className="w-full bg-primary text-primary-foreground rounded-xl py-3 font-semibold flex items-center justify-center gap-2"
+            >
+              Boka via Ullkollen <ChevronRight className="w-4 h-4" />
+            </button>
+          ) : (
+            <BookingForm
+              shearerId={s.id}
+              defaultPhone={profile?.phone ?? ""}
+              onDone={() => { setShowBook(false); onClose(); }}
+              onCancel={() => setShowBook(false)}
+            />
+          )}
 
           {source && <p className="text-[11px] text-muted-foreground text-center pt-2">{source}</p>}
         </div>
@@ -359,6 +369,64 @@ function DetailModal({ s, onClose }: { s: Shearer; onClose: () => void }) {
     </div>
   );
 }
+
+function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId: string; defaultPhone: string; onDone: () => void; onCancel: () => void }) {
+  const { user } = useAuth();
+  const [date, setDate] = useState("");
+  const [sheepCount, setSheepCount] = useState("");
+  const [phone, setPhone] = useState(defaultPhone);
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async () => {
+    if (!user) return;
+    setBusy(true);
+    const { error } = await supabase.from("bookings").insert({
+      farmer_id: user.id,
+      shearer_id: shearerId,
+      preferred_date: date || null,
+      sheep_count: sheepCount ? parseInt(sheepCount) : null,
+      contact_phone: phone || null,
+      message: message || null,
+      status: "pending",
+    });
+    setBusy(false);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Bokningsförfrågan skickad!");
+      onDone();
+    }
+  };
+
+  return (
+    <div className="border-t border-border pt-4 space-y-3">
+      <h4 className="font-bold flex items-center gap-2"><Calendar className="w-4 h-4 text-primary" /> Skicka bokningsförfrågan</h4>
+      <div>
+        <label className="text-xs font-semibold text-muted-foreground">Önskat datum</label>
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full h-11 rounded-xl border border-border px-3 mt-1 bg-background" />
+      </div>
+      <div>
+        <label className="text-xs font-semibold text-muted-foreground">Antal får</label>
+        <input type="number" min="1" value={sheepCount} onChange={(e) => setSheepCount(e.target.value)} className="w-full h-11 rounded-xl border border-border px-3 mt-1 bg-background" />
+      </div>
+      <div>
+        <label className="text-xs font-semibold text-muted-foreground">Ditt telefonnummer</label>
+        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full h-11 rounded-xl border border-border px-3 mt-1 bg-background" />
+      </div>
+      <div>
+        <label className="text-xs font-semibold text-muted-foreground">Meddelande (valfritt)</label>
+        <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} className="w-full rounded-xl border border-border px-3 py-2 mt-1 bg-background" placeholder="Ras, plats, övriga önskemål..." />
+      </div>
+      <div className="flex gap-2">
+        <button onClick={onCancel} className="flex-1 bg-secondary text-secondary-foreground rounded-xl py-3 font-semibold">Avbryt</button>
+        <button onClick={submit} disabled={busy} className="flex-1 bg-primary text-primary-foreground rounded-xl py-3 font-semibold disabled:opacity-50">
+          {busy ? "Skickar..." : "Skicka förfrågan"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 
 function AboutModal({ onClose }: { onClose: () => void }) {
   return (

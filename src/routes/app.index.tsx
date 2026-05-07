@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Plus, Sparkles, Trash2 } from "lucide-react";
+import { Plus, Sparkles, Trash2, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useTranslation } from "@/lib/i18n";

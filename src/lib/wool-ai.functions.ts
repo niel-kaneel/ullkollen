@@ -2,9 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-// Use the strongest multimodal model available — wool classification
-// rewards careful visual reasoning over speed.
-const MODEL = "google/gemini-2.5-pro";
+// Two-tier strategy: Flash for the first pass (fast + cheap), and if it
+// returns low confidence or asks for a retake, automatically escalate to
+// Pro for a second opinion. Best $/quality balance for production.
+const MODEL_FAST = "google/gemini-3-flash-preview";
+const MODEL_STRONG = "google/gemini-3-pro-image-preview";
 const AI_GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
 const WOOL_SYSTEM_PROMPT = `You are a wool classification assistant trained on the Svensk Ullstandard 2.0

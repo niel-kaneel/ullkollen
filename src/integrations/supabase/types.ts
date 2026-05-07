@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          contact_phone: string | null
+          created_at: string
+          farmer_id: string
+          id: string
+          message: string | null
+          preferred_date: string | null
+          shearer_id: string
+          sheep_count: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          contact_phone?: string | null
+          created_at?: string
+          farmer_id: string
+          id?: string
+          message?: string | null
+          preferred_date?: string | null
+          shearer_id: string
+          sheep_count?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          contact_phone?: string | null
+          created_at?: string
+          farmer_id?: string
+          id?: string
+          message?: string | null
+          preferred_date?: string | null
+          shearer_id?: string
+          sheep_count?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_shearer_id_fkey"
+            columns: ["shearer_id"]
+            isOneToOne: false
+            referencedRelation: "shearers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       classifications: {
         Row: {
           age_category: string | null

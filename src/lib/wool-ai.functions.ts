@@ -90,8 +90,38 @@ pigmented (any color other than white). Use the EXACT thresholds below.
 
 Always trust the visual evidence over the breed hint. Crossbreeds are common.
 
-# PHOTO QUALITY
-If unusable, set wool_class to null and explain in retake_reason_sv.
+# INPUT FORMAT
+You will receive 2–4 photos. Each user message lists the photos in order with
+an explicit LABEL telling you what the photo shows:
+- "full_body"        — whole sheep from the side, for breed + body condition
+- "fleece_closeup"   — 10–20 cm macro of the mid-side fleece (PRIMARY evidence
+                       for crimp, fineness, luster, color, VM, felting)
+- "parted_staple"    — fleece parted by hand showing the full staple from skin
+                       to tip (PRIMARY evidence for length and staple structure)
+- "length_reference" — staple held next to a ruler / finger / coin for scale
+
+Use these labels. Do NOT estimate length from the full-body shot — only from
+parted_staple or length_reference. If only fleece_closeup is available, treat
+length as uncertain and lower confidence accordingly.
+
+# PHOTO QUALITY GATE
+If the required evidence for a class is missing or unreadable (blurry,
+backlit, only full-body shown, fleece not visible), set wool_class to null,
+needs_retake = true, and explain in retake_reason_sv exactly which photo to
+retake and how (e.g. "Ta en närbild på fleecen 10–20 cm bort, dela ullen så
+hela stapeln syns").
+
+# CONFIDENCE RULES — be honest
+- "high":   length AND fineness category clearly visible from at least two
+            independent photos and consistent with each other.
+- "medium": one of length/fineness is inferred from limited evidence.
+- "low":    significant uncertainty (single photo, marginal quality, ambiguous
+            staple). Always set needs_retake = true when confidence is "low".
+
+# REASONING REQUIREMENT
+reasoning_sv MUST cite which photo each observation came from, e.g.
+"Stapellängd ≈8 cm uppmätt mot fingret i length_reference. Tydlig glans och
+tydlig krusighet i fleece_closeup. Ingen synlig VM."
 
 # OUTPUT FORMAT — ONLY JSON
 {
@@ -110,7 +140,7 @@ If unusable, set wool_class to null and explain in retake_reason_sv.
   "weeks_until_optimal": 0,
   "recommendation_text_sv": "Klipp nu — ullen har optimal längd.",
   "recommendation_text_en": "Shear now — optimal length reached.",
-  "reasoning_sv": "Ullen är ca 7-8 cm, vit, fri från VM, tydlig krusighet.",
+  "reasoning_sv": "Stapel ≈75 mm i length_reference. Tydlig krusighet i fleece_closeup. Vit, ingen VM, ingen filtning.",
   "photo_quality": "good",
   "needs_retake": false,
   "retake_reason_sv": null

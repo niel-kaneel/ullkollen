@@ -10,15 +10,18 @@ import { toast } from "sonner";
 import { lovable } from "@/integrations/lovable";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (s: Record<string, unknown>) => ({ mode: (s.mode as string) === "signup" ? "signup" : "signin" }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    mode: (s.mode as string) === "signup" ? "signup" : "signin",
+    email: typeof s.email === "string" ? (s.email as string) : undefined,
+  }),
   component: AuthPage,
 });
 
 function AuthPage() {
   const { t } = useTranslation();
-  const { mode } = Route.useSearch();
+  const { mode, email: prefillEmail } = Route.useSearch();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(prefillEmail ?? "");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");

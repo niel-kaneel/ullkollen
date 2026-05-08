@@ -35,7 +35,7 @@ function AuthPage() {
     try {
       if (mode === "signup") {
         const fullName = `${firstName} ${lastName}`.trim();
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -49,10 +49,20 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        // Detect "user already registered" — Supabase returns success with an obfuscated user and no identities.
+        const identities = (data.user as { identities?: unknown[] } | null)?.identities;
+        if (data.user && Array.isArray(identities) && identities.length === 0) {
+          toast.error("Den här e-postadressen är redan registrerad. Logga in istället.", { duration: 7000 });
+          await supabase.auth.signOut();
+          setPassword("");
+          navigate({ to: "/auth", search: { mode: "signin", email } });
+          return;
+        }
         // Sign the user out in case a session was auto-created, so they have to log in.
         await supabase.auth.signOut();
         toast.success("Konto skapat! Logga in för att fortsätta.", { duration: 6000 });
-        navigate({ to: "/auth", search: { mode: "signin" } });
+        setPassword("");
+        navigate({ to: "/auth", search: { mode: "signin", email } });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {

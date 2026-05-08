@@ -189,6 +189,26 @@ function AuthPage() {
         </Button>
       </div>
 
+      {mode === "signin" && (
+        <button
+          type="button"
+          onClick={async () => {
+            if (!email) {
+              toast.error("Skriv in din e-postadress först.");
+              return;
+            }
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+              redirectTo: window.location.origin + "/auth/reset",
+            });
+            if (error) toast.error(error.message);
+            else toast.success("Återställningslänk skickad — kolla din inkorg.", { duration: 7000 });
+          }}
+          className="mt-6 text-center text-sm text-primary underline underline-offset-4 mx-auto block"
+        >
+          Glömt lösenord?
+        </button>
+      )}
+
       <div className="mt-8 text-center text-sm text-muted-foreground">
         {mode === "signup" ? t("haveAccount") : t("noAccount")}{" "}
         <Link to="/auth" search={{ mode: mode === "signup" ? "signin" : "signup" }} className="text-primary font-semibold underline underline-offset-4">

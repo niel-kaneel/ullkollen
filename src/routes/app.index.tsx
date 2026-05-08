@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Plus, Sparkles, Trash2, Calendar } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Plus, Sparkles, Trash2, Calendar, Bell, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useTranslation } from "@/lib/i18n";
@@ -9,7 +9,12 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
+import { OnboardingTour } from "@/components/OnboardingTour";
+import { haptic } from "@/lib/haptics";
 
 type Row = {
   id: string;
@@ -19,6 +24,7 @@ type Row = {
   recommendation_text_sv: string | null;
   status: string;
   photo_urls: string[];
+  shear_recommendation: string | null;
 };
 
 export const Route = createFileRoute("/app/")({
@@ -29,19 +35,47 @@ function Home() {
   const { t, lang } = useTranslation();
   const { user, profile, isAdmin } = useAuth();
   const [rows, setRows] = useState<Row[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [pendingBookings, setPendingBookings] = useState(0);
 
-  const load = () => {
+  const load = async () => {
     if (!user) return;
-    supabase
-      .from("classifications")
-      .select("id, created_at, wool_class, wool_class_name_sv, recommendation_text_sv, status, photo_urls")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(20)
-      .then(({ data }) => setRows((data as Row[]) ?? []));
+    const [{ data: classRows }, { data: bookingRows }] = await Promise.all([
+      supabase
+        .from("classifications")
+        .select("id, created_at, wool_class, wool_class_name_sv, recommendation_text_sv, status, photo_urls, shear_recommendation")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(20),
+      supabase
+        .from("bookings")
+        .select("id", { count: "exact", head: false })
+        .eq("farmer_id", user.id)
+        .in("status", ["pending", "accepted"]),
+    ]);
+    setRows((classRows as Row[]) ?? []);
+    setPendingBookings(bookingRows?.length ?? 0);
+    setLoaded(true);
   };
 
-  useEffect(load, [user]);
+  useEffect(() => {
+    void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  const { pull, refreshing, threshold } = usePullToRefresh({
+    onRefresh: async () => {
+      haptic("tap");
+      await load();
+    },
+  });
+
+  // Påminnelse: räkna klassningar med rekommendation att klippa nu/snart
+  const reminders = useMemo(() => {
+    return rows.filter((r) =>
+      r.shear_recommendation === "shear_now" || r.shear_recommendation === "shear_urgent",
+    );
+  }, [rows]);
 
   const remove = async (row: Row) => {
     if (row.photo_urls?.length) {
@@ -49,12 +83,16 @@ function Home() {
     }
     const { error } = await supabase.from("classifications").delete().eq("id", row.id);
     if (error) return toast.error(error.message);
+    haptic("success");
     toast.success(t("deleted"));
     setRows((r) => r.filter((x) => x.id !== row.id));
   };
 
   return (
     <div className="space-y-6">
+      <PullToRefreshIndicator pull={pull} refreshing={refreshing} threshold={threshold} />
+      <OnboardingTour />
+
       <div className="pt-2 flex items-start justify-between gap-3">
         <div>
           <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground font-semibold">
@@ -75,11 +113,36 @@ function Home() {
         )}
       </div>
 
+      {/* Påminnelse-banner: får som behöver klippas */}
+      {reminders.length > 0 && (
+        <div className="bg-accent/15 border border-accent/40 rounded-2xl p-4 flex items-start gap-3">
+          <div className="bg-accent text-accent-foreground rounded-full p-2 flex-shrink-0">
+            <Bell className="w-4 h-4" />
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-sm">
+              {lang === "sv"
+                ? `${reminders.length} ${reminders.length === 1 ? "får är" : "får är"} redo att klippas`
+                : `${reminders.length} ${reminders.length === 1 ? "sheep is" : "sheep are"} ready to shear`}
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {lang === "sv" ? "Hitta en klippare nu så hinner du." : "Find a shearer now to be in time."}
+            </p>
+            <Button asChild variant="link" size="sm" className="h-auto p-0 mt-1 text-accent-foreground">
+              <Link to="/app/shearers">
+                {lang === "sv" ? "Hitta klippare →" : "Find shearer →"}
+              </Link>
+            </Button>
+          </div>
+        </div>
+      )}
+
       <Button
         asChild
         size="lg"
         className="w-full h-20 text-lg rounded-3xl shadow-card text-primary-foreground"
         style={{ background: "var(--gradient-pine)" }}
+        onClick={() => haptic("tap")}
       >
         <Link to="/app/classify">
           <Plus className="w-6 h-6 mr-2" strokeWidth={3} />
@@ -90,16 +153,48 @@ function Home() {
       <Button asChild variant="outline" className="w-full h-14 rounded-2xl text-base">
         <Link to="/app/bookings">
           <Calendar className="w-5 h-5 mr-2" />
-          Mina bokningar
+          {lang === "sv" ? "Mina bokningar" : "My bookings"}
+          {pendingBookings > 0 && (
+            <span className="ml-2 inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 text-xs font-bold rounded-full bg-primary text-primary-foreground">
+              {pendingBookings}
+            </span>
+          )}
         </Link>
       </Button>
 
       <div>
-        <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.25em] mb-3">{t("recent")}</h3>
-        {rows.length === 0 ? (
-          <div className="bg-card border border-border rounded-3xl p-8 text-center text-muted-foreground shadow-soft">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.25em]">
+            {t("recent")}
+          </h3>
+          {rows.length > 0 && (
+            <span className="text-[11px] font-semibold text-muted-foreground">
+              {rows.length}
+            </span>
+          )}
+        </div>
+        {!loaded ? (
+          <div className="space-y-3">
+            <Skeleton className="h-24 rounded-2xl" />
+            <Skeleton className="h-24 rounded-2xl" />
+            <Skeleton className="h-24 rounded-2xl" />
+          </div>
+        ) : rows.length === 0 ? (
+          <div className="bg-card border border-border rounded-3xl p-8 text-center shadow-soft">
             <Sparkles className="w-10 h-10 mx-auto mb-3 text-accent" />
-            <p className="text-sm">{t("noClassificationsYet")}</p>
+            <p className="text-sm text-muted-foreground mb-5">{t("noClassificationsYet")}</p>
+            <Button
+              asChild
+              size="lg"
+              className="rounded-2xl"
+              style={{ background: "var(--gradient-pine)" }}
+              onClick={() => haptic("tap")}
+            >
+              <Link to="/app/classify">
+                <Camera className="w-5 h-5 mr-2" />
+                {lang === "sv" ? "Klassa din första tacka" : "Classify your first ewe"}
+              </Link>
+            </Button>
           </div>
         ) : (
           <div className="space-y-3">
@@ -153,6 +248,7 @@ function ClassRow({ row, onDelete }: { row: Row; onDelete: () => void }) {
         <AlertDialogTrigger asChild>
           <button
             aria-label={t("delete")}
+            onClick={() => haptic("warning")}
             className="absolute top-2 right-2 p-2 text-muted-foreground hover:text-destructive rounded-lg hover:bg-destructive/10 transition"
           >
             <Trash2 className="w-4 h-4" />

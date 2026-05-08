@@ -97,6 +97,10 @@ function Classify() {
     months_since_last_shear: 6,
   });
 
+  // Skydda mot oavsiktligt stäng-fönster om foton är tagna men inte skickade in
+  useUnsavedChangesGuard(Object.keys(shots).length > 0 && !busy);
+
+
   // Downscale + compress; bumped to 1600px so fleece detail survives for the AI.
   const downscaleImage = async (file: File, maxDim = 1600, quality = 0.86): Promise<File> => {
     try {

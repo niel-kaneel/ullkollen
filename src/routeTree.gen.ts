@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AuthResetRouteImport } from './routes/auth.reset'
 import { Route as AuthConfirmRouteImport } from './routes/auth.confirm'
 import { Route as AppSupportRouteImport } from './routes/app.support'
 import { Route as AppShearersRouteImport } from './routes/app.shearers'
@@ -48,6 +49,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
+} as any)
+const AuthResetRoute = AuthResetRouteImport.update({
+  id: '/reset',
+  path: '/reset',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthConfirmRoute = AuthConfirmRouteImport.update({
   id: '/confirm',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/app/shearers': typeof AppShearersRoute
   '/app/support': typeof AppSupportRoute
   '/auth/confirm': typeof AuthConfirmRoute
+  '/auth/reset': typeof AuthResetRoute
   '/app/': typeof AppIndexRoute
   '/app/result/$id': typeof AppResultIdRoute
 }
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/app/shearers': typeof AppShearersRoute
   '/app/support': typeof AppSupportRoute
   '/auth/confirm': typeof AuthConfirmRoute
+  '/auth/reset': typeof AuthResetRoute
   '/app': typeof AppIndexRoute
   '/app/result/$id': typeof AppResultIdRoute
 }
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/app/shearers': typeof AppShearersRoute
   '/app/support': typeof AppSupportRoute
   '/auth/confirm': typeof AuthConfirmRoute
+  '/auth/reset': typeof AuthResetRoute
   '/app/': typeof AppIndexRoute
   '/app/result/$id': typeof AppResultIdRoute
 }
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/app/shearers'
     | '/app/support'
     | '/auth/confirm'
+    | '/auth/reset'
     | '/app/'
     | '/app/result/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/app/shearers'
     | '/app/support'
     | '/auth/confirm'
+    | '/auth/reset'
     | '/app'
     | '/app/result/$id'
   id:
@@ -189,6 +200,7 @@ export interface FileRouteTypes {
     | '/app/shearers'
     | '/app/support'
     | '/auth/confirm'
+    | '/auth/reset'
     | '/app/'
     | '/app/result/$id'
   fileRoutesById: FileRoutesById
@@ -236,6 +248,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/auth/reset': {
+      id: '/auth/reset'
+      path: '/reset'
+      fullPath: '/auth/reset'
+      preLoaderRoute: typeof AuthResetRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/auth/confirm': {
       id: '/auth/confirm'
@@ -331,10 +350,12 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 interface AuthRouteChildren {
   AuthConfirmRoute: typeof AuthConfirmRoute
+  AuthResetRoute: typeof AuthResetRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthConfirmRoute: AuthConfirmRoute,
+  AuthResetRoute: AuthResetRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
@@ -348,3 +369,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

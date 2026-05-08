@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Scissors, Sheet, Trash2, Pencil, Check, X } from "lucide-react";
+import { Scissors, Sheet, Trash2, Pencil, Check, X, ChevronDown, Share2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,6 +15,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { haptic } from "@/lib/haptics";
 
 type Classification = {
   id: string;
@@ -51,6 +52,33 @@ function Result() {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Partial<Classification>>({});
   const [saving, setSaving] = useState(false);
+  const [showReasoning, setShowReasoning] = useState(false);
+
+  const onShare = async () => {
+    if (!data) return;
+    haptic("tap");
+    const className = lang === "sv" ? data.wool_class_name_sv : data.wool_class_name_en;
+    const recText = lang === "sv" ? data.recommendation_text_sv : data.recommendation_text_en;
+    const text = [
+      `🐑 Ullkollen — ${data.wool_class ?? "?"}${className ? ` (${className})` : ""}`,
+      data.breed ? `Ras: ${data.breed}` : null,
+      recText ? `Rekommendation: ${recText}` : null,
+      "",
+      "Klassificerat med Ullkollen",
+    ].filter(Boolean).join("\n");
+    const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Ullkollen", text, url: shareUrl });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(`${text}\n${shareUrl}`);
+        toast.success(lang === "sv" ? "Kopierat till urklipp" : "Copied to clipboard");
+      }
+    } catch {
+      // användaren avbröt, ingen åtgärd
+    }
+  };
+
 
   useEffect(() => {
     let cancelled = false;
@@ -169,16 +197,21 @@ function Result() {
         <BackButton />
         <div className="flex items-center gap-1">
           {!editing && data.status === "completed" && data.wool_class && (
-            <Button variant="ghost" size="sm" onClick={startEdit}>
-              <Pencil className="w-4 h-4 mr-1" /> {lang === "sv" ? "Redigera" : "Edit"}
-            </Button>
+            <>
+              <Button variant="ghost" size="sm" onClick={onShare} aria-label={lang === "sv" ? "Dela" : "Share"}>
+                <Share2 className="w-4 h-4 mr-1" /> {lang === "sv" ? "Dela" : "Share"}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={startEdit}>
+                <Pencil className="w-4 h-4 mr-1" /> {lang === "sv" ? "Redigera" : "Edit"}
+              </Button>
+            </>
           )}
           {editing && (
             <>
               <Button variant="ghost" size="sm" onClick={cancelEdit} disabled={saving}>
                 <X className="w-4 h-4 mr-1" /> {t("cancel")}
               </Button>
-              <Button size="sm" onClick={saveEdit} disabled={saving}>
+              <Button size="sm" onClick={() => { haptic("success"); saveEdit(); }} disabled={saving}>
                 <Check className="w-4 h-4 mr-1" /> {saving ? "..." : (lang === "sv" ? "Spara" : "Save")}
               </Button>
             </>
@@ -275,12 +308,21 @@ function Result() {
               {data.wool_class}
             </div>
             <h2 className="text-lg font-semibold mt-3">{className}</h2>
-            <p className="text-xs text-muted-foreground mt-1">
-              {t("confidence")}:{" "}
-              <span className="font-medium">
+            <div className="mt-2 inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-secondary">
+              <span
+                className={`inline-block w-2 h-2 rounded-full ${
+                  data.confidence === "high"
+                    ? "bg-emerald-500"
+                    : data.confidence === "medium"
+                    ? "bg-amber-500"
+                    : "bg-rose-500"
+                }`}
+              />
+              <span className="text-muted-foreground">{t("confidence")}:</span>
+              <span className="font-semibold">
                 {data.confidence === "high" ? t("high") : data.confidence === "medium" ? t("medium") : t("low")}
               </span>
-            </p>
+            </div>
           </div>
 
           <div className={`rounded-2xl p-5 ${recColor}`}>
@@ -289,19 +331,41 @@ function Result() {
           </div>
 
           {data.reasoning_sv && lang === "sv" && (
-            <div className="bg-secondary/60 rounded-2xl p-4 text-sm">
-              {data.reasoning_sv}
+            <div className="bg-card border border-border rounded-2xl overflow-hidden">
+              <button
+                onClick={() => { haptic("select"); setShowReasoning((v) => !v); }}
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-secondary/50 transition"
+                aria-expanded={showReasoning}
+              >
+                <span className="flex items-center gap-2 text-sm font-semibold">
+                  <Info className="w-4 h-4 text-primary" />
+                  {lang === "sv" ? "Varför denna klass?" : "Why this class?"}
+                </span>
+                <ChevronDown
+                  className={`w-4 h-4 text-muted-foreground transition-transform ${showReasoning ? "rotate-180" : ""}`}
+                />
+              </button>
+              {showReasoning && (
+                <div className="px-4 pb-4 text-sm text-foreground/85 leading-relaxed border-t border-border pt-3">
+                  {data.reasoning_sv}
+                  <p className="text-xs text-muted-foreground mt-3 italic">
+                    {lang === "sv"
+                      ? "Tycker du klassen är fel? Tryck på Redigera ovan för att korrigera."
+                      : "Think the class is wrong? Tap Edit above to correct it."}
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
           <div className="grid grid-cols-2 gap-3">
-            <Button asChild size="lg" className="h-14 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground">
+            <Button asChild size="lg" className="h-14 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => haptic("tap")}>
               <Link to="/app/shearers">
                 <Scissors className="w-5 h-5 mr-1" />
                 {t("bookShearer")}
               </Link>
             </Button>
-            <Button onClick={saveToFlock} size="lg" variant="outline" className="h-14 rounded-2xl border-2">
+            <Button onClick={() => { haptic("success"); saveToFlock(); }} size="lg" variant="outline" className="h-14 rounded-2xl border-2">
               <Sheet className="w-5 h-5 mr-1" />
               {t("saveToFlock")}
             </Button>

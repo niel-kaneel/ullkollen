@@ -4,6 +4,10 @@ import { Calendar, Phone, MessageSquare, CheckCircle2, XCircle, Clock } from "lu
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
+import { haptic } from "@/lib/haptics";
 
 type Booking = {
   id: string;
@@ -68,10 +72,15 @@ function BookingsPage() {
     load();
   }, [user?.id]);
 
+  const { pull, refreshing, threshold } = usePullToRefresh({
+    onRefresh: async () => { haptic("tap"); await load(); },
+  });
+
   const respond = async (id: string, status: "accepted" | "declined") => {
     const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
-    if (error) toast.error(error.message);
+    if (error) { haptic("error"); toast.error(error.message); }
     else {
+      haptic("success");
       toast.success(status === "accepted" ? "Bokning accepterad" : "Bokning avböjd");
       load();
     }
@@ -79,13 +88,21 @@ function BookingsPage() {
 
   const cancel = async (id: string) => {
     const { error } = await supabase.from("bookings").update({ status: "cancelled" }).eq("id", id);
-    if (error) toast.error(error.message);
-    else { toast.success("Bokning avbokad"); load(); }
+    if (error) { haptic("error"); toast.error(error.message); }
+    else { haptic("success"); toast.success("Bokning avbokad"); load(); }
   };
 
   return (
     <div className="space-y-5 pb-8 pt-2">
+      <PullToRefreshIndicator pull={pull} refreshing={refreshing} threshold={threshold} />
       <h2 className="text-2xl font-bold text-primary">Mina bokningar</h2>
+
+      {loading && (
+        <div className="space-y-3">
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
+        </div>
+      )}
 
       {incoming.length > 0 && (
         <section className="space-y-3">

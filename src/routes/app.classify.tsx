@@ -11,6 +11,8 @@ import { supabase } from "@/lib/supabase";
 import { classifyWool } from "@/lib/wool-ai.functions";
 import { BackButton } from "@/components/BackButton";
 import { toast } from "sonner";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
+import { haptic } from "@/lib/haptics";
 
 export const Route = createFileRoute("/app/classify")({
   component: Classify,
@@ -94,6 +96,10 @@ function Classify() {
     age_category: "Tacka" as "Lamm" | "Tacka" | "Bagge",
     months_since_last_shear: 6,
   });
+
+  // Skydda mot oavsiktligt stäng-fönster om foton är tagna men inte skickade in
+  useUnsavedChangesGuard(Object.keys(shots).length > 0 && !busy);
+
 
   // Downscale + compress; bumped to 1600px so fleece detail survives for the AI.
   const downscaleImage = async (file: File, maxDim = 1600, quality = 0.86): Promise<File> => {

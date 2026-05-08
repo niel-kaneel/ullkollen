@@ -105,7 +105,12 @@ function AuthPage() {
         </div>
         <div>
           <Label htmlFor="password" className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{t("password")}</Label>
-          <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="h-14 text-base mt-2 rounded-xl bg-background" autoComplete={mode === "signup" ? "new-password" : "current-password"} />
+          <div className="relative mt-2">
+            <Input id="password" type={showPassword ? "text" : "password"} required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="h-14 text-base rounded-xl bg-background pr-12" autoComplete={mode === "signup" ? "new-password" : "current-password"} />
+            <button type="button" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? "Dölj lösenord" : "Visa lösenord"} aria-pressed={showPassword} tabIndex={-1} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground transition rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
         {mode === "signup" && (
           <div className="space-y-4 pt-2 border-t border-border">

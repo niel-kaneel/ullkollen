@@ -11,6 +11,8 @@ import { supabase } from "@/lib/supabase";
 import { classifyWool } from "@/lib/wool-ai.functions";
 import { BackButton } from "@/components/BackButton";
 import { toast } from "sonner";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
+import { haptic } from "@/lib/haptics";
 
 export const Route = createFileRoute("/app/classify")({
   component: Classify,

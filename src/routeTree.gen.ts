@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AuthConfirmRouteImport } from './routes/auth.confirm'
 import { Route as AppSupportRouteImport } from './routes/app.support'
 import { Route as AppShearersRouteImport } from './routes/app.shearers'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
@@ -47,6 +48,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
+} as any)
+const AuthConfirmRoute = AuthConfirmRouteImport.update({
+  id: '/confirm',
+  path: '/confirm',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AppSupportRoute = AppSupportRouteImport.update({
   id: '/support',
@@ -92,7 +98,7 @@ const AppResultIdRoute = AppResultIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/app/admin': typeof AppAdminRoute
   '/app/bookings': typeof AppBookingsRoute
@@ -101,12 +107,13 @@ export interface FileRoutesByFullPath {
   '/app/profile': typeof AppProfileRoute
   '/app/shearers': typeof AppShearersRoute
   '/app/support': typeof AppSupportRoute
+  '/auth/confirm': typeof AuthConfirmRoute
   '/app/': typeof AppIndexRoute
   '/app/result/$id': typeof AppResultIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/app/admin': typeof AppAdminRoute
   '/app/bookings': typeof AppBookingsRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/app/profile': typeof AppProfileRoute
   '/app/shearers': typeof AppShearersRoute
   '/app/support': typeof AppSupportRoute
+  '/auth/confirm': typeof AuthConfirmRoute
   '/app': typeof AppIndexRoute
   '/app/result/$id': typeof AppResultIdRoute
 }
@@ -122,7 +130,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/app/admin': typeof AppAdminRoute
   '/app/bookings': typeof AppBookingsRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/app/profile': typeof AppProfileRoute
   '/app/shearers': typeof AppShearersRoute
   '/app/support': typeof AppSupportRoute
+  '/auth/confirm': typeof AuthConfirmRoute
   '/app/': typeof AppIndexRoute
   '/app/result/$id': typeof AppResultIdRoute
 }
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/app/profile'
     | '/app/shearers'
     | '/app/support'
+    | '/auth/confirm'
     | '/app/'
     | '/app/result/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
     | '/app/profile'
     | '/app/shearers'
     | '/app/support'
+    | '/auth/confirm'
     | '/app'
     | '/app/result/$id'
   id:
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/app/profile'
     | '/app/shearers'
     | '/app/support'
+    | '/auth/confirm'
     | '/app/'
     | '/app/result/$id'
   fileRoutesById: FileRoutesById
@@ -184,7 +196,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
-  AuthRoute: typeof AuthRoute
+  AuthRoute: typeof AuthRouteWithChildren
   OnboardingRoute: typeof OnboardingRoute
 }
 
@@ -224,6 +236,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/auth/confirm': {
+      id: '/auth/confirm'
+      path: '/confirm'
+      fullPath: '/auth/confirm'
+      preLoaderRoute: typeof AuthConfirmRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/app/support': {
       id: '/app/support'
@@ -310,10 +329,20 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
+interface AuthRouteChildren {
+  AuthConfirmRoute: typeof AuthConfirmRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthConfirmRoute: AuthConfirmRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
-  AuthRoute: AuthRoute,
+  AuthRoute: AuthRouteWithChildren,
   OnboardingRoute: OnboardingRoute,
 }
 export const routeTree = rootRouteImport

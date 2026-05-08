@@ -36,7 +36,7 @@ function AuthPage() {
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin + "/onboarding",
+            emailRedirectTo: window.location.origin + "/auth/confirm",
             data: {
               first_name: firstName || null,
               last_name: lastName || null,

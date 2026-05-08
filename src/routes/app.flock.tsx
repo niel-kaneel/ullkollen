@@ -1,6 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Search, X } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
+import { haptic } from "@/lib/haptics";
 import { useAuth } from "@/lib/auth";
 import { useTranslation } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
@@ -62,23 +66,44 @@ function Flock() {
   const { t, lang } = useTranslation();
   const { user, profile } = useAuth();
   const [sheep, setSheep] = useState<Sheep[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [editing, setEditing] = useState<Sheep | null>(null);
   const [individual, setIndividual] = useState("");
   const [saving, setSaving] = useState(false);
+  const [query, setQuery] = useState("");
 
   const ppn = profile?.production_place_number ?? null;
 
-  const load = () => {
+  const load = async () => {
     if (!user) return;
-    supabase
+    const { data } = await supabase
       .from("sheep")
       .select("id, name, ear_tag_id, breed, breed_code, age_category, created_at")
       .eq("owner_id", user.id)
-      .order("created_at", { ascending: false })
-      .then(({ data }) => setSheep((data as unknown as Sheep[]) ?? []));
+      .order("created_at", { ascending: false });
+    setSheep((data as unknown as Sheep[]) ?? []);
+    setLoaded(true);
   };
 
-  useEffect(load, [user]);
+  useEffect(() => { void load(); /* eslint-disable-next-line */ }, [user]);
+
+  const { pull, refreshing, threshold } = usePullToRefresh({
+    onRefresh: async () => { haptic("tap"); await load(); },
+  });
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return sheep;
+    return sheep.filter((s) => {
+      return (
+        (s.name ?? "").toLowerCase().includes(q) ||
+        (s.ear_tag_id ?? "").toLowerCase().includes(q) ||
+        (s.breed ?? "").toLowerCase().includes(q) ||
+        (s.breed_code ?? "").toLowerCase().includes(q) ||
+        (s.age_category ?? "").toLowerCase().includes(q)
+      );
+    });
+  }, [sheep, query]);
 
   const openEdit = (s: Sheep) => {
     setEditing(s);
@@ -126,15 +151,55 @@ function Flock() {
 
   return (
     <div className="space-y-3 pt-2">
-      <h2 className="text-xl font-bold text-primary">{t("flock")}</h2>
-      {sheep.length === 0 ? (
+      <PullToRefreshIndicator pull={pull} refreshing={refreshing} threshold={threshold} />
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold text-primary">{t("flock")}</h2>
+        {sheep.length > 0 && (
+          <span className="text-xs font-semibold text-muted-foreground bg-secondary px-2.5 py-1 rounded-full">
+            {sheep.length}
+          </span>
+        )}
+      </div>
+
+      {sheep.length > 0 && (
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={lang === "sv" ? "Sök på namn, EID, ras..." : "Search name, EID, breed..."}
+            className="h-12 pl-9 pr-9 rounded-2xl bg-card"
+          />
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              aria-label={lang === "sv" ? "Rensa" : "Clear"}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground rounded-md"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      )}
+
+      {!loaded ? (
+        <>
+          <Skeleton className="h-20 rounded-2xl" />
+          <Skeleton className="h-20 rounded-2xl" />
+          <Skeleton className="h-20 rounded-2xl" />
+        </>
+      ) : sheep.length === 0 ? (
         <p className="bg-card border border-border rounded-2xl p-6 text-center text-muted-foreground text-sm">
           {lang === "sv"
             ? "Sparade får visas här efter en klassificering."
             : "Saved sheep appear here after a classification."}
         </p>
+      ) : filtered.length === 0 ? (
+        <p className="text-center text-muted-foreground text-sm py-8">
+          {lang === "sv" ? `Inga får matchar "${query}"` : `No sheep match "${query}"`}
+        </p>
       ) : (
-        sheep.map((s) => (
+        filtered.map((s) => (
           <div
             key={s.id}
             className="bg-card border border-border rounded-2xl p-4 shadow-soft flex items-center justify-between gap-3"

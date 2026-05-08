@@ -32,11 +32,10 @@ function AuthPage() {
     try {
       if (mode === "signup") {
         const fullName = `${firstName} ${lastName}`.trim();
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin + "/auth/confirm",
             data: {
               first_name: firstName || null,
               last_name: lastName || null,
@@ -47,15 +46,10 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        if (!data.session) {
-          toast.success(
-            "Konto skapat! Kolla din e-post för att bekräfta din adress, logga sedan in.",
-            { duration: 8000 },
-          );
-          navigate({ to: "/auth", search: { mode: "signin" } });
-        } else {
-          navigate({ to: "/onboarding" });
-        }
+        // Sign the user out in case a session was auto-created, so they have to log in.
+        await supabase.auth.signOut();
+        toast.success("Konto skapat! Logga in för att fortsätta.", { duration: 6000 });
+        navigate({ to: "/auth", search: { mode: "signin" } });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {

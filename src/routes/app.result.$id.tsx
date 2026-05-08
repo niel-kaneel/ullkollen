@@ -52,6 +52,33 @@ function Result() {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Partial<Classification>>({});
   const [saving, setSaving] = useState(false);
+  const [showReasoning, setShowReasoning] = useState(false);
+
+  const onShare = async () => {
+    if (!data) return;
+    haptic("tap");
+    const className = lang === "sv" ? data.wool_class_name_sv : data.wool_class_name_en;
+    const recText = lang === "sv" ? data.recommendation_text_sv : data.recommendation_text_en;
+    const text = [
+      `🐑 Ullkollen — ${data.wool_class ?? "?"}${className ? ` (${className})` : ""}`,
+      data.breed ? `Ras: ${data.breed}` : null,
+      recText ? `Rekommendation: ${recText}` : null,
+      "",
+      "Klassificerat med Ullkollen",
+    ].filter(Boolean).join("\n");
+    const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Ullkollen", text, url: shareUrl });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(`${text}\n${shareUrl}`);
+        toast.success(lang === "sv" ? "Kopierat till urklipp" : "Copied to clipboard");
+      }
+    } catch {
+      // användaren avbröt, ingen åtgärd
+    }
+  };
+
 
   useEffect(() => {
     let cancelled = false;

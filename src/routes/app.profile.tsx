@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { LifeBuoy, LogOut, MapPin } from "lucide-react";
+import { Calendar as CalendarIcon, LifeBuoy, LogOut, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -95,6 +95,13 @@ function ProfilePage() {
 
       <Button onClick={save} disabled={busy} size="lg" className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-base">
         {t("save")}
+      </Button>
+
+      <Button asChild variant="outline" className="w-full h-14 rounded-2xl text-base">
+        <Link to="/app/calendar">
+          <CalendarIcon className="w-5 h-5 mr-2" />
+          {lang === "sv" ? "Min kalender" : "My calendar"}
+        </Link>
       </Button>
 
       <Button asChild variant="outline" className="w-full h-14 rounded-2xl text-base">

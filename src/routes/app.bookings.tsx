@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Calendar, Phone, MessageSquare, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { Calendar, Phone, MessageSquare, CheckCircle2, XCircle, Clock, CalendarDays } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
@@ -95,7 +95,12 @@ function BookingsPage() {
   return (
     <div className="space-y-5 pb-8 pt-2">
       <PullToRefreshIndicator pull={pull} refreshing={refreshing} threshold={threshold} />
-      <h2 className="text-2xl font-bold text-primary">Mina bokningar</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-primary">Mina bokningar</h2>
+        <Link to="/app/calendar" className="text-sm text-primary underline inline-flex items-center gap-1">
+          <CalendarDays className="w-4 h-4" /> Kalender
+        </Link>
+      </div>
 
       {loading && (
         <div className="space-y-3">

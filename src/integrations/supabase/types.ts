@@ -18,36 +18,51 @@ export type Database = {
         Row: {
           contact_phone: string | null
           created_at: string
+          expected_confidence: string | null
+          expected_wool_class: string | null
+          expected_wool_class_name_en: string | null
+          expected_wool_class_name_sv: string | null
           farmer_id: string
           id: string
           message: string | null
           preferred_date: string | null
           shearer_id: string
           sheep_count: number | null
+          sheep_id: string | null
           status: string
           updated_at: string
         }
         Insert: {
           contact_phone?: string | null
           created_at?: string
+          expected_confidence?: string | null
+          expected_wool_class?: string | null
+          expected_wool_class_name_en?: string | null
+          expected_wool_class_name_sv?: string | null
           farmer_id: string
           id?: string
           message?: string | null
           preferred_date?: string | null
           shearer_id: string
           sheep_count?: number | null
+          sheep_id?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
           contact_phone?: string | null
           created_at?: string
+          expected_confidence?: string | null
+          expected_wool_class?: string | null
+          expected_wool_class_name_en?: string | null
+          expected_wool_class_name_sv?: string | null
           farmer_id?: string
           id?: string
           message?: string | null
           preferred_date?: string | null
           shearer_id?: string
           sheep_count?: number | null
+          sheep_id?: string | null
           status?: string
           updated_at?: string
         }

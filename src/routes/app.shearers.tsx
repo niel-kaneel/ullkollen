@@ -377,10 +377,34 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
   const [phone, setPhone] = useState(defaultPhone);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [sheepList, setSheepList] = useState<{ id: string; name: string | null; ear_tag_id: string | null }[]>([]);
+  const [sheepId, setSheepId] = useState<string>("");
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("sheep").select("id, name, ear_tag_id").eq("owner_id", user.id).order("created_at", { ascending: false }).then(({ data }) => {
+      setSheepList((data as any) ?? []);
+    });
+  }, [user?.id]);
 
   const submit = async () => {
     if (!user) return;
     setBusy(true);
+
+    // Look up latest classification for picked sheep (for expected wool quality)
+    let expected: { code: string | null; sv: string | null; en: string | null; conf: string | null } = { code: null, sv: null, en: null, conf: null };
+    if (sheepId) {
+      const { data: c } = await supabase
+        .from("classifications")
+        .select("wool_class, wool_class_name_sv, wool_class_name_en, confidence")
+        .eq("sheep_id", sheepId)
+        .eq("status", "completed")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (c) expected = { code: c.wool_class, sv: c.wool_class_name_sv, en: c.wool_class_name_en, conf: c.confidence };
+    }
+
     const { error } = await supabase.from("bookings").insert({
       farmer_id: user.id,
       shearer_id: shearerId,
@@ -389,6 +413,11 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
       contact_phone: phone || null,
       message: message || null,
       status: "pending",
+      sheep_id: sheepId || null,
+      expected_wool_class: expected.code,
+      expected_wool_class_name_sv: expected.sv,
+      expected_wool_class_name_en: expected.en,
+      expected_confidence: expected.conf,
     });
     setBusy(false);
     if (error) toast.error(error.message);
@@ -405,6 +434,17 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
         <label className="text-xs font-semibold text-muted-foreground">Önskat datum</label>
         <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full h-11 rounded-xl border border-border px-3 mt-1 bg-background" />
       </div>
+      {sheepList.length > 0 && (
+        <div>
+          <label className="text-xs font-semibold text-muted-foreground">Får (valfritt — bifogar förväntad ullkvalitet)</label>
+          <select value={sheepId} onChange={(e) => setSheepId(e.target.value)} className="w-full h-11 rounded-xl border border-border px-3 mt-1 bg-background">
+            <option value="">— Inget specifikt får —</option>
+            {sheepList.map((s) => (
+              <option key={s.id} value={s.id}>{s.name || s.ear_tag_id || s.id.slice(0, 6)}</option>
+            ))}
+          </select>
+        </div>
+      )}
       <div>
         <label className="text-xs font-semibold text-muted-foreground">Antal får</label>
         <input type="number" min="1" value={sheepCount} onChange={(e) => setSheepCount(e.target.value)} className="w-full h-11 rounded-xl border border-border px-3 mt-1 bg-background" />

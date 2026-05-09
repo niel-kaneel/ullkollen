@@ -21,6 +21,7 @@ import { Route as AppShearersRouteImport } from './routes/app.shearers'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
 import { Route as AppFlockRouteImport } from './routes/app.flock'
 import { Route as AppClassifyRouteImport } from './routes/app.classify'
+import { Route as AppCalendarRouteImport } from './routes/app.calendar'
 import { Route as AppBookingsRouteImport } from './routes/app.bookings'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppResultIdRouteImport } from './routes/app.result.$id'
@@ -85,6 +86,11 @@ const AppClassifyRoute = AppClassifyRouteImport.update({
   path: '/classify',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCalendarRoute = AppCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppBookingsRoute = AppBookingsRouteImport.update({
   id: '/bookings',
   path: '/bookings',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/app/admin': typeof AppAdminRoute
   '/app/bookings': typeof AppBookingsRoute
+  '/app/calendar': typeof AppCalendarRoute
   '/app/classify': typeof AppClassifyRoute
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/app/admin': typeof AppAdminRoute
   '/app/bookings': typeof AppBookingsRoute
+  '/app/calendar': typeof AppCalendarRoute
   '/app/classify': typeof AppClassifyRoute
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/app/admin': typeof AppAdminRoute
   '/app/bookings': typeof AppBookingsRoute
+  '/app/calendar': typeof AppCalendarRoute
   '/app/classify': typeof AppClassifyRoute
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/app/admin'
     | '/app/bookings'
+    | '/app/calendar'
     | '/app/classify'
     | '/app/flock'
     | '/app/profile'
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/app/admin'
     | '/app/bookings'
+    | '/app/calendar'
     | '/app/classify'
     | '/app/flock'
     | '/app/profile'
@@ -194,6 +205,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/app/admin'
     | '/app/bookings'
+    | '/app/calendar'
     | '/app/classify'
     | '/app/flock'
     | '/app/profile'
@@ -298,6 +310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppClassifyRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/calendar': {
+      id: '/app/calendar'
+      path: '/calendar'
+      fullPath: '/app/calendar'
+      preLoaderRoute: typeof AppCalendarRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/bookings': {
       id: '/app/bookings'
       path: '/bookings'
@@ -325,6 +344,7 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRoute
   AppBookingsRoute: typeof AppBookingsRoute
+  AppCalendarRoute: typeof AppCalendarRoute
   AppClassifyRoute: typeof AppClassifyRoute
   AppFlockRoute: typeof AppFlockRoute
   AppProfileRoute: typeof AppProfileRoute
@@ -337,6 +357,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRoute,
   AppBookingsRoute: AppBookingsRoute,
+  AppCalendarRoute: AppCalendarRoute,
   AppClassifyRoute: AppClassifyRoute,
   AppFlockRoute: AppFlockRoute,
   AppProfileRoute: AppProfileRoute,
@@ -369,13 +390,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

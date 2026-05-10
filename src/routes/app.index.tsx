@@ -255,12 +255,15 @@ function ClassRow({ row, onDelete }: { row: Row; onDelete: () => void }) {
             {thumb ? <img src={thumb} alt="" className="w-full h-full object-cover" /> : <span className="text-2xl">🐑</span>}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {row.wool_class && (
                 <span className="inline-block bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded-md">
                   {row.wool_class}
                 </span>
               )}
+              <span className="inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">
+                {row.mode === "sheared" ? "🧶" : "🐑"}
+              </span>
               {row.status === "processing" && (
                 <span className="text-xs text-accent">{t("analyzing")}</span>
               )}

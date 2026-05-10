@@ -61,6 +61,7 @@ function CalendarPage() {
   const [reschedule, setReschedule] = useState<{ id: string; date: string; farmerId: string; shearerId: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [reloadTick, setReloadTick] = useState(0);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const handleReschedule = async () => {
     if (!reschedule) return;
@@ -73,6 +74,13 @@ function CalendarPage() {
       excludeBookingId: reschedule.id,
     });
     if (conflict.hasConflict) {
+      const alts = await suggestAlternativeDates({
+        date: reschedule.date,
+        farmerId: reschedule.farmerId,
+        shearerId: reschedule.shearerId,
+        excludeBookingId: reschedule.id,
+      });
+      setSuggestions(alts);
       setSaving(false);
       toast.error(conflictMessage(conflict, lang as "sv" | "en") ?? "");
       return;
@@ -90,6 +98,7 @@ function CalendarPage() {
     toast.success(lang === "sv" ? "Bokning ombokad" : "Booking rescheduled");
     setSelectedDate(reschedule.date);
     setReschedule(null);
+    setSuggestions([]);
     setReloadTick((t) => t + 1);
   };
 

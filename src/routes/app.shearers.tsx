@@ -413,6 +413,7 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
         shearerId,
       });
       setSuggestions(alts);
+      setNoAlts(alts.length === 0);
       setBusy(false);
       toast.error(conflictMessage(conflict, lang as "sv" | "en") ?? "");
       return;

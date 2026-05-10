@@ -84,12 +84,14 @@ export type Database = {
           breed_code: string | null
           completed_at: string | null
           confidence: string | null
+          confirmed_at: string | null
           created_at: string
           fleece_id: string | null
           id: string
           mode: string
           months_since_last_shear: number | null
           needs_retake: boolean | null
+          original_wool_class: string | null
           photo_urls: string[] | null
           raw_ai_response: Json | null
           reasoning_sv: string | null
@@ -100,6 +102,7 @@ export type Database = {
           shearing_date: string | null
           sheep_id: string | null
           status: string
+          user_confirmed: boolean
           user_id: string
           weeks_until_optimal: number | null
           wool_class: string | null
@@ -113,12 +116,14 @@ export type Database = {
           breed_code?: string | null
           completed_at?: string | null
           confidence?: string | null
+          confirmed_at?: string | null
           created_at?: string
           fleece_id?: string | null
           id?: string
           mode?: string
           months_since_last_shear?: number | null
           needs_retake?: boolean | null
+          original_wool_class?: string | null
           photo_urls?: string[] | null
           raw_ai_response?: Json | null
           reasoning_sv?: string | null
@@ -129,6 +134,7 @@ export type Database = {
           shearing_date?: string | null
           sheep_id?: string | null
           status?: string
+          user_confirmed?: boolean
           user_id: string
           weeks_until_optimal?: number | null
           wool_class?: string | null
@@ -142,12 +148,14 @@ export type Database = {
           breed_code?: string | null
           completed_at?: string | null
           confidence?: string | null
+          confirmed_at?: string | null
           created_at?: string
           fleece_id?: string | null
           id?: string
           mode?: string
           months_since_last_shear?: number | null
           needs_retake?: boolean | null
+          original_wool_class?: string | null
           photo_urls?: string[] | null
           raw_ai_response?: Json | null
           reasoning_sv?: string | null
@@ -158,6 +166,7 @@ export type Database = {
           shearing_date?: string | null
           sheep_id?: string | null
           status?: string
+          user_confirmed?: boolean
           user_id?: string
           weeks_until_optimal?: number | null
           wool_class?: string | null
@@ -444,6 +453,29 @@ export type Database = {
           self_managed: boolean
           service_areas: string[]
           website: string
+        }[]
+      }
+      recent_confirmed_for_user: {
+        Args: { _limit?: number; _user_id: string }
+        Returns: {
+          age_category: string
+          breed: string
+          breed_code: string
+          mode: string
+          photo_urls: string[]
+          reasoning_sv: string
+          was_corrected: boolean
+          wool_class: string
+          wool_class_name_sv: string
+        }[]
+      }
+      user_ai_accuracy: {
+        Args: { _user_id: string }
+        Returns: {
+          accuracy: number
+          correct: number
+          corrected: number
+          total: number
         }[]
       }
     }

@@ -352,7 +352,7 @@ function CalendarPage() {
         </Link>
       </div>
 
-      <Dialog open={!!reschedule} onOpenChange={(o) => !o && setReschedule(null)}>
+      <Dialog open={!!reschedule} onOpenChange={(o) => { if (!o) { setReschedule(null); setSuggestions([]); } }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{lang === "sv" ? "Boka om klippning" : "Reschedule shearing"}</DialogTitle>
@@ -364,8 +364,33 @@ function CalendarPage() {
               type="date"
               value={reschedule?.date ?? ""}
               min={ymd(new Date())}
-              onChange={(e) => setReschedule((r) => (r ? { ...r, date: e.target.value } : r))}
+              onChange={(e) => {
+                setSuggestions([]);
+                setReschedule((r) => (r ? { ...r, date: e.target.value } : r));
+              }}
             />
+            {suggestions.length > 0 && (
+              <div className="bg-secondary/50 rounded-xl p-3 space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground">
+                  {lang === "sv" ? "Förslag på lediga datum:" : "Suggested free dates:"}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {suggestions.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => {
+                        setSuggestions([]);
+                        setReschedule((r) => (r ? { ...r, date: s } : r));
+                      }}
+                      className="px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90"
+                    >
+                      {new Date(s + "T00:00:00").toLocaleDateString(lang === "sv" ? "sv-SE" : "en-US", { weekday: "short", day: "numeric", month: "short" })}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <p className="text-xs text-muted-foreground">
               {lang === "sv"
                 ? "Status sätts till väntande tills motparten bekräftar."
@@ -373,7 +398,7 @@ function CalendarPage() {
             </p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setReschedule(null)} disabled={saving}>
+            <Button variant="outline" onClick={() => { setReschedule(null); setSuggestions([]); }} disabled={saving}>
               {lang === "sv" ? "Avbryt" : "Cancel"}
             </Button>
             <Button onClick={handleReschedule} disabled={saving || !reschedule?.date}>

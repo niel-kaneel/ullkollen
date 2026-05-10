@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Phone, MessageSquare, Mail, Globe, MapPin, X, Info, ChevronRight, Calendar } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
-import { checkBookingConflict, conflictMessage } from "@/lib/booking-conflicts";
+import { checkBookingConflict, conflictMessage, suggestAlternativeDates } from "@/lib/booking-conflicts";
 import { useTranslation } from "@/lib/i18n";
 import { toast } from "sonner";
 
@@ -382,6 +382,7 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
   const [busy, setBusy] = useState(false);
   const [sheepList, setSheepList] = useState<{ id: string; name: string | null; ear_tag_id: string | null }[]>([]);
   const [sheepId, setSheepId] = useState<string>("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -405,6 +406,12 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
       shearerId,
     });
     if (conflict.hasConflict) {
+      const alts = await suggestAlternativeDates({
+        date,
+        farmerId: user.id,
+        shearerId,
+      });
+      setSuggestions(alts);
       setBusy(false);
       toast.error(conflictMessage(conflict, lang as "sv" | "en") ?? "");
       return;
@@ -451,7 +458,26 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
       <h4 className="font-bold flex items-center gap-2"><Calendar className="w-4 h-4 text-primary" /> Skicka bokningsförfrågan</h4>
       <div>
         <label className="text-xs font-semibold text-muted-foreground">Önskat datum</label>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full h-11 rounded-xl border border-border px-3 mt-1 bg-background" />
+        <input type="date" value={date} onChange={(e) => { setSuggestions([]); setDate(e.target.value); }} className="w-full h-11 rounded-xl border border-border px-3 mt-1 bg-background" />
+        {suggestions.length > 0 && (
+          <div className="bg-secondary/50 rounded-xl p-3 mt-2 space-y-2">
+            <p className="text-xs font-semibold text-muted-foreground">
+              {lang === "sv" ? "Förslag på lediga datum:" : "Suggested free dates:"}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {suggestions.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => { setSuggestions([]); setDate(s); }}
+                  className="px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90"
+                >
+                  {new Date(s + "T00:00:00").toLocaleDateString(lang === "sv" ? "sv-SE" : "en-US", { weekday: "short", day: "numeric", month: "short" })}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       {sheepList.length > 0 && (
         <div>

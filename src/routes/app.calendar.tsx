@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { checkBookingConflict, conflictMessage } from "@/lib/booking-conflicts";
+import { checkBookingConflict, conflictMessage, suggestAlternativeDates } from "@/lib/booking-conflicts";
 
 export const Route = createFileRoute("/app/calendar")({
   component: CalendarPage,
@@ -61,6 +61,7 @@ function CalendarPage() {
   const [reschedule, setReschedule] = useState<{ id: string; date: string; farmerId: string; shearerId: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [reloadTick, setReloadTick] = useState(0);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const handleReschedule = async () => {
     if (!reschedule) return;
@@ -73,6 +74,13 @@ function CalendarPage() {
       excludeBookingId: reschedule.id,
     });
     if (conflict.hasConflict) {
+      const alts = await suggestAlternativeDates({
+        date: reschedule.date,
+        farmerId: reschedule.farmerId,
+        shearerId: reschedule.shearerId,
+        excludeBookingId: reschedule.id,
+      });
+      setSuggestions(alts);
       setSaving(false);
       toast.error(conflictMessage(conflict, lang as "sv" | "en") ?? "");
       return;
@@ -90,6 +98,7 @@ function CalendarPage() {
     toast.success(lang === "sv" ? "Bokning ombokad" : "Booking rescheduled");
     setSelectedDate(reschedule.date);
     setReschedule(null);
+    setSuggestions([]);
     setReloadTick((t) => t + 1);
   };
 
@@ -343,7 +352,7 @@ function CalendarPage() {
         </Link>
       </div>
 
-      <Dialog open={!!reschedule} onOpenChange={(o) => !o && setReschedule(null)}>
+      <Dialog open={!!reschedule} onOpenChange={(o) => { if (!o) { setReschedule(null); setSuggestions([]); } }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{lang === "sv" ? "Boka om klippning" : "Reschedule shearing"}</DialogTitle>
@@ -355,8 +364,33 @@ function CalendarPage() {
               type="date"
               value={reschedule?.date ?? ""}
               min={ymd(new Date())}
-              onChange={(e) => setReschedule((r) => (r ? { ...r, date: e.target.value } : r))}
+              onChange={(e) => {
+                setSuggestions([]);
+                setReschedule((r) => (r ? { ...r, date: e.target.value } : r));
+              }}
             />
+            {suggestions.length > 0 && (
+              <div className="bg-secondary/50 rounded-xl p-3 space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground">
+                  {lang === "sv" ? "Förslag på lediga datum:" : "Suggested free dates:"}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {suggestions.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => {
+                        setSuggestions([]);
+                        setReschedule((r) => (r ? { ...r, date: s } : r));
+                      }}
+                      className="px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90"
+                    >
+                      {new Date(s + "T00:00:00").toLocaleDateString(lang === "sv" ? "sv-SE" : "en-US", { weekday: "short", day: "numeric", month: "short" })}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <p className="text-xs text-muted-foreground">
               {lang === "sv"
                 ? "Status sätts till väntande tills motparten bekräftar."
@@ -364,7 +398,7 @@ function CalendarPage() {
             </p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setReschedule(null)} disabled={saving}>
+            <Button variant="outline" onClick={() => { setReschedule(null); setSuggestions([]); }} disabled={saving}>
               {lang === "sv" ? "Avbryt" : "Cancel"}
             </Button>
             <Button onClick={handleReschedule} disabled={saving || !reschedule?.date}>

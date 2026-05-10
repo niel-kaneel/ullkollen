@@ -101,6 +101,7 @@ function CalendarPage() {
     setSelectedDate(reschedule.date);
     setReschedule(null);
     setSuggestions([]);
+    setNoAlts(false);
     setReloadTick((t) => t + 1);
   };
 

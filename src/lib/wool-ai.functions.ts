@@ -282,10 +282,16 @@ export const classifyWool = createServerFn({ method: "POST" })
       .map((_, i) => `  ${i + 1}. ${labels[i] ?? "unlabeled"}`)
       .join("\n");
 
+    const modeLine = data.metadata?.mode === "sheared"
+      ? `Scan context: SHEARED FLEECE — loose wool laid out after shearing. Photos show the fleece off the animal. Use the spread of the fleece, staple structure and (if present) the scale reference to judge length and fineness.`
+      : `Scan context: ON LIVING SHEEP — wool still attached to the animal${data.metadata?.body_area ? `, photographed on the ${data.metadata.body_area}` : ""}. Treat any "full_body" / "fleece_closeup" labels accordingly.`;
+
     const userText = `Metadata:
 Breed: ${data.metadata?.breed ?? "unknown"}
 Age: ${data.metadata?.age_category ?? "unknown"}
 Months since last shear: ${data.metadata?.months_since_last_shear ?? "unknown"}
+
+${modeLine}
 
 Photos provided in order:
 ${photoList}${priorBlock}

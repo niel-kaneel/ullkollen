@@ -35,7 +35,7 @@ type Classification = {
   needs_retake: boolean | null;
   retake_reason_sv: string | null;
   sheep_id: string | null;
-  mode: string | null;
+  mode: string;
   body_area: string | null;
   fleece_id: string | null;
   shearing_date: string | null;

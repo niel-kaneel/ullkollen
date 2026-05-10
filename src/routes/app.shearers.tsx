@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Phone, MessageSquare, Mail, Globe, MapPin, X, Info, ChevronRight, Calendar } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
+import { checkBookingConflict, conflictMessage } from "@/lib/booking-conflicts";
+import { useTranslation } from "@/lib/i18n";
 import { toast } from "sonner";
 
 type Shearer = {

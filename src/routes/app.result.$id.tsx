@@ -252,6 +252,30 @@ function Result() {
         </div>
       )}
 
+      <div className="flex flex-wrap gap-2 items-center">
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-secondary text-secondary-foreground">
+          {data.mode === "sheared" ? "🧶" : "🐑"}
+          {data.mode === "sheared"
+            ? (lang === "sv" ? "Klippt ull" : "Sheared")
+            : (lang === "sv" ? "På fåret" : "On sheep")}
+        </span>
+        {data.mode === "on_sheep" && data.body_area && (
+          <span className="inline-flex items-center text-[11px] px-2 py-1 rounded-full bg-secondary/60 text-muted-foreground">
+            {data.body_area}
+          </span>
+        )}
+        {data.mode === "sheared" && data.fleece_id && (
+          <span className="inline-flex items-center text-[11px] px-2 py-1 rounded-full bg-secondary/60 text-muted-foreground">
+            ID: {data.fleece_id}
+          </span>
+        )}
+        {data.mode === "sheared" && data.shearing_date && (
+          <span className="inline-flex items-center text-[11px] px-2 py-1 rounded-full bg-secondary/60 text-muted-foreground">
+            {new Date(data.shearing_date + "T00:00:00").toLocaleDateString(lang === "sv" ? "sv-SE" : "en-GB")}
+          </span>
+        )}
+      </div>
+
       {data.needs_retake || !data.wool_class ? (
         <div className="bg-destructive/10 border border-destructive/30 rounded-2xl p-5">
           <p className="font-semibold text-destructive">{lang === "sv" ? "Behöver bättre bilder" : "Needs better photos"}</p>

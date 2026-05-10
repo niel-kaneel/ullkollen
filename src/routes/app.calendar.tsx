@@ -326,7 +326,7 @@ function CalendarPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setReschedule({ id: e.id, date: e.date })}
+                      onClick={() => setReschedule({ id: e.id, date: e.date, farmerId: e.farmer_id, shearerId: e.shearer_id })}
                       className="w-full"
                     >
                       <CalendarClock className="w-4 h-4" />

@@ -25,7 +25,10 @@ type Row = {
   status: string;
   photo_urls: string[];
   shear_recommendation: string | null;
+  mode: string | null;
 };
+
+type ModeFilter = "all" | "on_sheep" | "sheared";
 
 export const Route = createFileRoute("/app/")({
   component: Home,
@@ -37,13 +40,14 @@ function Home() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [pendingBookings, setPendingBookings] = useState(0);
+  const [modeFilter, setModeFilter] = useState<ModeFilter>("all");
 
   const load = async () => {
     if (!user) return;
     const [{ data: classRows }, { data: bookingRows }] = await Promise.all([
       supabase
         .from("classifications")
-        .select("id, created_at, wool_class, wool_class_name_sv, recommendation_text_sv, status, photo_urls, shear_recommendation")
+        .select("id, created_at, wool_class, wool_class_name_sv, recommendation_text_sv, status, photo_urls, shear_recommendation, mode")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(20),
@@ -169,10 +173,31 @@ function Home() {
           </h3>
           {rows.length > 0 && (
             <span className="text-[11px] font-semibold text-muted-foreground">
-              {rows.length}
+              {rows.filter((r) => modeFilter === "all" || r.mode === modeFilter).length}/{rows.length}
             </span>
           )}
         </div>
+        {rows.length > 0 && (
+          <div className="flex gap-2 mb-3">
+            {([
+              { v: "all", label: lang === "sv" ? "Alla" : "All" },
+              { v: "on_sheep", label: lang === "sv" ? "🐑 På fåret" : "🐑 On sheep" },
+              { v: "sheared", label: lang === "sv" ? "🧶 Klippt" : "🧶 Sheared" },
+            ] as const).map((p) => (
+              <button
+                key={p.v}
+                onClick={() => setModeFilter(p.v)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+                  modeFilter === p.v
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-foreground border-border hover:bg-secondary/50"
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        )}
         {!loaded ? (
           <div className="space-y-3">
             <Skeleton className="h-24 rounded-2xl" />
@@ -198,9 +223,11 @@ function Home() {
           </div>
         ) : (
           <div className="space-y-3">
-            {rows.map((r) => (
-              <ClassRow key={r.id} row={r} onDelete={() => remove(r)} />
-            ))}
+            {rows
+              .filter((r) => modeFilter === "all" || r.mode === modeFilter)
+              .map((r) => (
+                <ClassRow key={r.id} row={r} onDelete={() => remove(r)} />
+              ))}
           </div>
         )}
       </div>
@@ -228,12 +255,15 @@ function ClassRow({ row, onDelete }: { row: Row; onDelete: () => void }) {
             {thumb ? <img src={thumb} alt="" className="w-full h-full object-cover" /> : <span className="text-2xl">🐑</span>}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {row.wool_class && (
                 <span className="inline-block bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded-md">
                   {row.wool_class}
                 </span>
               )}
+              <span className="inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">
+                {row.mode === "sheared" ? "🧶" : "🐑"}
+              </span>
               {row.status === "processing" && (
                 <span className="text-xs text-accent">{t("analyzing")}</span>
               )}

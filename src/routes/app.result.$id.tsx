@@ -39,7 +39,7 @@ type Classification = {
   body_area: string | null;
   fleece_id: string | null;
   shearing_date: string | null;
-  user_confirmed: boolean | null;
+  user_confirmed: boolean;
   original_wool_class: string | null;
 };
 

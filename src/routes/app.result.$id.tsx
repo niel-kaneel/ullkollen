@@ -411,6 +411,34 @@ function Result() {
             </div>
           )}
 
+          {!data.user_confirmed && data.wool_class && (
+            <div className="bg-primary/5 border border-primary/30 rounded-2xl p-4 flex items-center gap-3">
+              <div className="text-2xl">🎯</div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold">
+                  {lang === "sv" ? "Stämmer klassen?" : "Is this class right?"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {lang === "sv"
+                    ? "Bekräfta så lär sig AI:n din gårds ull bättre."
+                    : "Confirm so the AI learns your farm's wool better."}
+                </p>
+              </div>
+              <Button size="sm" onClick={confirmClass} className="rounded-xl shrink-0">
+                <Check className="w-4 h-4 mr-1" />
+                {lang === "sv" ? "Bekräfta" : "Confirm"}
+              </Button>
+            </div>
+          )}
+          {data.user_confirmed && (
+            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-3 flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-400">
+              <Check className="w-4 h-4" />
+              {data.wool_class !== data.original_wool_class
+                ? (lang === "sv" ? `Korrigerad från ${data.original_wool_class ?? "?"} → ${data.wool_class} — AI:n lär sig` : `Corrected from ${data.original_wool_class ?? "?"} → ${data.wool_class} — AI is learning`)
+                : (lang === "sv" ? "Bekräftad — bidrar till AI-träning" : "Confirmed — contributing to AI training")}
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-3">
             <Button asChild size="lg" className="h-14 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => haptic("tap")}>
               <Link to="/app/shearers">

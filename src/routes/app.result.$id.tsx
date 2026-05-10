@@ -35,6 +35,10 @@ type Classification = {
   needs_retake: boolean | null;
   retake_reason_sv: string | null;
   sheep_id: string | null;
+  mode: string | null;
+  body_area: string | null;
+  fleece_id: string | null;
+  shearing_date: string | null;
 };
 
 export const Route = createFileRoute("/app/result/$id")({

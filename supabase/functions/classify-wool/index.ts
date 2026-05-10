@@ -239,6 +239,7 @@ Months since last shear: ${metadata?.months_since_last_shear ?? "unknown"}${fewS
       .update({
         status: "completed",
         wool_class: result.wool_class,
+        original_wool_class: result.wool_class,
         wool_class_name_sv: result.wool_class_name_sv,
         wool_class_name_en: result.wool_class_name_en,
         confidence: result.confidence,

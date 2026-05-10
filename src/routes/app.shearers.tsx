@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Phone, MessageSquare, Mail, Globe, MapPin, X, Info, ChevronRight, Calendar } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
+import { checkBookingConflict, conflictMessage } from "@/lib/booking-conflicts";
+import { useTranslation } from "@/lib/i18n";
 import { toast } from "sonner";
 
 type Shearer = {
@@ -372,6 +374,7 @@ function DetailModal({ s, onClose }: { s: Shearer; onClose: () => void }) {
 
 function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId: string; defaultPhone: string; onDone: () => void; onCancel: () => void }) {
   const { user } = useAuth();
+  const { lang } = useTranslation();
   const [date, setDate] = useState("");
   const [sheepCount, setSheepCount] = useState("");
   const [phone, setPhone] = useState(defaultPhone);
@@ -389,7 +392,23 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
 
   const submit = async () => {
     if (!user) return;
+    if (!date) {
+      toast.error(lang === "sv" ? "Välj ett datum" : "Pick a date");
+      return;
+    }
     setBusy(true);
+
+    // Conflict check — same date, active booking for either party
+    const conflict = await checkBookingConflict({
+      date,
+      farmerId: user.id,
+      shearerId,
+    });
+    if (conflict.hasConflict) {
+      setBusy(false);
+      toast.error(conflictMessage(conflict, lang as "sv" | "en") ?? "");
+      return;
+    }
 
     // Look up latest classification for picked sheep (for expected wool quality)
     let expected: { code: string | null; sv: string | null; en: string | null; conf: string | null } = { code: null, sv: null, en: null, conf: null };

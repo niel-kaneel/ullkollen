@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { checkBookingConflict, conflictMessage } from "@/lib/booking-conflicts";
 
 export const Route = createFileRoute("/app/calendar")({
   component: CalendarPage,
@@ -20,6 +21,8 @@ type CalEvent = {
   date: string; // YYYY-MM-DD
   status: string;
   role: "farmer" | "shearer"; // current user's role for this booking
+  farmer_id: string;
+  shearer_id: string;
   sheep_count: number | null;
   message: string | null;
   contact_phone: string | null;
@@ -55,13 +58,26 @@ function CalendarPage() {
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string>(ymd(new Date()));
-  const [reschedule, setReschedule] = useState<{ id: string; date: string } | null>(null);
+  const [reschedule, setReschedule] = useState<{ id: string; date: string; farmerId: string; shearerId: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [reloadTick, setReloadTick] = useState(0);
 
   const handleReschedule = async () => {
     if (!reschedule) return;
     setSaving(true);
+
+    const conflict = await checkBookingConflict({
+      date: reschedule.date,
+      farmerId: reschedule.farmerId,
+      shearerId: reschedule.shearerId,
+      excludeBookingId: reschedule.id,
+    });
+    if (conflict.hasConflict) {
+      setSaving(false);
+      toast.error(conflictMessage(conflict, lang as "sv" | "en") ?? "");
+      return;
+    }
+
     const { error } = await supabase
       .from("bookings")
       .update({ preferred_date: reschedule.date, status: "pending" })
@@ -116,6 +132,8 @@ function CalendarPage() {
           date: b.preferred_date,
           status: b.status,
           role: "farmer",
+          farmer_id: b.farmer_id,
+          shearer_id: b.shearer_id,
           sheep_count: b.sheep_count,
           message: b.message,
           contact_phone: b.contact_phone,
@@ -133,6 +151,8 @@ function CalendarPage() {
           date: b.preferred_date,
           status: b.status,
           role: "shearer",
+          farmer_id: b.farmer_id,
+          shearer_id: b.shearer_id,
           sheep_count: b.sheep_count,
           message: b.message,
           contact_phone: b.contact_phone,
@@ -306,7 +326,7 @@ function CalendarPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setReschedule({ id: e.id, date: e.date })}
+                      onClick={() => setReschedule({ id: e.id, date: e.date, farmerId: e.farmer_id, shearerId: e.shearer_id })}
                       className="w-full"
                     >
                       <CalendarClock className="w-4 h-4" />

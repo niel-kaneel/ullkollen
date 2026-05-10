@@ -147,7 +147,7 @@ function CalendarPage() {
       setLoading(false);
     };
     load();
-  }, [user?.id, lang]);
+  }, [user?.id, lang, reloadTick]);
 
   const monthLabel = useMemo(
     () => cursor.toLocaleDateString(lang === "sv" ? "sv-SE" : "en-US", { month: "long", year: "numeric" }),

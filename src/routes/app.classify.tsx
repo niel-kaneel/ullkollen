@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, useRef } from "react";
-import { Camera, X, ImagePlus, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { Camera, X, ImagePlus, AlertTriangle, CheckCircle2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/lib/auth";
 import { useTranslation } from "@/lib/i18n";
@@ -13,16 +14,17 @@ import { BackButton } from "@/components/BackButton";
 import { toast } from "sonner";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { haptic } from "@/lib/haptics";
+import { BREEDS, BREED_BY_CODE } from "@/lib/breeds";
 
 export const Route = createFileRoute("/app/classify")({
   component: Classify,
 });
 
-import { BREEDS, BREED_BY_CODE } from "@/lib/breeds";
+// ── Scanning mode ────────────────────────────────────────────────────────────
+export type ScanMode = "on_sheep" | "sheared";
+const LAST_MODE_KEY = "ullkollen.lastScanMode";
 
-// Structured shot slots — each tells the AI exactly what it's looking at,
-// which dramatically improves classification quality.
-type ShotKey = "full_body" | "fleece_closeup" | "length_reference";
+type ShotKey = string;
 
 type ShotDef = {
   key: ShotKey;
@@ -34,13 +36,13 @@ type ShotDef = {
   desc_en: string;
 };
 
-const SHOTS: ShotDef[] = [
+const SHOTS_ON_SHEEP: ShotDef[] = [
   {
     key: "full_body",
     required: true,
     emoji: "🐑",
-    title_sv: "Ta en bild på hela fåret",
-    title_en: "Take a photo of the whole sheep",
+    title_sv: "Helbild på fåret",
+    title_en: "Whole sheep",
     desc_sv: "Stå 2–3 meter bort, helkroppsbild.",
     desc_en: "Stand 2–3 metres away, full-body shot.",
   },
@@ -48,10 +50,10 @@ const SHOTS: ShotDef[] = [
     key: "fleece_closeup",
     required: true,
     emoji: "🔍",
-    title_sv: "Närbild på ullen",
-    title_en: "Close-up of the wool",
-    desc_sv: "15–20 cm från ullen, sida eller rygg.",
-    desc_en: "15–20 cm from the wool, side or back.",
+    title_sv: "Närbild på ullen (sida/rygg/bog)",
+    title_en: "Wool close-up (flank/back/shoulder)",
+    desc_sv: "15–20 cm från ullen. Välj kroppsdel nedan.",
+    desc_en: "15–20 cm from the wool. Pick body area below.",
   },
   {
     key: "length_reference",
@@ -59,9 +61,47 @@ const SHOTS: ShotDef[] = [
     emoji: "📏",
     title_sv: "Visa fiberlängden (rekommenderas)",
     title_en: "Show the fibre length (recommended)",
-    desc_sv: "Sträck en lock mot ditt finger eller en linjal. Hoppa över om du inte kan.",
-    desc_en: "Stretch a lock against your finger or a ruler. Skip if you can't.",
+    desc_sv: "Sträck en lock mot ditt finger eller en linjal.",
+    desc_en: "Stretch a lock against your finger or a ruler.",
   },
+];
+
+const SHOTS_SHEARED: ShotDef[] = [
+  {
+    key: "fleece_flat",
+    required: true,
+    emoji: "🧶",
+    title_sv: "Hela fleecen utlagd platt",
+    title_en: "Whole fleece laid flat",
+    desc_sv: "Lägg fleecen platt på ett neutralt underlag i jämnt ljus.",
+    desc_en: "Lay the fleece flat on a neutral background in even lighting.",
+  },
+  {
+    key: "fleece_closeup",
+    required: true,
+    emoji: "🔍",
+    title_sv: "Närbild på ullstrukturen",
+    title_en: "Close-up of the wool structure",
+    desc_sv: "15–20 cm från ullen — visa krusighet och glans.",
+    desc_en: "15–20 cm from the wool — show crimp and luster.",
+  },
+  {
+    key: "length_reference",
+    required: false,
+    emoji: "📏",
+    title_sv: "Skala (linjal/mynt) — rekommenderas",
+    title_en: "Scale reference (ruler/coin) — recommended",
+    desc_sv: "Lägg en linjal eller ett mynt bredvid en lock för storlek.",
+    desc_en: "Place a ruler or coin next to a lock for scale.",
+  },
+];
+
+const BODY_AREAS = [
+  { value: "flank",    sv: "Sida (flank)",    en: "Flank" },
+  { value: "shoulder", sv: "Bog (axel)",      en: "Shoulder" },
+  { value: "back",     sv: "Rygg",            en: "Back" },
+  { value: "britch",   sv: "Bakdel (britch)", en: "Britch" },
+  { value: "neck",     sv: "Hals",            en: "Neck" },
 ];
 
 type CapturedShot = {
@@ -72,8 +112,8 @@ type CapturedShot = {
 
 type PhotoQuality = {
   ok: boolean;
-  sharpness: number; // Laplacian-like variance, 0-1+
-  brightness: number; // 0-255
+  sharpness: number;
+  brightness: number;
   warning_sv: string | null;
   warning_en: string | null;
 };
@@ -82,26 +122,62 @@ function Classify() {
   const { t, lang } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [step, setStep] = useState<1 | 2>(1);
+
+  // Step 0 = mode pick, 1 = photos, 2 = metadata
+  const [mode, setMode] = useState<ScanMode | null>(null);
+  const [step, setStep] = useState<0 | 1 | 2>(0);
   const [shots, setShots] = useState<Partial<Record<ShotKey, CapturedShot>>>({});
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [sheepList, setSheepList] = useState<{ id: string; name: string | null; ear_tag_id: string | null }[]>([]);
   const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
   const targetShot = useRef<ShotKey | null>(null);
 
   const [meta, setMeta] = useState({
     sheepName: "",
+    sheep_id: "",
+    body_area: "flank",
     breed_code: "gotland",
     age_category: "Tacka" as "Lamm" | "Tacka" | "Bagge",
     months_since_last_shear: 6,
+    fleece_id: "",
+    shearing_date: "",
   });
 
-  // Skydda mot oavsiktligt stäng-fönster om foton är tagna men inte skickade in
+  // Pre-select last used mode
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const last = window.localStorage.getItem(LAST_MODE_KEY) as ScanMode | null;
+    if (last === "on_sheep" || last === "sheared") {
+      setMode(last);
+      setStep(1);
+    }
+  }, []);
+
+  // Load farmer's sheep for the on-sheep selector
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("sheep")
+      .select("id, name, ear_tag_id")
+      .eq("owner_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setSheepList((data as any) ?? []));
+  }, [user?.id]);
+
   useUnsavedChangesGuard(Object.keys(shots).length > 0 && !busy);
 
+  const SHOTS = mode === "sheared" ? SHOTS_SHEARED : SHOTS_ON_SHEEP;
 
-  // Downscale + compress; bumped to 1600px so fleece detail survives for the AI.
+  const pickMode = (m: ScanMode) => {
+    haptic("tap");
+    setMode(m);
+    setShots({});
+    if (typeof window !== "undefined") window.localStorage.setItem(LAST_MODE_KEY, m);
+    setStep(1);
+  };
+
   const downscaleImage = async (file: File, maxDim = 1600, quality = 0.86): Promise<File> => {
     try {
       const bitmap = await createImageBitmap(file);
@@ -122,8 +198,6 @@ function Classify() {
     }
   };
 
-  // On-device quality check: estimates sharpness via mean abs Laplacian on a
-  // downscaled greyscale, plus average brightness. Cheap, runs in <50ms.
   const analyzeQuality = async (file: File): Promise<PhotoQuality> => {
     try {
       const bitmap = await createImageBitmap(file);
@@ -144,7 +218,6 @@ function Classify() {
         bSum += v;
       }
       const brightness = bSum / (w * h);
-      // 4-neighbour Laplacian variance proxy
       let sum = 0;
       let sum2 = 0;
       let n = 0;
@@ -159,7 +232,6 @@ function Classify() {
       }
       const mean = sum / n;
       const variance = sum2 / n - mean * mean;
-      // Normalise: typical sharp photo ~600-2000, blurry <150
       const sharpness = Math.min(2, variance / 400);
 
       let warning_sv: string | null = null;
@@ -204,9 +276,9 @@ function Classify() {
     });
   };
 
-  const openCapture = (key: ShotKey, mode: "camera" | "gallery") => {
+  const openCapture = (key: ShotKey, m: "camera" | "gallery") => {
     targetShot.current = key;
-    if (mode === "camera") cameraRef.current?.click();
+    if (m === "camera") cameraRef.current?.click();
     else galleryRef.current?.click();
   };
 
@@ -215,7 +287,7 @@ function Classify() {
   const totalShots = Object.values(shots).filter(Boolean).length;
 
   const submit = async () => {
-    if (!user) return;
+    if (!user || !mode) return;
     if (!hasRequired) {
       toast.error(lang === "sv" ? "Lägg till båda obligatoriska bilderna." : "Add both required photos.");
       return;
@@ -233,6 +305,11 @@ function Classify() {
         .insert({
           user_id: user.id,
           status: "processing",
+          mode,
+          body_area: mode === "on_sheep" ? meta.body_area : null,
+          fleece_id: mode === "sheared" ? meta.fleece_id || null : null,
+          shearing_date: mode === "sheared" ? meta.shearing_date || null : null,
+          sheep_id: mode === "on_sheep" && meta.sheep_id ? meta.sheep_id : null,
           breed: BREED_BY_CODE[meta.breed_code]?.name_sv ?? null,
           breed_code: meta.breed_code,
           age_category: meta.age_category,
@@ -273,7 +350,10 @@ function Classify() {
         data: {
           image_urls: labeled_images.map((l) => l.url),
           image_labels: labeled_images.map((l) => l.label),
-          metadata: meta,
+          metadata: {
+            ...meta,
+            mode,
+          },
         },
       });
       setProgress(100);
@@ -324,9 +404,62 @@ function Classify() {
     );
   }
 
+  // ── Step 0: Mode picker ───────────────────────────────────────────────────
+  if (step === 0 || !mode) {
+    return (
+      <div className="space-y-5">
+        <BackButton />
+        <div>
+          <h2 className="font-display text-2xl font-bold text-primary">
+            {lang === "sv" ? "Vad ska du skanna?" : "What are you scanning?"}
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            {lang === "sv"
+              ? "Välj sammanhang så anpassar vi vägledningen i kameran."
+              : "Pick the context — we'll tailor the camera guidance."}
+          </p>
+        </div>
+
+        <div className="grid gap-3">
+          <ModeCard
+            emoji="🐑"
+            title={lang === "sv" ? "Skanna på fåret" : "Scan on sheep"}
+            desc={
+              lang === "sv"
+                ? "Levande får med ullen kvar. Bra inför beslut om klippning."
+                : "Live sheep with wool still attached. Useful before deciding to shear."
+            }
+            onClick={() => pickMode("on_sheep")}
+          />
+          <ModeCard
+            emoji="🧶"
+            title={lang === "sv" ? "Skanna klippt ull" : "Scan sheared wool"}
+            desc={
+              lang === "sv"
+                ? "Lös fleece efter klippning. För kvalitetskontroll och sortering."
+                : "Loose fleece after shearing. For quality grading and sorting."
+            }
+            onClick={() => pickMode("sheared")}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5">
-      <BackButton />
+      <div className="flex items-center justify-between">
+        <BackButton />
+        <button
+          onClick={() => setStep(0)}
+          className="text-xs font-semibold text-muted-foreground inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-secondary hover:bg-secondary/80 transition"
+        >
+          <ArrowLeft className="w-3 h-3" />
+          {mode === "on_sheep"
+            ? (lang === "sv" ? "Läge: På fåret" : "Mode: On sheep")
+            : (lang === "sv" ? "Läge: Klippt ull" : "Mode: Sheared")}
+        </button>
+      </div>
 
       {step === 1 && (
         <>
@@ -344,9 +477,13 @@ function Classify() {
               {lang === "sv" ? "Bästa bilder" : "Best photos"}
             </p>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              💡 {lang === "sv"
-                ? "Utomhus i jämnt dagsljus, undvik direkt motljus, håll mobilen stadigt och kom nära fleecen för närbilden."
-                : "Outdoors in even daylight, avoid backlight, hold the phone steady, and get close to the fleece on the close-up."}
+              💡 {mode === "on_sheep"
+                ? lang === "sv"
+                  ? "Utomhus i jämnt dagsljus, undvik direkt motljus. Fota från sida, rygg eller bog."
+                  : "Outdoors in even daylight, avoid backlight. Shoot the flank, back or shoulder."
+                : lang === "sv"
+                  ? "Lägg fleecen platt på ett neutralt underlag. Använd gärna en linjal eller ett mynt som skala."
+                  : "Lay the fleece flat on a neutral background. A ruler or coin gives helpful scale."}
             </p>
           </div>
 
@@ -386,8 +523,8 @@ function Classify() {
 
           <div className="text-xs text-muted-foreground text-center">
             {lang === "sv"
-      ? `${totalShots}/3 bilder · ${hasRequired ? "redo" : "lägg till de två obligatoriska"}`
-              : `${totalShots}/3 photos · ${hasRequired ? "ready" : "add the two required shots"}`}
+              ? `${totalShots}/${SHOTS.length} bilder · ${hasRequired ? "redo" : "lägg till de två obligatoriska"}`
+              : `${totalShots}/${SHOTS.length} photos · ${hasRequired ? "ready" : "add the two required shots"}`}
           </div>
 
           <Button
@@ -405,10 +542,64 @@ function Classify() {
         <>
           <h2 className="text-xl font-bold text-primary">{t("metadata")}</h2>
           <div className="space-y-4">
-            <div>
-              <Label className="text-base">{t("sheepName")}</Label>
-              <Input value={meta.sheepName} onChange={(e) => setMeta({ ...meta, sheepName: e.target.value })} className="h-14 text-base mt-2 rounded-xl" />
-            </div>
+            {mode === "on_sheep" && (
+              <>
+                <div>
+                  <Label className="text-base">{t("sheepName")}</Label>
+                  <Input value={meta.sheepName} onChange={(e) => setMeta({ ...meta, sheepName: e.target.value })} className="h-14 text-base mt-2 rounded-xl" />
+                </div>
+                {sheepList.length > 0 && (
+                  <div>
+                    <Label className="text-base">
+                      {lang === "sv" ? "Koppla till får (valfritt)" : "Link to sheep (optional)"}
+                    </Label>
+                    <Select value={meta.sheep_id} onValueChange={(v) => setMeta({ ...meta, sheep_id: v })}>
+                      <SelectTrigger className="h-14 mt-2 rounded-xl text-base"><SelectValue placeholder={lang === "sv" ? "— Inget specifikt får —" : "— No specific sheep —"} /></SelectTrigger>
+                      <SelectContent>
+                        {sheepList.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>{s.name || s.ear_tag_id || s.id.slice(0, 6)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                <div>
+                  <Label className="text-base">{lang === "sv" ? "Kroppsdel på bilden" : "Body area shown"}</Label>
+                  <Select value={meta.body_area} onValueChange={(v) => setMeta({ ...meta, body_area: v })}>
+                    <SelectTrigger className="h-14 mt-2 rounded-xl text-base"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {BODY_AREAS.map((a) => (
+                        <SelectItem key={a.value} value={a.value}>{lang === "sv" ? a.sv : a.en}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+
+            {mode === "sheared" && (
+              <>
+                <div>
+                  <Label className="text-base">{lang === "sv" ? "Fleece-ID (valfritt)" : "Fleece ID (optional)"}</Label>
+                  <Input
+                    value={meta.fleece_id}
+                    onChange={(e) => setMeta({ ...meta, fleece_id: e.target.value })}
+                    placeholder={lang === "sv" ? "t.ex. F-2026-014" : "e.g. F-2026-014"}
+                    className="h-14 text-base mt-2 rounded-xl"
+                  />
+                </div>
+                <div>
+                  <Label className="text-base">{lang === "sv" ? "Klippdatum" : "Shearing date"}</Label>
+                  <Input
+                    type="date"
+                    value={meta.shearing_date}
+                    onChange={(e) => setMeta({ ...meta, shearing_date: e.target.value })}
+                    className="h-14 text-base mt-2 rounded-xl"
+                  />
+                </div>
+              </>
+            )}
+
             <div>
               <Label className="text-base">{t("breed")}</Label>
               <Select value={meta.breed_code} onValueChange={(v) => setMeta({ ...meta, breed_code: v })}>
@@ -418,17 +609,19 @@ function Classify() {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label className="text-base">{t("ageCategory")}</Label>
-              <Select value={meta.age_category} onValueChange={(v) => setMeta({ ...meta, age_category: v as typeof meta.age_category })}>
-                <SelectTrigger className="h-14 mt-2 rounded-xl text-base"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Lamm">Lamm</SelectItem>
-                  <SelectItem value="Tacka">Tacka</SelectItem>
-                  <SelectItem value="Bagge">Bagge</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {mode === "on_sheep" && (
+              <div>
+                <Label className="text-base">{t("ageCategory")}</Label>
+                <Select value={meta.age_category} onValueChange={(v) => setMeta({ ...meta, age_category: v as typeof meta.age_category })}>
+                  <SelectTrigger className="h-14 mt-2 rounded-xl text-base"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Lamm">Lamm</SelectItem>
+                    <SelectItem value="Tacka">Tacka</SelectItem>
+                    <SelectItem value="Bagge">Bagge</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div>
               <Label className="text-base">{t("monthsSinceLastShear")}</Label>
               <Input
@@ -450,6 +643,25 @@ function Classify() {
         </>
       )}
     </div>
+  );
+}
+
+function ModeCard({ emoji, title, desc, onClick }: { emoji: string; title: string; desc: string; onClick: () => void }) {
+  return (
+    <Card
+      onClick={onClick}
+      className="cursor-pointer active:scale-[0.99] transition border-2 border-border hover:border-primary/60 rounded-3xl shadow-soft"
+    >
+      <CardContent className="p-5 flex items-start gap-4">
+        <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center text-3xl flex-shrink-0">
+          {emoji}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-display text-lg font-bold text-primary">{title}</h3>
+          <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{desc}</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

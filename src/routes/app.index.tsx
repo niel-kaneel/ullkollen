@@ -173,10 +173,31 @@ function Home() {
           </h3>
           {rows.length > 0 && (
             <span className="text-[11px] font-semibold text-muted-foreground">
-              {rows.length}
+              {rows.filter((r) => modeFilter === "all" || r.mode === modeFilter).length}/{rows.length}
             </span>
           )}
         </div>
+        {rows.length > 0 && (
+          <div className="flex gap-2 mb-3">
+            {([
+              { v: "all", label: lang === "sv" ? "Alla" : "All" },
+              { v: "on_sheep", label: lang === "sv" ? "🐑 På fåret" : "🐑 On sheep" },
+              { v: "sheared", label: lang === "sv" ? "🧶 Klippt" : "🧶 Sheared" },
+            ] as const).map((p) => (
+              <button
+                key={p.v}
+                onClick={() => setModeFilter(p.v)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+                  modeFilter === p.v
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-foreground border-border hover:bg-secondary/50"
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        )}
         {!loaded ? (
           <div className="space-y-3">
             <Skeleton className="h-24 rounded-2xl" />
@@ -202,9 +223,11 @@ function Home() {
           </div>
         ) : (
           <div className="space-y-3">
-            {rows.map((r) => (
-              <ClassRow key={r.id} row={r} onDelete={() => remove(r)} />
-            ))}
+            {rows
+              .filter((r) => modeFilter === "all" || r.mode === modeFilter)
+              .map((r) => (
+                <ClassRow key={r.id} row={r} onDelete={() => remove(r)} />
+              ))}
           </div>
         )}
       </div>

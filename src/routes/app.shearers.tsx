@@ -374,6 +374,7 @@ function DetailModal({ s, onClose }: { s: Shearer; onClose: () => void }) {
 
 function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId: string; defaultPhone: string; onDone: () => void; onCancel: () => void }) {
   const { user } = useAuth();
+  const { lang } = useTranslation();
   const [date, setDate] = useState("");
   const [sheepCount, setSheepCount] = useState("");
   const [phone, setPhone] = useState(defaultPhone);

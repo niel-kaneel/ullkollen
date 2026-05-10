@@ -171,7 +171,10 @@ const InputSchema = z.object({
       age_category: z.string().optional(),
       months_since_last_shear: z.number().optional(),
       sheepName: z.string().optional(),
+      mode: z.enum(["on_sheep", "sheared"]).optional(),
+      body_area: z.string().optional(),
     })
+    .passthrough()
     .optional(),
 });
 

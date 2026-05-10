@@ -406,6 +406,12 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
       shearerId,
     });
     if (conflict.hasConflict) {
+      const alts = await suggestAlternativeDates({
+        date,
+        farmerId: user.id,
+        shearerId,
+      });
+      setSuggestions(alts);
       setBusy(false);
       toast.error(conflictMessage(conflict, lang as "sv" | "en") ?? "");
       return;

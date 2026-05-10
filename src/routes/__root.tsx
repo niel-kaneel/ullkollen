@@ -71,7 +71,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      { name: "apple-mobile-web-app-title", content: "Ullkollen" },
+      { name: "application-name", content: "Ullkollen" },
       { title: "Ullkollen — Klassificera din ull med AI" },
       { name: "description", content: "Mobilapp för svenska fårbönder. Klassificera ull, få klipprekommendationer och hitta närmaste fårklippare." },
       { name: "theme-color", content: "#1f4a2c" },
@@ -119,6 +124,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 import { AuthProvider } from "@/lib/auth";
 import { I18nProvider } from "@/lib/i18n";
 import { Toaster } from "@/components/ui/sonner";
+import { PWALifecycle } from "@/components/PWALifecycle";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -131,6 +137,7 @@ function RootComponent() {
             <Outlet />
           </div>
           <Toaster position="top-center" />
+          <PWALifecycle />
         </AuthProvider>
       </I18nProvider>
     </QueryClientProvider>

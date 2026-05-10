@@ -20,6 +20,20 @@ function ProfilePage() {
   const [form, setForm] = useState({ full_name: "", farm_name: "", phone: "", address: "", production_place_number: "" });
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [stats, setStats] = useState<{ total: number; correct: number; corrected: number; accuracy: number } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.rpc("user_ai_accuracy", { _user_id: user.id }).then(({ data }) => {
+      const row = Array.isArray(data) ? data[0] : data;
+      if (row) setStats({
+        total: Number(row.total ?? 0),
+        correct: Number(row.correct ?? 0),
+        corrected: Number(row.corrected ?? 0),
+        accuracy: Number(row.accuracy ?? 0),
+      });
+    });
+  }, [user]);
 
   useEffect(() => {
     if (profile) {

@@ -57,13 +57,26 @@ function CalendarPage() {
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string>(ymd(new Date()));
-  const [reschedule, setReschedule] = useState<{ id: string; date: string } | null>(null);
+  const [reschedule, setReschedule] = useState<{ id: string; date: string; farmerId: string; shearerId: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [reloadTick, setReloadTick] = useState(0);
 
   const handleReschedule = async () => {
     if (!reschedule) return;
     setSaving(true);
+
+    const conflict = await checkBookingConflict({
+      date: reschedule.date,
+      farmerId: reschedule.farmerId,
+      shearerId: reschedule.shearerId,
+      excludeBookingId: reschedule.id,
+    });
+    if (conflict.hasConflict) {
+      setSaving(false);
+      toast.error(conflictMessage(conflict, lang as "sv" | "en") ?? "");
+      return;
+    }
+
     const { error } = await supabase
       .from("bookings")
       .update({ preferred_date: reschedule.date, status: "pending" })

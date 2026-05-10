@@ -460,7 +460,7 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
       <h4 className="font-bold flex items-center gap-2"><Calendar className="w-4 h-4 text-primary" /> Skicka bokningsförfrågan</h4>
       <div>
         <label className="text-xs font-semibold text-muted-foreground">Önskat datum</label>
-        <input type="date" value={date} onChange={(e) => { setSuggestions([]); setDate(e.target.value); }} className="w-full h-11 rounded-xl border border-border px-3 mt-1 bg-background" />
+        <input type="date" value={date} onChange={(e) => { setSuggestions([]); setNoAlts(false); setDate(e.target.value); }} className="w-full h-11 rounded-xl border border-border px-3 mt-1 bg-background" />
         {suggestions.length > 0 && (
           <div className="bg-secondary/50 rounded-xl p-3 mt-2 space-y-2">
             <p className="text-xs font-semibold text-muted-foreground">
@@ -471,13 +471,20 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
                 <button
                   key={s}
                   type="button"
-                  onClick={() => { setSuggestions([]); setDate(s); }}
+                  onClick={() => { setSuggestions([]); setNoAlts(false); setDate(s); }}
                   className="px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90"
                 >
                   {new Date(s + "T00:00:00").toLocaleDateString(lang === "sv" ? "sv-SE" : "en-US", { weekday: "short", day: "numeric", month: "short" })}
                 </button>
               ))}
             </div>
+          </div>
+        )}
+        {noAlts && suggestions.length === 0 && (
+          <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-3 mt-2 text-xs text-destructive">
+            {lang === "sv"
+              ? "Inga lediga datum hittades inom 30 dagar. Prova att välja ett datum längre fram."
+              : "No free dates found within 30 days. Try picking a date further ahead."}
           </div>
         )}
       </div>

@@ -322,6 +322,37 @@ function CalendarPage() {
           {lang === "sv" ? "Visa alla bokningar" : "View all bookings"}
         </Link>
       </div>
+
+      <Dialog open={!!reschedule} onOpenChange={(o) => !o && setReschedule(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{lang === "sv" ? "Boka om klippning" : "Reschedule shearing"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="new-date">{lang === "sv" ? "Nytt datum" : "New date"}</Label>
+            <Input
+              id="new-date"
+              type="date"
+              value={reschedule?.date ?? ""}
+              min={ymd(new Date())}
+              onChange={(e) => setReschedule((r) => (r ? { ...r, date: e.target.value } : r))}
+            />
+            <p className="text-xs text-muted-foreground">
+              {lang === "sv"
+                ? "Status sätts till väntande tills motparten bekräftar."
+                : "Status will be set to pending until the other party confirms."}
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReschedule(null)} disabled={saving}>
+              {lang === "sv" ? "Avbryt" : "Cancel"}
+            </Button>
+            <Button onClick={handleReschedule} disabled={saving || !reschedule?.date}>
+              {saving ? (lang === "sv" ? "Sparar…" : "Saving…") : (lang === "sv" ? "Spara" : "Save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

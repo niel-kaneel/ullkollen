@@ -20,6 +20,8 @@ type CalEvent = {
   date: string; // YYYY-MM-DD
   status: string;
   role: "farmer" | "shearer"; // current user's role for this booking
+  farmer_id: string;
+  shearer_id: string;
   sheep_count: number | null;
   message: string | null;
   contact_phone: string | null;

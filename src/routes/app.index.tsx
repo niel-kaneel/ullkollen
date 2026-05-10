@@ -25,7 +25,10 @@ type Row = {
   status: string;
   photo_urls: string[];
   shear_recommendation: string | null;
+  mode: string | null;
 };
+
+type ModeFilter = "all" | "on_sheep" | "sheared";
 
 export const Route = createFileRoute("/app/")({
   component: Home,

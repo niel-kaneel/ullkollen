@@ -115,12 +115,6 @@ export function PWALifecycle() {
 
   return (
     <>
-      {offline && (
-        <div className="fixed top-0 inset-x-0 z-[60] bg-destructive text-destructive-foreground text-xs px-3 py-2 flex items-center justify-center gap-2 shadow-md">
-          <WifiOff className="h-3.5 w-3.5" />
-          <span>Ingen internetanslutning – sparade skanningar synkas när du är online igen</span>
-        </div>
-      )}
 
       {showIosPrompt && (
         <div className="fixed bottom-4 inset-x-4 z-[60] max-w-md mx-auto rounded-2xl bg-card border border-border shadow-2xl p-4">

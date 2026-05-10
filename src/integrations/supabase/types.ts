@@ -79,12 +79,15 @@ export type Database = {
       classifications: {
         Row: {
           age_category: string | null
+          body_area: string | null
           breed: string | null
           breed_code: string | null
           completed_at: string | null
           confidence: string | null
           created_at: string
+          fleece_id: string | null
           id: string
+          mode: string
           months_since_last_shear: number | null
           needs_retake: boolean | null
           photo_urls: string[] | null
@@ -94,6 +97,7 @@ export type Database = {
           recommendation_text_sv: string | null
           retake_reason_sv: string | null
           shear_recommendation: string | null
+          shearing_date: string | null
           sheep_id: string | null
           status: string
           user_id: string
@@ -104,12 +108,15 @@ export type Database = {
         }
         Insert: {
           age_category?: string | null
+          body_area?: string | null
           breed?: string | null
           breed_code?: string | null
           completed_at?: string | null
           confidence?: string | null
           created_at?: string
+          fleece_id?: string | null
           id?: string
+          mode?: string
           months_since_last_shear?: number | null
           needs_retake?: boolean | null
           photo_urls?: string[] | null
@@ -119,6 +126,7 @@ export type Database = {
           recommendation_text_sv?: string | null
           retake_reason_sv?: string | null
           shear_recommendation?: string | null
+          shearing_date?: string | null
           sheep_id?: string | null
           status?: string
           user_id: string
@@ -129,12 +137,15 @@ export type Database = {
         }
         Update: {
           age_category?: string | null
+          body_area?: string | null
           breed?: string | null
           breed_code?: string | null
           completed_at?: string | null
           confidence?: string | null
           created_at?: string
+          fleece_id?: string | null
           id?: string
+          mode?: string
           months_since_last_shear?: number | null
           needs_retake?: boolean | null
           photo_urls?: string[] | null
@@ -144,6 +155,7 @@ export type Database = {
           recommendation_text_sv?: string | null
           retake_reason_sv?: string | null
           shear_recommendation?: string | null
+          shearing_date?: string | null
           sheep_id?: string | null
           status?: string
           user_id?: string

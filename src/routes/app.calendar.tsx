@@ -55,6 +55,27 @@ function CalendarPage() {
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string>(ymd(new Date()));
+  const [reschedule, setReschedule] = useState<{ id: string; date: string } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [reloadTick, setReloadTick] = useState(0);
+
+  const handleReschedule = async () => {
+    if (!reschedule) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("bookings")
+      .update({ preferred_date: reschedule.date, status: "pending" })
+      .eq("id", reschedule.id);
+    setSaving(false);
+    if (error) {
+      toast.error(lang === "sv" ? "Kunde inte uppdatera" : "Could not update");
+      return;
+    }
+    toast.success(lang === "sv" ? "Bokning ombokad" : "Booking rescheduled");
+    setSelectedDate(reschedule.date);
+    setReschedule(null);
+    setReloadTick((t) => t + 1);
+  };
 
   useEffect(() => {
     const load = async () => {

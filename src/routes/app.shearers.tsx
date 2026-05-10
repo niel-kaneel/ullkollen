@@ -458,7 +458,26 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
       <h4 className="font-bold flex items-center gap-2"><Calendar className="w-4 h-4 text-primary" /> Skicka bokningsförfrågan</h4>
       <div>
         <label className="text-xs font-semibold text-muted-foreground">Önskat datum</label>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full h-11 rounded-xl border border-border px-3 mt-1 bg-background" />
+        <input type="date" value={date} onChange={(e) => { setSuggestions([]); setDate(e.target.value); }} className="w-full h-11 rounded-xl border border-border px-3 mt-1 bg-background" />
+        {suggestions.length > 0 && (
+          <div className="bg-secondary/50 rounded-xl p-3 mt-2 space-y-2">
+            <p className="text-xs font-semibold text-muted-foreground">
+              {lang === "sv" ? "Förslag på lediga datum:" : "Suggested free dates:"}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {suggestions.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => { setSuggestions([]); setDate(s); }}
+                  className="px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90"
+                >
+                  {new Date(s + "T00:00:00").toLocaleDateString(lang === "sv" ? "sv-SE" : "en-US", { weekday: "short", day: "numeric", month: "short" })}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       {sheepList.length > 0 && (
         <div>

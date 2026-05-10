@@ -39,6 +39,8 @@ type Classification = {
   body_area: string | null;
   fleece_id: string | null;
   shearing_date: string | null;
+  user_confirmed: boolean;
+  original_wool_class: string | null;
 };
 
 export const Route = createFileRoute("/app/result/$id")({
@@ -155,12 +157,35 @@ function Result() {
   const saveEdit = async () => {
     if (!data) return;
     setSaving(true);
-    const { error } = await supabase.from("classifications").update(draft).eq("id", id);
+    // Editing the class counts as a confirmed correction → feeds AI learning
+    const payload: Partial<Classification> = {
+      ...draft,
+      user_confirmed: true,
+    };
+    const { error } = await supabase
+      .from("classifications")
+      .update({ ...payload, confirmed_at: new Date().toISOString() })
+      .eq("id", id);
     setSaving(false);
     if (error) return toast.error(error.message);
-    setData({ ...data, ...draft } as Classification);
+    setData({ ...data, ...payload } as Classification);
     setEditing(false);
-    toast.success(lang === "sv" ? "Sparat" : "Saved");
+    const wasCorrection = draft.wool_class && draft.wool_class !== data.original_wool_class;
+    toast.success(wasCorrection
+      ? (lang === "sv" ? "Korrigering sparad — AI:n lär sig" : "Correction saved — AI is learning")
+      : (lang === "sv" ? "Sparat" : "Saved"));
+  };
+
+  const confirmClass = async () => {
+    if (!data) return;
+    haptic("success");
+    const { error } = await supabase
+      .from("classifications")
+      .update({ user_confirmed: true, confirmed_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) return toast.error(error.message);
+    setData({ ...data, user_confirmed: true });
+    toast.success(lang === "sv" ? "Tack! AI:n blir bättre med varje bekräftelse" : "Thanks! AI improves with every confirmation");
   };
 
   if (!data) {
@@ -383,6 +408,34 @@ function Result() {
                   </p>
                 </div>
               )}
+            </div>
+          )}
+
+          {!data.user_confirmed && data.wool_class && (
+            <div className="bg-primary/5 border border-primary/30 rounded-2xl p-4 flex items-center gap-3">
+              <div className="text-2xl">🎯</div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold">
+                  {lang === "sv" ? "Stämmer klassen?" : "Is this class right?"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {lang === "sv"
+                    ? "Bekräfta så lär sig AI:n din gårds ull bättre."
+                    : "Confirm so the AI learns your farm's wool better."}
+                </p>
+              </div>
+              <Button size="sm" onClick={confirmClass} className="rounded-xl shrink-0">
+                <Check className="w-4 h-4 mr-1" />
+                {lang === "sv" ? "Bekräfta" : "Confirm"}
+              </Button>
+            </div>
+          )}
+          {data.user_confirmed && (
+            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-3 flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-400">
+              <Check className="w-4 h-4" />
+              {data.wool_class !== data.original_wool_class
+                ? (lang === "sv" ? `Korrigerad från ${data.original_wool_class ?? "?"} → ${data.wool_class} — AI:n lär sig` : `Corrected from ${data.original_wool_class ?? "?"} → ${data.wool_class} — AI is learning`)
+                : (lang === "sv" ? "Bekräftad — bidrar till AI-träning" : "Confirmed — contributing to AI training")}
             </div>
           )}
 

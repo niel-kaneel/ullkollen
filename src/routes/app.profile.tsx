@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Calendar as CalendarIcon, LifeBuoy, LogOut, MapPin } from "lucide-react";
+import { Calendar as CalendarIcon, LifeBuoy, LogOut, MapPin, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +20,20 @@ function ProfilePage() {
   const [form, setForm] = useState({ full_name: "", farm_name: "", phone: "", address: "", production_place_number: "" });
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [stats, setStats] = useState<{ total: number; correct: number; corrected: number; accuracy: number } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.rpc("user_ai_accuracy", { _user_id: user.id }).then(({ data }) => {
+      const row = Array.isArray(data) ? data[0] : data;
+      if (row) setStats({
+        total: Number(row.total ?? 0),
+        correct: Number(row.correct ?? 0),
+        corrected: Number(row.corrected ?? 0),
+        accuracy: Number(row.accuracy ?? 0),
+      });
+    });
+  }, [user]);
 
   useEffect(() => {
     if (profile) {
@@ -66,6 +80,32 @@ function ProfilePage() {
   return (
     <div className="space-y-4 pt-2">
       <h2 className="text-xl font-bold text-primary">{t("profile")}</h2>
+
+      {stats && stats.total > 0 && (
+        <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-2xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <p className="text-sm font-semibold">
+              {lang === "sv" ? "AI:n lär sig din gård" : "AI is learning your farm"}
+            </p>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-black text-primary">{stats.accuracy}%</span>
+            <span className="text-xs text-muted-foreground">
+              {lang === "sv"
+                ? `träff på ${stats.total} bekräftade klassningar`
+                : `accuracy across ${stats.total} confirmed classifications`}
+            </span>
+          </div>
+          {stats.corrected > 0 && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {lang === "sv"
+                ? `Du har korrigerat ${stats.corrected} st — varje rättelse gör nästa klassning skarpare.`
+                : `You've corrected ${stats.corrected} — each correction sharpens the next classification.`}
+            </p>
+          )}
+        </div>
+      )}
 
       <Field label={t("fullName")} value={form.full_name} onChange={(v) => setForm({ ...form, full_name: v })} />
       <Field label={t("farmName")} value={form.farm_name} onChange={(v) => setForm({ ...form, farm_name: v })} />

@@ -170,10 +170,34 @@ Deno.serve(async (req) => {
   if (!ANTHROPIC_API_KEY) return json({ error: "ANTHROPIC_API_KEY not set" }, 500);
 
   try {
+    // Look up the user_id for this classification, then fetch their recent confirmed
+    // classifications to use as few-shot examples. This makes the AI smarter
+    // over time on the user's own farm/breed mix.
+    const { data: classifRow } = await supabase
+      .from("classifications")
+      .select("user_id")
+      .eq("id", classification_id)
+      .maybeSingle();
+
+    let fewShotText = "";
+    if (classifRow?.user_id) {
+      const { data: examples } = await supabase.rpc("recent_confirmed_for_user", {
+        _user_id: classifRow.user_id,
+        _limit: 5,
+      });
+      if (examples && examples.length > 0) {
+        const lines = examples.map((e: any, i: number) => {
+          const tag = e.was_corrected ? " (FARMER CORRECTED)" : "";
+          return `Example ${i + 1}${tag}: breed=${e.breed ?? "unknown"}, age=${e.age_category ?? "unknown"}, mode=${e.mode}, confirmed_class=${e.wool_class} (${e.wool_class_name_sv ?? ""})`;
+        });
+        fewShotText = `\n\nFARMER'S OWN CONFIRMED HISTORY (use as calibration — this farm's typical wool patterns; weight FARMER CORRECTED examples especially highly):\n${lines.join("\n")}`;
+      }
+    }
+
     const userText = `Metadata:
 Breed: ${metadata?.breed ?? "unknown"}
 Age: ${metadata?.age_category ?? "unknown"}
-Months since last shear: ${metadata?.months_since_last_shear ?? "unknown"}`;
+Months since last shear: ${metadata?.months_since_last_shear ?? "unknown"}${fewShotText}`;
 
     const content: any[] = image_urls.map((url) => ({
       type: "image",
@@ -215,6 +239,7 @@ Months since last shear: ${metadata?.months_since_last_shear ?? "unknown"}`;
       .update({
         status: "completed",
         wool_class: result.wool_class,
+        original_wool_class: result.wool_class,
         wool_class_name_sv: result.wool_class_name_sv,
         wool_class_name_en: result.wool_class_name_en,
         confidence: result.confidence,

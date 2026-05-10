@@ -40,13 +40,14 @@ function Home() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [pendingBookings, setPendingBookings] = useState(0);
+  const [modeFilter, setModeFilter] = useState<ModeFilter>("all");
 
   const load = async () => {
     if (!user) return;
     const [{ data: classRows }, { data: bookingRows }] = await Promise.all([
       supabase
         .from("classifications")
-        .select("id, created_at, wool_class, wool_class_name_sv, recommendation_text_sv, status, photo_urls, shear_recommendation")
+        .select("id, created_at, wool_class, wool_class_name_sv, recommendation_text_sv, status, photo_urls, shear_recommendation, mode")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(20),

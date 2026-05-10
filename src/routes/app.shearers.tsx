@@ -392,7 +392,23 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
 
   const submit = async () => {
     if (!user) return;
+    if (!date) {
+      toast.error(lang === "sv" ? "Välj ett datum" : "Pick a date");
+      return;
+    }
     setBusy(true);
+
+    // Conflict check — same date, active booking for either party
+    const conflict = await checkBookingConflict({
+      date,
+      farmerId: user.id,
+      shearerId,
+    });
+    if (conflict.hasConflict) {
+      setBusy(false);
+      toast.error(conflictMessage(conflict, lang as "sv" | "en") ?? "");
+      return;
+    }
 
     // Look up latest classification for picked sheep (for expected wool quality)
     let expected: { code: string | null; sv: string | null; en: string | null; conf: string | null } = { code: null, sv: null, en: null, conf: null };

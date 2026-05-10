@@ -62,6 +62,7 @@ function CalendarPage() {
   const [saving, setSaving] = useState(false);
   const [reloadTick, setReloadTick] = useState(0);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [noAlts, setNoAlts] = useState(false);
 
   const handleReschedule = async () => {
     if (!reschedule) return;
@@ -81,6 +82,7 @@ function CalendarPage() {
         excludeBookingId: reschedule.id,
       });
       setSuggestions(alts);
+      setNoAlts(alts.length === 0);
       setSaving(false);
       toast.error(conflictMessage(conflict, lang as "sv" | "en") ?? "");
       return;

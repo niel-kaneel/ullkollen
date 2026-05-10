@@ -1,10 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Phone, Sparkles, User as UserIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Phone, Sparkles, User as UserIcon, CalendarClock } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useTranslation } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/calendar")({
   component: CalendarPage,
@@ -50,6 +55,27 @@ function CalendarPage() {
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string>(ymd(new Date()));
+  const [reschedule, setReschedule] = useState<{ id: string; date: string } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [reloadTick, setReloadTick] = useState(0);
+
+  const handleReschedule = async () => {
+    if (!reschedule) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("bookings")
+      .update({ preferred_date: reschedule.date, status: "pending" })
+      .eq("id", reschedule.id);
+    setSaving(false);
+    if (error) {
+      toast.error(lang === "sv" ? "Kunde inte uppdatera" : "Could not update");
+      return;
+    }
+    toast.success(lang === "sv" ? "Bokning ombokad" : "Booking rescheduled");
+    setSelectedDate(reschedule.date);
+    setReschedule(null);
+    setReloadTick((t) => t + 1);
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -121,7 +147,7 @@ function CalendarPage() {
       setLoading(false);
     };
     load();
-  }, [user?.id, lang]);
+  }, [user?.id, lang, reloadTick]);
 
   const monthLabel = useMemo(
     () => cursor.toLocaleDateString(lang === "sv" ? "sv-SE" : "en-US", { month: "long", year: "numeric" }),
@@ -275,6 +301,19 @@ function CalendarPage() {
                     <Phone className="w-3.5 h-3.5" /> {e.contact_phone}
                   </a>
                 )}
+                {e.status !== "cancelled" && e.status !== "completed" && (
+                  <div className="pt-2 border-t border-border">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setReschedule({ id: e.id, date: e.date })}
+                      className="w-full"
+                    >
+                      <CalendarClock className="w-4 h-4" />
+                      {lang === "sv" ? "Boka om / ändra tid" : "Reschedule"}
+                    </Button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -283,6 +322,37 @@ function CalendarPage() {
           {lang === "sv" ? "Visa alla bokningar" : "View all bookings"}
         </Link>
       </div>
+
+      <Dialog open={!!reschedule} onOpenChange={(o) => !o && setReschedule(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{lang === "sv" ? "Boka om klippning" : "Reschedule shearing"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="new-date">{lang === "sv" ? "Nytt datum" : "New date"}</Label>
+            <Input
+              id="new-date"
+              type="date"
+              value={reschedule?.date ?? ""}
+              min={ymd(new Date())}
+              onChange={(e) => setReschedule((r) => (r ? { ...r, date: e.target.value } : r))}
+            />
+            <p className="text-xs text-muted-foreground">
+              {lang === "sv"
+                ? "Status sätts till väntande tills motparten bekräftar."
+                : "Status will be set to pending until the other party confirms."}
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReschedule(null)} disabled={saving}>
+              {lang === "sv" ? "Avbryt" : "Cancel"}
+            </Button>
+            <Button onClick={handleReschedule} disabled={saving || !reschedule?.date}>
+              {saving ? (lang === "sv" ? "Sparar…" : "Saving…") : (lang === "sv" ? "Spara" : "Save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

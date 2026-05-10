@@ -355,7 +355,7 @@ function CalendarPage() {
         </Link>
       </div>
 
-      <Dialog open={!!reschedule} onOpenChange={(o) => { if (!o) { setReschedule(null); setSuggestions([]); } }}>
+      <Dialog open={!!reschedule} onOpenChange={(o) => { if (!o) { setReschedule(null); setSuggestions([]); setNoAlts(false); } }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{lang === "sv" ? "Boka om klippning" : "Reschedule shearing"}</DialogTitle>
@@ -369,6 +369,7 @@ function CalendarPage() {
               min={ymd(new Date())}
               onChange={(e) => {
                 setSuggestions([]);
+                setNoAlts(false);
                 setReschedule((r) => (r ? { ...r, date: e.target.value } : r));
               }}
             />
@@ -384,6 +385,7 @@ function CalendarPage() {
                       type="button"
                       onClick={() => {
                         setSuggestions([]);
+                        setNoAlts(false);
                         setReschedule((r) => (r ? { ...r, date: s } : r));
                       }}
                       className="px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90"
@@ -394,6 +396,13 @@ function CalendarPage() {
                 </div>
               </div>
             )}
+            {noAlts && suggestions.length === 0 && (
+              <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-3 text-xs text-destructive">
+                {lang === "sv"
+                  ? "Inga lediga datum hittades inom 30 dagar. Prova att välja ett datum längre fram."
+                  : "No free dates found within 30 days. Try picking a date further ahead."}
+              </div>
+            )}
             <p className="text-xs text-muted-foreground">
               {lang === "sv"
                 ? "Status sätts till väntande tills motparten bekräftar."
@@ -401,7 +410,7 @@ function CalendarPage() {
             </p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setReschedule(null); setSuggestions([]); }} disabled={saving}>
+            <Button variant="outline" onClick={() => { setReschedule(null); setSuggestions([]); setNoAlts(false); }} disabled={saving}>
               {lang === "sv" ? "Avbryt" : "Cancel"}
             </Button>
             <Button onClick={handleReschedule} disabled={saving || !reschedule?.date}>

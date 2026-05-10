@@ -301,6 +301,19 @@ function CalendarPage() {
                     <Phone className="w-3.5 h-3.5" /> {e.contact_phone}
                   </a>
                 )}
+                {e.status !== "cancelled" && e.status !== "completed" && (
+                  <div className="pt-2 border-t border-border">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setReschedule({ id: e.id, date: e.date })}
+                      className="w-full"
+                    >
+                      <CalendarClock className="w-4 h-4" />
+                      {lang === "sv" ? "Boka om / ändra tid" : "Reschedule"}
+                    </Button>
+                  </div>
+                )}
               </div>
             ))}
           </div>

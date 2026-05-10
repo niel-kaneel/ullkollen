@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { WifiOff, Share, X } from "lucide-react";
+import { Share, X } from "lucide-react";
 
 const IOS_PROMPT_KEY = "ullkollen.iosInstallDismissed";
 
@@ -32,20 +32,7 @@ function isStandalone() {
 }
 
 export function PWALifecycle() {
-  const [offline, setOffline] = useState(typeof navigator !== "undefined" && !navigator.onLine);
   const [showIosPrompt, setShowIosPrompt] = useState(false);
-
-  // Online/offline banner
-  useEffect(() => {
-    const on = () => setOffline(false);
-    const off = () => setOffline(true);
-    window.addEventListener("online", on);
-    window.addEventListener("offline", off);
-    return () => {
-      window.removeEventListener("online", on);
-      window.removeEventListener("offline", off);
-    };
-  }, []);
 
   // Service worker registration — guarded against editor preview / iframes
   useEffect(() => {

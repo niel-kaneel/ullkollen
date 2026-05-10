@@ -6,6 +6,10 @@ import { AppShell } from "@/components/AppShell";
 
 export const Route = createFileRoute("/app")({
   beforeLoad: async () => {
+    // Only check session on the client — localStorage is unavailable during SSR,
+    // so a server-side check would always fail and redirect users to /auth on every
+    // fresh app open even when they have a valid persisted session.
+    if (typeof window === "undefined") return;
     const { data } = await supabase.auth.getSession();
     if (!data.session) throw redirect({ to: "/auth", search: { mode: "signin" } });
   },

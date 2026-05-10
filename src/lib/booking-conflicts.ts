@@ -52,6 +52,57 @@ export async function checkBookingConflict({
   };
 }
 
+function addDays(iso: string, n: number): string {
+  const d = new Date(iso + "T00:00:00");
+  d.setDate(d.getDate() + n);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+/**
+ * Suggests up to `count` conflict-free dates near the requested date.
+ * Searches forward from the day after the requested date within `windowDays`.
+ */
+export async function suggestAlternativeDates({
+  date,
+  farmerId,
+  shearerId,
+  excludeBookingId,
+  count = 3,
+  windowDays = 30,
+}: ConflictCheck & { count?: number; windowDays?: number }): Promise<string[]> {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayIso = today.toISOString().slice(0, 10);
+  const startIso = date < todayIso ? todayIso : date;
+  const endIso = addDays(startIso, windowDays);
+
+  let query = supabase
+    .from("bookings")
+    .select("preferred_date, farmer_id, shearer_id")
+    .gte("preferred_date", startIso)
+    .lte("preferred_date", endIso)
+    .in("status", ACTIVE_STATUSES)
+    .or(`farmer_id.eq.${farmerId},shearer_id.eq.${shearerId}`);
+
+  if (excludeBookingId) query = query.neq("id", excludeBookingId);
+
+  const { data } = await query;
+  const taken = new Set<string>();
+  (data ?? []).forEach((b: any) => {
+    if (b.preferred_date) taken.add(b.preferred_date);
+  });
+
+  const suggestions: string[] = [];
+  for (let i = 1; i <= windowDays && suggestions.length < count; i++) {
+    const candidate = addDays(startIso, i);
+    if (!taken.has(candidate)) suggestions.push(candidate);
+  }
+  return suggestions;
+}
+
 export function conflictMessage(
   result: ConflictResult,
   lang: "sv" | "en",

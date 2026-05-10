@@ -383,6 +383,7 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
   const [sheepList, setSheepList] = useState<{ id: string; name: string | null; ear_tag_id: string | null }[]>([]);
   const [sheepId, setSheepId] = useState<string>("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [noAlts, setNoAlts] = useState(false);
 
   useEffect(() => {
     if (!user) return;

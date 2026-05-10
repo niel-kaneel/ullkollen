@@ -137,6 +137,8 @@ function CalendarPage() {
           date: b.preferred_date,
           status: b.status,
           role: "shearer",
+          farmer_id: b.farmer_id,
+          shearer_id: b.shearer_id,
           sheep_count: b.sheep_count,
           message: b.message,
           contact_phone: b.contact_phone,

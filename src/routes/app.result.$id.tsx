@@ -15,6 +15,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { haptic } from "@/lib/haptics";
 
 type Classification = {
@@ -193,7 +194,9 @@ function Result() {
     return (
       <div className="space-y-4">
         <PageHeader title={t("analyzing")} />
-        <div className="py-20 text-center text-muted-foreground">...</div>
+        <Skeleton className="h-32 rounded-3xl" />
+        <Skeleton className="h-24 rounded-2xl" />
+        <Skeleton className="h-16 rounded-2xl" />
       </div>
     );
   }

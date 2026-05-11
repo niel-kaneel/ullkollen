@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Pencil, Trash2, Search, X } from "lucide-react";
+import { Pencil, Trash2, Search, X, Image as ImageIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
@@ -71,6 +71,7 @@ function Flock() {
   const [individual, setIndividual] = useState("");
   const [saving, setSaving] = useState(false);
   const [query, setQuery] = useState("");
+  const [latest, setLatest] = useState<Record<string, { classId: string; thumb: string | null }>>({});
 
   const ppn = profile?.production_place_number ?? null;
 
@@ -81,8 +82,36 @@ function Flock() {
       .select("id, name, ear_tag_id, breed, breed_code, age_category, created_at")
       .eq("owner_id", user.id)
       .order("created_at", { ascending: false });
-    setSheep((data as unknown as Sheep[]) ?? []);
+    const list = (data as unknown as Sheep[]) ?? [];
+    setSheep(list);
     setLoaded(true);
+
+    // Fetch latest classification per sheep for thumbnails + quick-view link
+    const ids = list.map((s) => s.id);
+    if (ids.length) {
+      const { data: cls } = await supabase
+        .from("classifications")
+        .select("id, sheep_id, photo_urls, created_at")
+        .eq("user_id", user.id)
+        .in("sheep_id", ids)
+        .order("created_at", { ascending: false });
+      const byS: Record<string, { classId: string; thumb: string | null }> = {};
+      for (const c of (cls ?? []) as Array<{ id: string; sheep_id: string; photo_urls: string[] | null }>) {
+        if (!c.sheep_id || byS[c.sheep_id]) continue;
+        byS[c.sheep_id] = { classId: c.id, thumb: null };
+        const first = c.photo_urls?.[0];
+        if (first) {
+          supabase.storage.from("sheep-photos").createSignedUrl(first, 3600).then(({ data: s }) => {
+            if (s?.signedUrl) {
+              setLatest((prev) => ({ ...prev, [c.sheep_id]: { ...(prev[c.sheep_id] ?? { classId: c.id, thumb: null }), thumb: s.signedUrl } }));
+            }
+          });
+        }
+      }
+      setLatest(byS);
+    } else {
+      setLatest({});
+    }
   };
 
   useEffect(() => { void load(); /* eslint-disable-next-line */ }, [user]);

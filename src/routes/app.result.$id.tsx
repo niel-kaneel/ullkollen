@@ -223,8 +223,10 @@ function Result() {
 
   return (
     <div className="space-y-5 pb-4">
-      <div className="flex items-center justify-between">
-        <BackButton />
+      <PageHeader
+        title={className || t("result") || "Resultat"}
+        action={
+        <div className="flex items-center gap-1">
         <div className="flex items-center gap-1">
           {!editing && data.status === "completed" && data.wool_class && (
             <>

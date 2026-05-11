@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Phone, MessageSquare, Mail, Globe, MapPin, X, Info, ChevronRight, Calendar } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { EmptyState } from "@/components/EmptyState";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { checkBookingConflict, conflictMessage, suggestAlternativeDates } from "@/lib/booking-conflicts";
@@ -141,10 +142,28 @@ function ShearersPage() {
         <ShearerCard key={s.id} s={s} onTap={() => setActive(s)} />
       ))}
 
+      {loading && (
+        <div className="space-y-3">
+          <div className="h-32 rounded-2xl bg-card border border-border animate-pulse" />
+          <div className="h-32 rounded-2xl bg-card border border-border animate-pulse" />
+          <div className="h-32 rounded-2xl bg-card border border-border animate-pulse" />
+        </div>
+      )}
+
       {!loading && filtered.length === 0 && (
-        <p className="text-center text-muted-foreground py-10 text-sm">
-          Inga klippare matchar din sökning. Prova ett bredare filter eller se hela listan.
-        </p>
+        <EmptyState
+          emoji="✂️"
+          title="Inga klippare hittade"
+          description="Prova ett bredare filter eller välj 'Alla' för att se hela listan."
+          action={
+            <button
+              onClick={() => setFilter("all")}
+              className="bg-primary text-primary-foreground rounded-xl px-4 py-2 text-sm font-semibold"
+            >
+              Visa alla
+            </button>
+          }
+        />
       )}
 
       <div className="bg-card border border-border rounded-2xl p-4 shadow-soft mt-6">

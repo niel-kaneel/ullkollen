@@ -270,7 +270,8 @@ function Result() {
             </AlertDialog>
           )}
         </div>
-      </div>
+        }
+      />
 
       {photos.length > 0 && (
         <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1">

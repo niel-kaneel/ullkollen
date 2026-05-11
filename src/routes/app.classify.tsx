@@ -10,7 +10,7 @@ import { useAuth } from "@/lib/auth";
 import { useTranslation } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 import { classifyWool } from "@/lib/wool-ai.functions";
-import { BackButton } from "@/components/BackButton";
+import { PageHeader } from "@/components/PageHeader";
 import { toast } from "sonner";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { haptic } from "@/lib/haptics";
@@ -408,17 +408,14 @@ function Classify() {
   if (step === 0 || !mode) {
     return (
       <div className="space-y-5">
-        <BackButton />
-        <div>
-          <h2 className="font-display text-2xl font-bold text-primary">
-            {lang === "sv" ? "Vad ska du skanna?" : "What are you scanning?"}
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {lang === "sv"
+        <PageHeader
+          title={lang === "sv" ? "Vad ska du skanna?" : "What are you scanning?"}
+          subtitle={
+            lang === "sv"
               ? "Välj sammanhang så anpassar vi vägledningen i kameran."
-              : "Pick the context — we'll tailor the camera guidance."}
-          </p>
-        </div>
+              : "Pick the context — we'll tailor the camera guidance."
+          }
+        />
 
         <div className="grid gap-3">
           <ModeCard

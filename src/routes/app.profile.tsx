@@ -79,7 +79,7 @@ function ProfilePage() {
 
   return (
     <div className="space-y-4 pt-2">
-      <h2 className="text-xl font-bold text-primary">{t("profile")}</h2>
+      <PageHeader back={false} title={t("profile")} />
 
       {stats && stats.total > 0 && (
         <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-2xl p-4">

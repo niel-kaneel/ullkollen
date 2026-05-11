@@ -101,12 +101,11 @@ function ShearersPage() {
 
   return (
     <div className="space-y-4 pb-8">
-      <div className="pt-2">
-        <h2 className="text-2xl font-bold text-primary">Hitta fårklippare</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          {list.length} klippare i Sverige{hasLocation ? " • Sorterat efter avstånd" : " • A–Ö"}
-        </p>
-      </div>
+      <PageHeader
+        back={false}
+        title="Hitta fårklippare"
+        subtitle={`${list.length} klippare i Sverige${hasLocation ? " • Sorterat efter avstånd" : " • A–Ö"}`}
+      />
 
       <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1">
         <FilterPill label="Alla" active={filter === "all"} onClick={() => setFilter("all")} />

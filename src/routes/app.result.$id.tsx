@@ -59,6 +59,7 @@ function Result() {
   const [draft, setDraft] = useState<Partial<Classification>>({});
   const [saving, setSaving] = useState(false);
   const [showReasoning, setShowReasoning] = useState(false);
+  const [lightbox, setLightbox] = useState<number | null>(null);
 
   const onShare = async () => {
     if (!data) return;
@@ -272,8 +273,59 @@ function Result() {
       {photos.length > 0 && (
         <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1">
           {photos.map((p, i) => (
-            <img key={i} src={p} alt="" className="h-32 w-32 object-cover rounded-2xl flex-shrink-0" />
+            <button
+              key={i}
+              type="button"
+              onClick={() => { haptic("tap"); setLightbox(i); }}
+              className="h-32 w-32 rounded-2xl flex-shrink-0 overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary"
+              aria-label={lang === "sv" ? "Förstora bild" : "Zoom photo"}
+            >
+              <img src={p} alt="" className="h-full w-full object-cover" />
+            </button>
           ))}
+        </div>
+      )}
+
+      {lightbox !== null && photos[lightbox] && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-4"
+          onClick={() => setLightbox(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setLightbox(null); }}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/15 text-white flex items-center justify-center"
+            aria-label={lang === "sv" ? "Stäng" : "Close"}
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <img
+            src={photos[lightbox]}
+            alt=""
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[80vh] max-w-full object-contain rounded-xl"
+          />
+          {photos.length > 1 && (
+            <div className="mt-4 flex items-center gap-3 text-white text-sm" onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                onClick={() => setLightbox((i) => (i === null ? 0 : (i - 1 + photos.length) % photos.length))}
+                className="px-3 py-1.5 rounded-full bg-white/15"
+              >
+                ‹
+              </button>
+              <span>{lightbox + 1} / {photos.length}</span>
+              <button
+                type="button"
+                onClick={() => setLightbox((i) => (i === null ? 0 : (i + 1) % photos.length))}
+                className="px-3 py-1.5 rounded-full bg-white/15"
+              >
+                ›
+              </button>
+            </div>
+          )}
         </div>
       )}
 

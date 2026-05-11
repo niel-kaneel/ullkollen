@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
 import { haptic } from "@/lib/haptics";
+import { BackButton } from "@/components/BackButton";
 
 type Booking = {
   id: string;
@@ -95,6 +96,7 @@ function BookingsPage() {
   return (
     <div className="space-y-5 pb-8 pt-2">
       <PullToRefreshIndicator pull={pull} refreshing={refreshing} threshold={threshold} />
+      <BackButton />
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-primary">Mina bokningar</h2>
         <Link to="/app/calendar" className="text-sm text-primary underline inline-flex items-center gap-1">

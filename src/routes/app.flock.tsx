@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Pencil, Trash2, Search, X } from "lucide-react";
+import { Pencil, Trash2, Search, X, Image as ImageIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
@@ -71,6 +71,7 @@ function Flock() {
   const [individual, setIndividual] = useState("");
   const [saving, setSaving] = useState(false);
   const [query, setQuery] = useState("");
+  const [latest, setLatest] = useState<Record<string, { classId: string; thumb: string | null }>>({});
 
   const ppn = profile?.production_place_number ?? null;
 
@@ -81,8 +82,36 @@ function Flock() {
       .select("id, name, ear_tag_id, breed, breed_code, age_category, created_at")
       .eq("owner_id", user.id)
       .order("created_at", { ascending: false });
-    setSheep((data as unknown as Sheep[]) ?? []);
+    const list = (data as unknown as Sheep[]) ?? [];
+    setSheep(list);
     setLoaded(true);
+
+    // Fetch latest classification per sheep for thumbnails + quick-view link
+    const ids = list.map((s) => s.id);
+    if (ids.length) {
+      const { data: cls } = await supabase
+        .from("classifications")
+        .select("id, sheep_id, photo_urls, created_at")
+        .eq("user_id", user.id)
+        .in("sheep_id", ids)
+        .order("created_at", { ascending: false });
+      const byS: Record<string, { classId: string; thumb: string | null }> = {};
+      for (const c of (cls ?? []) as Array<{ id: string; sheep_id: string; photo_urls: string[] | null }>) {
+        if (!c.sheep_id || byS[c.sheep_id]) continue;
+        byS[c.sheep_id] = { classId: c.id, thumb: null };
+        const first = c.photo_urls?.[0];
+        if (first) {
+          supabase.storage.from("sheep-photos").createSignedUrl(first, 3600).then(({ data: s }) => {
+            if (s?.signedUrl) {
+              setLatest((prev) => ({ ...prev, [c.sheep_id]: { ...(prev[c.sheep_id] ?? { classId: c.id, thumb: null }), thumb: s.signedUrl } }));
+            }
+          });
+        }
+      }
+      setLatest(byS);
+    } else {
+      setLatest({});
+    }
   };
 
   useEffect(() => { void load(); /* eslint-disable-next-line */ }, [user]);
@@ -199,44 +228,74 @@ function Flock() {
           {lang === "sv" ? `Inga får matchar "${query}"` : `No sheep match "${query}"`}
         </p>
       ) : (
-        filtered.map((s) => (
-          <div
-            key={s.id}
-            className="bg-card border border-border rounded-2xl p-4 shadow-soft flex items-center justify-between gap-3"
-          >
-            <div className="min-w-0 flex-1">
-              <div className="flex justify-between gap-2">
-                <p className="font-semibold truncate">
-                  {s.ear_tag_id ? (
-                    <>
-                      <span className="font-mono">{s.ear_tag_id}</span>
-                      {s.name && <span className="text-muted-foreground"> · {s.name}</span>}
-                    </>
-                  ) : (
-                    <>
-                      {s.name || `🐑 ${s.id.slice(0, 6)}`}{" "}
-                      <span className="text-[10px] uppercase tracking-wide bg-muted text-muted-foreground px-1.5 py-0.5 rounded ml-1">
-                        {lang === "sv" ? "Ej märkt än" : "Not tagged yet"}
-                      </span>
-                    </>
-                  )}
-                </p>
-                <span className="text-xs text-muted-foreground shrink-0">{s.age_category}</span>
+        filtered.map((s) => {
+          const lat = latest[s.id];
+          const card = (
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="w-14 h-14 rounded-xl overflow-hidden bg-secondary flex-shrink-0 flex items-center justify-center">
+                {lat?.thumb ? (
+                  <img src={lat.thumb} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <ImageIcon className="w-5 h-5 text-muted-foreground/60" />
+                )}
               </div>
-              <p className="text-sm text-muted-foreground truncate">
-                {breedLabel(s.breed_code, lang as "sv" | "en") || s.breed || ""}
-              </p>
+              <div className="min-w-0 flex-1">
+                <div className="flex justify-between gap-2">
+                  <p className="font-semibold truncate">
+                    {s.ear_tag_id ? (
+                      <>
+                        <span className="font-mono">{s.ear_tag_id}</span>
+                        {s.name && <span className="text-muted-foreground"> · {s.name}</span>}
+                      </>
+                    ) : (
+                      <>
+                        {s.name || `🐑 ${s.id.slice(0, 6)}`}{" "}
+                        <span className="text-[10px] uppercase tracking-wide bg-muted text-muted-foreground px-1.5 py-0.5 rounded ml-1">
+                          {lang === "sv" ? "Ej märkt än" : "Not tagged yet"}
+                        </span>
+                      </>
+                    )}
+                  </p>
+                  <span className="text-xs text-muted-foreground shrink-0">{s.age_category}</span>
+                </div>
+                <p className="text-sm text-muted-foreground truncate">
+                  {breedLabel(s.breed_code, lang as "sv" | "en") || s.breed || ""}
+                </p>
+                {!lat && (
+                  <p className="text-[11px] text-muted-foreground/70 mt-0.5">
+                    {lang === "sv" ? "Inga bilder än" : "No photos yet"}
+                  </p>
+                )}
+              </div>
             </div>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => openEdit(s)}
-              aria-label={lang === "sv" ? "Redigera" : "Edit"}
+          );
+          return (
+            <div
+              key={s.id}
+              className="bg-card border border-border rounded-2xl p-3 shadow-soft flex items-center justify-between gap-2"
             >
-              <Pencil />
-            </Button>
-          </div>
-        ))
+              {lat ? (
+                <Link
+                  to="/app/result/$id"
+                  params={{ id: lat.classId }}
+                  className="flex-1 min-w-0 active:scale-[0.99] transition"
+                >
+                  {card}
+                </Link>
+              ) : (
+                card
+              )}
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => openEdit(s)}
+                aria-label={lang === "sv" ? "Redigera" : "Edit"}
+              >
+                <Pencil />
+              </Button>
+            </div>
+          );
+        })
       )}
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>

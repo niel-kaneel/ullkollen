@@ -4,7 +4,7 @@ import { LifeBuoy } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useTranslation } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
-import { BackButton } from "@/components/BackButton";
+import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -75,11 +75,11 @@ function Support() {
 
   return (
     <div className="space-y-5 pb-4">
-      <BackButton />
-      <div className="flex items-center gap-2">
-        <LifeBuoy className="w-6 h-6 text-primary" />
-        <h2 className="text-xl font-bold text-primary">{sv ? "Support" : "Support"}</h2>
-      </div>
+      <PageHeader
+        back="/app/profile"
+        icon={<LifeBuoy className="w-6 h-6" />}
+        title="Support"
+      />
 
       <div className="bg-card border border-border rounded-2xl p-4 shadow-soft space-y-3">
         <div className="space-y-1.5">

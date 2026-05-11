@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useTranslation } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
-import { BackButton } from "@/components/BackButton";
+import { PageHeader } from "@/components/PageHeader";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -192,7 +192,7 @@ function Result() {
   if (!data) {
     return (
       <div className="space-y-4">
-        <BackButton />
+        <PageHeader title={t("analyzing")} />
         <div className="py-20 text-center text-muted-foreground">...</div>
       </div>
     );
@@ -204,7 +204,7 @@ function Result() {
   if (data.status !== "completed") {
     return (
       <div className="space-y-4">
-        <BackButton />
+        <PageHeader title={t("analyzing")} />
         <div className="py-16 flex flex-col items-center text-center gap-4">
           <div className="text-6xl animate-pulse">🐑</div>
           <p className="text-lg font-medium text-primary">{t("analyzing")}</p>

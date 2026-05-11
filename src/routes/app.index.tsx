@@ -50,7 +50,7 @@ function Home() {
         .select("id, created_at, wool_class, wool_class_name_sv, recommendation_text_sv, status, photo_urls, shear_recommendation, mode")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
-        .limit(20),
+        .limit(1000),
       supabase
         .from("bookings")
         .select("id", { count: "exact", head: false })

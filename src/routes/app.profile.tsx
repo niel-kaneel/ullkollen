@@ -79,7 +79,7 @@ function ProfilePage() {
   };
 
   return (
-    <div className="space-y-4 pt-2">
+    <div className="space-y-5 pt-2">
       <PageHeader back={false} title={t("profile")} />
 
       {stats && stats.total > 0 && (
@@ -108,49 +108,64 @@ function ProfilePage() {
         </div>
       )}
 
-      <Field label={t("fullName")} value={form.full_name} onChange={(v) => setForm({ ...form, full_name: v })} />
-      <Field label={t("farmName")} value={form.farm_name} onChange={(v) => setForm({ ...form, farm_name: v })} />
-      <Field label={t("phone")} value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} type="tel" />
-      <Field label={t("address")} value={form.address} onChange={(v) => setForm({ ...form, address: v })} />
-      <Field
-        label={lang === "sv" ? "Produktionsplatsnummer (gårdsmärkning)" : "Production place number (farm ID)"}
-        helper={lang === "sv"
-          ? "Ditt gårdsnummer från Jordbruksverket. Exempel: 12345"
-          : "Your farm ID from the Swedish Board of Agriculture. Example: 12345"}
-        value={form.production_place_number}
-        onChange={(v) => setForm({ ...form, production_place_number: v.replace(/\s+/g, "") })}
-      />
+      {/* Konto */}
+      <section className="bg-card border border-border rounded-2xl p-4 shadow-soft space-y-4">
+        <h2 className="text-[11px] uppercase tracking-[0.2em] font-bold text-muted-foreground">
+          {lang === "sv" ? "Konto & gård" : "Account & farm"}
+        </h2>
+        <Field label={t("fullName")} value={form.full_name} onChange={(v) => setForm({ ...form, full_name: v })} />
+        <Field label={t("farmName")} value={form.farm_name} onChange={(v) => setForm({ ...form, farm_name: v })} />
+        <Field label={t("phone")} value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} type="tel" />
+        <Field label={t("address")} value={form.address} onChange={(v) => setForm({ ...form, address: v })} />
+        <Field
+          label={lang === "sv" ? "Produktionsplatsnummer (gårdsmärkning)" : "Production place number (farm ID)"}
+          helper={lang === "sv"
+            ? "Ditt gårdsnummer från Jordbruksverket. Exempel: 12345"
+            : "Your farm ID from the Swedish Board of Agriculture. Example: 12345"}
+          value={form.production_place_number}
+          onChange={(v) => setForm({ ...form, production_place_number: v.replace(/\s+/g, "") })}
+        />
+        <Button variant="outline" onClick={updateLocation} className="w-full h-12 rounded-xl">
+          <MapPin className="w-4 h-4 mr-2" />
+          {coords ? `📍 ${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)}` : t("updateLocation")}
+        </Button>
+        <Button onClick={save} disabled={busy} className="w-full h-12 rounded-xl">
+          {t("save")}
+        </Button>
+      </section>
 
-      <Button variant="outline" onClick={updateLocation} className="w-full h-14 rounded-xl border-2 text-base">
-        <MapPin className="w-5 h-5 mr-2" />
-        {coords ? `📍 ${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)}` : t("updateLocation")}
-      </Button>
-
-      <div>
-        <Label className="text-base">{t("language")}</Label>
-        <div className="grid grid-cols-2 gap-2 mt-2">
-          <Button variant={lang === "sv" ? "default" : "outline"} onClick={() => setLang("sv")} className="h-12 rounded-xl">Svenska</Button>
-          <Button variant={lang === "en" ? "default" : "outline"} onClick={() => setLang("en")} className="h-12 rounded-xl">English</Button>
+      {/* Inställningar */}
+      <section className="bg-card border border-border rounded-2xl p-4 shadow-soft space-y-3">
+        <h2 className="text-[11px] uppercase tracking-[0.2em] font-bold text-muted-foreground">
+          {lang === "sv" ? "Inställningar" : "Preferences"}
+        </h2>
+        <div>
+          <Label className="text-sm">{t("language")}</Label>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            <Button variant={lang === "sv" ? "default" : "outline"} onClick={() => setLang("sv")} className="h-11 rounded-xl">Svenska</Button>
+            <Button variant={lang === "en" ? "default" : "outline"} onClick={() => setLang("en")} className="h-11 rounded-xl">English</Button>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <Button onClick={save} disabled={busy} size="lg" className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-base">
-        {t("save")}
-      </Button>
-
-      <Button asChild variant="outline" className="w-full h-14 rounded-2xl text-base">
-        <Link to="/app/calendar">
-          <CalendarIcon className="w-5 h-5 mr-2" />
-          {lang === "sv" ? "Min kalender" : "My calendar"}
-        </Link>
-      </Button>
-
-      <Button asChild variant="outline" className="w-full h-14 rounded-2xl text-base">
-        <Link to="/app/support">
-          <LifeBuoy className="w-5 h-5 mr-2" />
-          {lang === "sv" ? "Kontakta support" : "Contact support"}
-        </Link>
-      </Button>
+      {/* Genvägar */}
+      <section className="bg-card border border-border rounded-2xl p-4 shadow-soft space-y-2">
+        <h2 className="text-[11px] uppercase tracking-[0.2em] font-bold text-muted-foreground">
+          {lang === "sv" ? "Genvägar & support" : "Shortcuts & support"}
+        </h2>
+        <Button asChild variant="ghost" className="w-full h-12 rounded-xl justify-start">
+          <Link to="/app/bookings">
+            <CalendarIcon className="w-4 h-4 mr-2" />
+            {lang === "sv" ? "Mina bokningar" : "My bookings"}
+          </Link>
+        </Button>
+        <Button asChild variant="ghost" className="w-full h-12 rounded-xl justify-start">
+          <Link to="/app/support">
+            <LifeBuoy className="w-4 h-4 mr-2" />
+            {lang === "sv" ? "Kontakta support" : "Contact support"}
+          </Link>
+        </Button>
+      </section>
 
       <button onClick={doSignOut} className="w-full text-destructive text-sm py-4 flex items-center justify-center gap-2">
         <LogOut className="w-4 h-4" /> {t("signOut")}
@@ -162,8 +177,8 @@ function ProfilePage() {
 function Field({ label, value, onChange, type = "text", helper }: { label: string; value: string; onChange: (v: string) => void; type?: string; helper?: string }) {
   return (
     <div>
-      <Label className="text-base">{label}</Label>
-      <Input type={type} value={value} onChange={(e) => onChange(e.target.value)} className="h-14 text-base mt-2 rounded-xl" />
+      <Label className="text-sm">{label}</Label>
+      <Input type={type} value={value} onChange={(e) => onChange(e.target.value)} className="h-12 text-base mt-1.5 rounded-xl" />
       {helper && <p className="text-xs text-muted-foreground mt-1">{helper}</p>}
     </div>
   );

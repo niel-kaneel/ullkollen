@@ -1,14 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Calendar, Phone, MessageSquare, CheckCircle2, XCircle, Clock, CalendarDays } from "lucide-react";
+import { Calendar, Phone, CheckCircle2, XCircle, Clock, Inbox } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
 import { haptic } from "@/lib/haptics";
 import { PageHeader } from "@/components/PageHeader";
+import { BookingsTabs } from "@/components/BookingsTabs";
+import { EmptyState } from "@/components/EmptyState";
+import { Button } from "@/components/ui/button";
 
 type Booking = {
   id: string;
@@ -79,9 +82,8 @@ function BookingsPage() {
 
   const respond = async (id: string, status: "accepted" | "declined") => {
     const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
-    if (error) { haptic("error"); toast.error(error.message); }
+    if (error) toast.error(error.message);
     else {
-      haptic("success");
       toast.success(status === "accepted" ? "Bokning accepterad" : "Bokning avböjd");
       load();
     }
@@ -89,21 +91,15 @@ function BookingsPage() {
 
   const cancel = async (id: string) => {
     const { error } = await supabase.from("bookings").update({ status: "cancelled" }).eq("id", id);
-    if (error) { haptic("error"); toast.error(error.message); }
-    else { haptic("success"); toast.success("Bokning avbokad"); load(); }
+    if (error) toast.error(error.message);
+    else { toast.success("Bokning avbokad"); load(); }
   };
 
   return (
     <div className="space-y-5 pb-8 pt-2">
       <PullToRefreshIndicator pull={pull} refreshing={refreshing} threshold={threshold} />
-      <PageHeader
-        title="Mina bokningar"
-        action={
-          <Link to="/app/calendar" className="text-sm text-primary underline inline-flex items-center gap-1">
-            <CalendarDays className="w-4 h-4" /> Kalender
-          </Link>
-        }
-      />
+      <PageHeader title="Mina bokningar" />
+      <BookingsTabs active="list" />
 
       {loading && (
         <div className="space-y-3">
@@ -153,8 +149,19 @@ function BookingsPage() {
 
       <section className="space-y-3">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase">Mina bokningar till klippare</h3>
-        {!loading && outgoing.length === 0 && (
-          <p className="text-sm text-muted-foreground">Du har inga bokningar ännu. Hitta en klippare under "Klippare".</p>
+        {!loading && outgoing.length === 0 && incoming.length === 0 && (
+          <EmptyState
+            emoji="📅"
+            title="Inga bokningar ännu"
+            description="Hitta en fårklippare nära dig och boka direkt i appen."
+            action={
+              <Button asChild className="rounded-xl">
+                <Link to="/app/shearers" onClick={() => haptic("tap")}>
+                  <Inbox className="w-4 h-4" /> Hitta klippare
+                </Link>
+              </Button>
+            }
+          />
         )}
         {outgoing.map((b) => (
           <div key={b.id} className="bg-card border border-border rounded-2xl p-4 shadow-soft space-y-2">

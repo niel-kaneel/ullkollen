@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
 import { PageHeader } from "@/components/PageHeader";
+import { EmptyState } from "@/components/EmptyState";
 import { haptic } from "@/lib/haptics";
 import { useAuth } from "@/lib/auth";
 import { useTranslation } from "@/lib/i18n";
@@ -224,11 +225,22 @@ function Flock() {
           <Skeleton className="h-20 rounded-2xl" />
         </>
       ) : sheep.length === 0 ? (
-        <p className="bg-card border border-border rounded-2xl p-6 text-center text-muted-foreground text-sm">
-          {lang === "sv"
-            ? "Sparade får visas här efter en klassificering."
-            : "Saved sheep appear here after a classification."}
-        </p>
+        <EmptyState
+          emoji="🐑"
+          title={lang === "sv" ? "Din flock är tom" : "Your flock is empty"}
+          description={
+            lang === "sv"
+              ? "När du klassificerar ett får sparas det automatiskt här. Kom igång med din första bild."
+              : "Sheep you classify show up here automatically. Start with your first photo."
+          }
+          action={
+            <Button asChild className="rounded-xl">
+              <Link to="/app/classify" onClick={() => haptic("tap")}>
+                {lang === "sv" ? "Ny klassificering" : "New classification"}
+              </Link>
+            </Button>
+          }
+        />
       ) : filtered.length === 0 ? (
         <p className="text-center text-muted-foreground text-sm py-8">
           {lang === "sv" ? `Inga får matchar "${query}"` : `No sheep match "${query}"`}

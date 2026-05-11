@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Phone, Sparkles, User as UserIcon, CalendarClock } from "lucide-react";
 import { useAuth } from "@/lib/auth";
@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { toast } from "sonner";
 import { checkBookingConflict, conflictMessage, suggestAlternativeDates } from "@/lib/booking-conflicts";
 import { PageHeader } from "@/components/PageHeader";
+import { BookingsTabs } from "@/components/BookingsTabs";
 
 export const Route = createFileRoute("/app/calendar")({
   component: CalendarPage,
@@ -221,10 +222,11 @@ function CalendarPage() {
   return (
     <div className="space-y-4 pb-8 pt-2">
       <PageHeader
-        back="/app/bookings"
+        back="/app"
         icon={<CalendarIcon className="w-6 h-6" />}
-        title={lang === "sv" ? "Min kalender" : "My calendar"}
+        title={lang === "sv" ? "Mina bokningar" : "My bookings"}
       />
+      <BookingsTabs active="calendar" />
 
       <div className="bg-card border border-border rounded-2xl p-4 shadow-soft">
         <div className="flex items-center justify-between mb-3">
@@ -352,9 +354,6 @@ function CalendarPage() {
             ))}
           </div>
         )}
-        <Link to="/app/bookings" className="text-sm text-primary underline inline-block mt-4">
-          {lang === "sv" ? "Visa alla bokningar" : "View all bookings"}
-        </Link>
       </div>
 
       <Dialog open={!!reschedule} onOpenChange={(o) => { if (!o) { setReschedule(null); setSuggestions([]); setNoAlts(false); } }}>

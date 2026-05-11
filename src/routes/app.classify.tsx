@@ -11,6 +11,7 @@ import { useTranslation } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 import { classifyWool } from "@/lib/wool-ai.functions";
 import { PageHeader } from "@/components/PageHeader";
+import { StepIndicator } from "@/components/StepIndicator";
 import { toast } from "sonner";
 import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { haptic } from "@/lib/haptics";
@@ -416,6 +417,11 @@ function Classify() {
               : "Pick the context — we'll tailor the camera guidance."
           }
         />
+        <StepIndicator
+          current={1}
+          total={3}
+          labels={lang === "sv" ? ["Läge", "Bilder", "Detaljer"] : ["Mode", "Photos", "Details"]}
+        />
 
         <div className="grid gap-3">
           <ModeCard
@@ -457,6 +463,16 @@ function Classify() {
               ? (lang === "sv" ? "Läge: På fåret" : "Mode: On sheep")
               : (lang === "sv" ? "Läge: Klippt ull" : "Mode: Sheared")}
           </button>
+        }
+      />
+
+      <StepIndicator
+        current={step === 1 ? 2 : step === 2 ? 3 : 1}
+        total={3}
+        labels={
+          lang === "sv"
+            ? ["Läge", "Bilder", "Detaljer"]
+            : ["Mode", "Photos", "Details"]
         }
       />
 

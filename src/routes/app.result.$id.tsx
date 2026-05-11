@@ -439,14 +439,16 @@ function Result() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-3">
-            <Button asChild size="lg" className="h-14 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => haptic("tap")}>
-              <Link to="/app/shearers">
-                <Scissors className="w-5 h-5 mr-1" />
-                {t("bookShearer")}
-              </Link>
-            </Button>
-            <Button onClick={() => { haptic("success"); saveToFlock(); }} size="lg" variant="outline" className="h-14 rounded-2xl border-2">
+          <div className={data.mode === "sheared" ? "" : "grid grid-cols-2 gap-3"}>
+            {data.mode !== "sheared" && (
+              <Button asChild size="lg" className="h-14 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => haptic("tap")}>
+                <Link to="/app/shearers">
+                  <Scissors className="w-5 h-5 mr-1" />
+                  {t("bookShearer")}
+                </Link>
+              </Button>
+            )}
+            <Button onClick={() => { haptic("success"); saveToFlock(); }} size="lg" variant="outline" className={`h-14 rounded-2xl border-2 ${data.mode === "sheared" ? "w-full" : ""}`}>
               <Sheet className="w-5 h-5 mr-1" />
               {t("saveToFlock")}
             </Button>

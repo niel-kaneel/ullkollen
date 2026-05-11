@@ -417,6 +417,11 @@ function Classify() {
               : "Pick the context — we'll tailor the camera guidance."
           }
         />
+        <StepIndicator
+          current={1}
+          total={3}
+          labels={lang === "sv" ? ["Läge", "Bilder", "Detaljer"] : ["Mode", "Photos", "Details"]}
+        />
 
         <div className="grid gap-3">
           <ModeCard

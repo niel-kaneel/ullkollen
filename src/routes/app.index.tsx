@@ -77,7 +77,8 @@ function Home() {
   // Påminnelse: räkna klassningar med rekommendation att klippa nu/snart
   const reminders = useMemo(() => {
     return rows.filter((r) =>
-      r.shear_recommendation === "shear_now" || r.shear_recommendation === "shear_urgent",
+      r.mode !== "sheared" &&
+      (r.shear_recommendation === "shear_now" || r.shear_recommendation === "shear_urgent"),
     );
   }, [rows]);
 

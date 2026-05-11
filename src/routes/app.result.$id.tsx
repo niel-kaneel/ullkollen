@@ -410,25 +410,41 @@ function Result() {
         </div>
       ) : (
         <>
-          <div className="text-center bg-card rounded-3xl p-6 shadow-card border border-border">
-            <div className="inline-block bg-primary text-primary-foreground text-4xl font-black px-6 py-3 rounded-2xl tracking-wider">
-              {data.wool_class}
-            </div>
-            <h2 className="text-lg font-semibold mt-3">{className}</h2>
-            <div className="mt-2 inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-secondary">
-              <span
-                className={`inline-block w-2 h-2 rounded-full ${
-                  data.confidence === "high"
-                    ? "bg-emerald-500"
-                    : data.confidence === "medium"
-                    ? "bg-amber-500"
-                    : "bg-rose-500"
-                }`}
-              />
-              <span className="text-muted-foreground">{t("confidence")}:</span>
-              <span className="font-semibold">
-                {data.confidence === "high" ? t("high") : data.confidence === "medium" ? t("medium") : t("low")}
-              </span>
+          <div
+            className="relative overflow-hidden rounded-3xl p-7 text-center shadow-card"
+            style={{ background: "var(--gradient-pine)" }}
+          >
+            <div
+              className="absolute inset-0 opacity-20"
+              style={{
+                backgroundImage:
+                  "radial-gradient(120% 80% at 50% 0%, color-mix(in oklab, white 35%, transparent) 0%, transparent 60%)",
+              }}
+              aria-hidden
+            />
+            <div className="relative">
+              <p className="text-[11px] uppercase tracking-[0.3em] text-primary-foreground/70 font-bold">
+                {lang === "sv" ? "Klassad ull" : "Wool class"}
+              </p>
+              <div className="text-6xl font-black text-primary-foreground tracking-wider mt-1 leading-none">
+                {data.wool_class}
+              </div>
+              <h2 className="text-base font-semibold text-primary-foreground/95 mt-2">{className}</h2>
+              <div className="mt-3 inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-background/15 backdrop-blur text-primary-foreground">
+                <span
+                  className={`inline-block w-2 h-2 rounded-full ${
+                    data.confidence === "high"
+                      ? "bg-emerald-300"
+                      : data.confidence === "medium"
+                      ? "bg-amber-300"
+                      : "bg-rose-300"
+                  }`}
+                />
+                <span className="opacity-80">{t("confidence")}:</span>
+                <span className="font-semibold">
+                  {data.confidence === "high" ? t("high") : data.confidence === "medium" ? t("medium") : t("low")}
+                </span>
+              </div>
             </div>
           </div>
 

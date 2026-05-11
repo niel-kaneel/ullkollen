@@ -446,7 +446,7 @@ function Classify() {
   return (
     <div className="space-y-5">
       <PageHeader
-        title={t("takePhotos")}
+        title={step === 2 ? t("metadata") : t("takePhotos")}
         action={
           <button
             onClick={() => setStep(0)}
@@ -462,14 +462,11 @@ function Classify() {
 
       {step === 1 && (
         <>
-          <div>
-            <h2 className="font-display text-2xl font-bold text-primary">{t("takePhotos")}</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              {lang === "sv"
-                ? "Ta varje bild i sin egen ruta. Fler bilder = säkrare AI-bedömning."
-                : "Capture each shot in its own slot. More shots = more confident AI grading."}
-            </p>
-          </div>
+          <p className="text-sm text-muted-foreground">
+            {lang === "sv"
+              ? "Ta varje bild i sin egen ruta. Fler bilder = säkrare AI-bedömning."
+              : "Capture each shot in its own slot. More shots = more confident AI grading."}
+          </p>
 
           <div className="bg-card border border-border rounded-3xl p-4 shadow-soft">
             <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground font-semibold mb-1">
@@ -539,7 +536,7 @@ function Classify() {
 
       {step === 2 && (
         <>
-          <h2 className="text-xl font-bold text-primary">{t("metadata")}</h2>
+          
           <div className="space-y-4">
             {mode === "on_sheep" && (
               <>

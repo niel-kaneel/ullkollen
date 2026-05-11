@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, Sheet, Scissors, User, Plus } from "lucide-react";
+import { Home, Users, Scissors, User, Plus } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { SheepLogo } from "./SheepLogo";
 import { haptic } from "@/lib/haptics";
@@ -11,7 +11,7 @@ export function AppShell({ children, hideNav = false }: { children: React.ReactN
 
   const items = [
     { to: "/app", label: t("home"), icon: Home, match: (p: string) => p === "/app" },
-    { to: "/app/flock", label: t("flock"), icon: Sheet, match: (p: string) => p.startsWith("/app/flock") },
+    { to: "/app/flock", label: t("flock"), icon: Users, match: (p: string) => p.startsWith("/app/flock") },
     { to: "/app/shearers", label: t("shearers"), icon: Scissors, match: (p: string) => p.startsWith("/app/shearers") },
     { to: "/app/profile", label: t("profile"), icon: User, match: (p: string) => p.startsWith("/app/profile") },
   ];

@@ -133,9 +133,9 @@ function Home() {
             <p className="text-xs text-muted-foreground mt-0.5">
               {lang === "sv" ? "Hitta en klippare nu så hinner du." : "Find a shearer now to be in time."}
             </p>
-            <Button asChild variant="link" size="sm" className="h-auto p-0 mt-1 text-accent-foreground">
-              <Link to="/app/shearers">
-                {lang === "sv" ? "Hitta klippare →" : "Find shearer →"}
+            <Button asChild size="sm" className="mt-3 rounded-xl">
+              <Link to="/app/shearers" onClick={() => haptic("tap")}>
+                {lang === "sv" ? "Hitta klippare" : "Find shearer"}
               </Link>
             </Button>
           </div>

@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { toast } from "sonner";
 import { checkBookingConflict, conflictMessage, suggestAlternativeDates } from "@/lib/booking-conflicts";
 import { PageHeader } from "@/components/PageHeader";
+import { BookingsTabs } from "@/components/BookingsTabs";
 
 export const Route = createFileRoute("/app/calendar")({
   component: CalendarPage,
@@ -221,10 +222,11 @@ function CalendarPage() {
   return (
     <div className="space-y-4 pb-8 pt-2">
       <PageHeader
-        back="/app/bookings"
+        back="/app"
         icon={<CalendarIcon className="w-6 h-6" />}
-        title={lang === "sv" ? "Min kalender" : "My calendar"}
+        title={lang === "sv" ? "Mina bokningar" : "My bookings"}
       />
+      <BookingsTabs active="calendar" />
 
       <div className="bg-card border border-border rounded-2xl p-4 shadow-soft">
         <div className="flex items-center justify-between mb-3">

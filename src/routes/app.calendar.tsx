@@ -354,9 +354,6 @@ function CalendarPage() {
             ))}
           </div>
         )}
-        <Link to="/app/bookings" className="text-sm text-primary underline inline-block mt-4">
-          {lang === "sv" ? "Visa alla bokningar" : "View all bookings"}
-        </Link>
       </div>
 
       <Dialog open={!!reschedule} onOpenChange={(o) => { if (!o) { setReschedule(null); setSuggestions([]); setNoAlts(false); } }}>

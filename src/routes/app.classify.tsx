@@ -445,18 +445,20 @@ function Classify() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <BackButton />
-        <button
-          onClick={() => setStep(0)}
-          className="text-xs font-semibold text-muted-foreground inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-secondary hover:bg-secondary/80 transition"
-        >
-          <ArrowLeft className="w-3 h-3" />
-          {mode === "on_sheep"
-            ? (lang === "sv" ? "Läge: På fåret" : "Mode: On sheep")
-            : (lang === "sv" ? "Läge: Klippt ull" : "Mode: Sheared")}
-        </button>
-      </div>
+      <PageHeader
+        title={t("takePhotos")}
+        action={
+          <button
+            onClick={() => setStep(0)}
+            className="text-xs font-semibold text-muted-foreground inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-secondary hover:bg-secondary/80 transition"
+          >
+            <ArrowLeft className="w-3 h-3" />
+            {mode === "on_sheep"
+              ? (lang === "sv" ? "Läge: På fåret" : "Mode: On sheep")
+              : (lang === "sv" ? "Läge: Klippt ull" : "Mode: Sheared")}
+          </button>
+        }
+      />
 
       {step === 1 && (
         <>

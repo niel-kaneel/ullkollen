@@ -4,6 +4,7 @@ import { Pencil, Trash2, Search, X, Image as ImageIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
+import { PageHeader } from "@/components/PageHeader";
 import { haptic } from "@/lib/haptics";
 import { useAuth } from "@/lib/auth";
 import { useTranslation } from "@/lib/i18n";

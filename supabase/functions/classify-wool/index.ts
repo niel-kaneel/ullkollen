@@ -183,7 +183,7 @@ Deno.serve(async (req) => {
     if (classifRow?.user_id) {
       const { data: examples } = await supabase.rpc("recent_confirmed_for_user", {
         _user_id: classifRow.user_id,
-        _limit: 5,
+        _limit: 10,
       });
       if (examples && examples.length > 0) {
         const lines = examples.map((e: any, i: number) => {

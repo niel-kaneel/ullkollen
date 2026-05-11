@@ -224,7 +224,7 @@ function Result() {
   return (
     <div className="space-y-5 pb-4">
       <PageHeader
-        title={className || t("result") || "Resultat"}
+        title={className || (lang === "sv" ? "Resultat" : "Result")}
         action={
           <div className="flex items-center gap-1">
           {!editing && data.status === "completed" && data.wool_class && (

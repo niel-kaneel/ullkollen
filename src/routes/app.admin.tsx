@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth";
 import { useTranslation } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
-import { BackButton } from "@/components/BackButton";
+import { PageHeader } from "@/components/PageHeader";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -134,7 +134,7 @@ function Admin() {
   if (!isAdmin) {
     return (
       <div className="space-y-4">
-        <BackButton />
+        <PageHeader title={t("admin")} />
         <div className="bg-destructive/10 border border-destructive/30 rounded-2xl p-6 text-center">
           <Shield className="w-10 h-10 mx-auto text-destructive mb-2" />
           <p className="font-semibold">Access denied</p>
@@ -247,7 +247,7 @@ function Admin() {
 
   return (
     <div className="space-y-6 pb-8">
-      <BackButton />
+      <PageHeader title={t("admin")} />
 
       <div className="bg-card border border-border rounded-2xl shadow-soft p-5 md:p-6">
         <div className="flex items-start justify-between gap-3 flex-wrap">

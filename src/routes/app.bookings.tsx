@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
 import { haptic } from "@/lib/haptics";
-import { BackButton } from "@/components/BackButton";
+import { PageHeader } from "@/components/PageHeader";
 
 type Booking = {
   id: string;
@@ -96,13 +96,14 @@ function BookingsPage() {
   return (
     <div className="space-y-5 pb-8 pt-2">
       <PullToRefreshIndicator pull={pull} refreshing={refreshing} threshold={threshold} />
-      <BackButton />
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-primary">Mina bokningar</h2>
-        <Link to="/app/calendar" className="text-sm text-primary underline inline-flex items-center gap-1">
-          <CalendarDays className="w-4 h-4" /> Kalender
-        </Link>
-      </div>
+      <PageHeader
+        title="Mina bokningar"
+        action={
+          <Link to="/app/calendar" className="text-sm text-primary underline inline-flex items-center gap-1">
+            <CalendarDays className="w-4 h-4" /> Kalender
+          </Link>
+        }
+      />
 
       {loading && (
         <div className="space-y-3">

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { checkBookingConflict, conflictMessage, suggestAlternativeDates } from "@/lib/booking-conflicts";
-import { BackButton } from "@/components/BackButton";
+import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/app/calendar")({
   component: CalendarPage,
@@ -220,11 +220,11 @@ function CalendarPage() {
 
   return (
     <div className="space-y-4 pb-8 pt-2">
-      <BackButton />
-      <h2 className="text-2xl font-bold text-primary flex items-center gap-2">
-        <CalendarIcon className="w-6 h-6" />
-        {lang === "sv" ? "Min kalender" : "My calendar"}
-      </h2>
+      <PageHeader
+        back="/app/bookings"
+        icon={<CalendarIcon className="w-6 h-6" />}
+        title={lang === "sv" ? "Min kalender" : "My calendar"}
+      />
 
       <div className="bg-card border border-border rounded-2xl p-4 shadow-soft">
         <div className="flex items-center justify-between mb-3">

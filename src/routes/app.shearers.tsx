@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Phone, MessageSquare, Mail, Globe, MapPin, X, Info, ChevronRight, Calendar } from "lucide-react";
+import { PageHeader } from "@/components/PageHeader";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { checkBookingConflict, conflictMessage, suggestAlternativeDates } from "@/lib/booking-conflicts";
@@ -101,12 +102,11 @@ function ShearersPage() {
 
   return (
     <div className="space-y-4 pb-8">
-      <div className="pt-2">
-        <h2 className="text-2xl font-bold text-primary">Hitta fårklippare</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          {list.length} klippare i Sverige{hasLocation ? " • Sorterat efter avstånd" : " • A–Ö"}
-        </p>
-      </div>
+      <PageHeader
+        back={false}
+        title="Hitta fårklippare"
+        subtitle={`${list.length} klippare i Sverige${hasLocation ? " • Sorterat efter avstånd" : " • A–Ö"}`}
+      />
 
       <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1">
         <FilterPill label="Alla" active={filter === "all"} onClick={() => setFilter("all")} />

@@ -226,8 +226,7 @@ function Result() {
       <PageHeader
         title={className || t("result") || "Resultat"}
         action={
-        <div className="flex items-center gap-1">
-        <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1">
           {!editing && data.status === "completed" && data.wool_class && (
             <>
               <Button variant="ghost" size="sm" onClick={onShare} aria-label={lang === "sv" ? "Dela" : "Share"}>

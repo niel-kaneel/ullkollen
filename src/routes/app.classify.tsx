@@ -633,12 +633,31 @@ function Classify() {
 
             <div>
               <Label className="text-base">{t("breed")}</Label>
-              <Select value={meta.breed_code} onValueChange={(v) => setMeta({ ...meta, breed_code: v })}>
-                <SelectTrigger className="h-14 mt-2 rounded-xl text-base"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {BREEDS.map((b) => <SelectItem key={b.code} value={b.code}>{b.name_sv}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                {lang === "sv"
+                  ? "Välj en eller flera raser (t.ex. korsning eller blandfäll)."
+                  : "Pick one or more breeds (e.g. crossbreed or mixed fleece)."}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {BREEDS.map((b) => {
+                  const selected = meta.breed_codes.includes(b.code);
+                  return (
+                    <button
+                      key={b.code}
+                      type="button"
+                      onClick={() => toggleBreed(b.code)}
+                      className={
+                        "px-3 py-2 rounded-full text-sm font-semibold border-2 transition active:scale-95 " +
+                        (selected
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background text-foreground border-border hover:border-primary/60")
+                      }
+                    >
+                      {b.name_sv}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             {mode === "on_sheep" && (
               <div>

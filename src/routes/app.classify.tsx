@@ -295,6 +295,7 @@ function Classify() {
     }
     setBusy(true);
     setProgress(0);
+    let createdClassId: string | null = null;
     try {
       const ordered = SHOTS.filter((s) => shots[s.key]).map((s) => ({
         key: s.key,
@@ -321,6 +322,7 @@ function Classify() {
         .single();
       if (error) throw error;
       const classId = row.id as string;
+      createdClassId = classId;
 
       let uploaded = 0;
       const uploads = await Promise.all(
@@ -384,6 +386,14 @@ function Classify() {
       navigate({ to: "/app/result/$id", params: { id: classId } });
     } catch (err) {
       console.error(err);
+      // Don't strand the row in "processing" — mark it failed so the user
+      // sees a proper error state and can retry.
+      if (createdClassId) {
+        await supabase
+          .from("classifications")
+          .update({ status: "failed", retake_reason_sv: err instanceof Error ? err.message : null })
+          .eq("id", createdClassId);
+      }
       toast.error(err instanceof Error ? err.message : t("error"));
     } finally {
       setBusy(false);

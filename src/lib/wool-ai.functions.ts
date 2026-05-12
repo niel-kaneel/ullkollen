@@ -308,26 +308,40 @@ photo type is missing, request a retake instead of guessing.`;
     });
 
     const callModel = async (model: string) => {
-      const response = await fetch(AI_GATEWAY_URL, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: "system", content: WOOL_SYSTEM_PROMPT },
-            { role: "user", content: userContent },
-          ],
-          response_format: { type: "json_object" },
-        }),
-      });
+      // The Lovable AI gateway occasionally returns transient 400/429/5xx
+      // ("Invalid request body" with empty details) under load. Retry a
+      // couple of times with backoff before giving up so a brief blip
+      // doesn't strand a classification in "processing".
+      let response: Response | undefined;
+      let lastDetails = "";
+      for (let attempt = 0; attempt < 3; attempt++) {
+        response = await fetch(AI_GATEWAY_URL, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { role: "system", content: WOOL_SYSTEM_PROMPT },
+              { role: "user", content: userContent },
+            ],
+            response_format: { type: "json_object" },
+          }),
+        });
+        if (response.ok) break;
+        lastDetails = await response.text();
+        const retriable = response.status === 400 || response.status === 429 || response.status >= 500;
+        console.error(
+          `Wool AI request failed (${model}) attempt ${attempt + 1}: ${response.status} ${lastDetails}`,
+        );
+        if (!retriable || attempt === 2) break;
+        await new Promise((r) => setTimeout(r, 800 * (attempt + 1)));
+      }
 
-      if (!response.ok) {
-        const details = await response.text();
-        console.error(`Wool AI request failed (${model}): ${response.status} ${details}`);
-        throw new Error("AI-analysen kunde inte slutföras.");
+      if (!response || !response.ok) {
+        throw new Error("AI-analysen kunde inte slutföras. Försök igen om en stund.");
       }
 
       const payload = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };

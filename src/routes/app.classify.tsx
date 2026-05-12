@@ -139,12 +139,21 @@ function Classify() {
     sheepName: "",
     sheep_id: "",
     body_area: "flank",
-    breed_code: "gotland",
+    breed_codes: ["gotland"] as string[],
     age_category: "Tacka" as "Lamm" | "Tacka" | "Bagge",
     months_since_last_shear: 6,
     fleece_id: "",
     shearing_date: "",
   });
+
+  const toggleBreed = (code: string) => {
+    setMeta((m) => {
+      const has = m.breed_codes.includes(code);
+      let next = has ? m.breed_codes.filter((c) => c !== code) : [...m.breed_codes, code];
+      if (next.length === 0) next = [code]; // always keep at least one
+      return { ...m, breed_codes: next };
+    });
+  };
 
   // Pre-select last used mode
   useEffect(() => {

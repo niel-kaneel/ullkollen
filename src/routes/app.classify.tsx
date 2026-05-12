@@ -322,6 +322,7 @@ function Classify() {
         .single();
       if (error) throw error;
       const classId = row.id as string;
+      createdClassId = classId;
 
       let uploaded = 0;
       const uploads = await Promise.all(

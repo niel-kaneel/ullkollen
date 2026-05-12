@@ -295,6 +295,7 @@ function Classify() {
     }
     setBusy(true);
     setProgress(0);
+    let createdClassId: string | null = null;
     try {
       const ordered = SHOTS.filter((s) => shots[s.key]).map((s) => ({
         key: s.key,

@@ -139,12 +139,21 @@ function Classify() {
     sheepName: "",
     sheep_id: "",
     body_area: "flank",
-    breed_code: "gotland",
+    breed_codes: ["gotland"] as string[],
     age_category: "Tacka" as "Lamm" | "Tacka" | "Bagge",
     months_since_last_shear: 6,
     fleece_id: "",
     shearing_date: "",
   });
+
+  const toggleBreed = (code: string) => {
+    setMeta((m) => {
+      const has = m.breed_codes.includes(code);
+      let next = has ? m.breed_codes.filter((c) => c !== code) : [...m.breed_codes, code];
+      if (next.length === 0) next = [code]; // always keep at least one
+      return { ...m, breed_codes: next };
+    });
+  };
 
   // Pre-select last used mode
   useEffect(() => {
@@ -312,8 +321,8 @@ function Classify() {
           fleece_id: mode === "sheared" ? meta.fleece_id || null : null,
           shearing_date: mode === "sheared" ? meta.shearing_date || null : null,
           sheep_id: mode === "on_sheep" && meta.sheep_id ? meta.sheep_id : null,
-          breed: BREED_BY_CODE[meta.breed_code]?.name_sv ?? null,
-          breed_code: meta.breed_code,
+          breed: meta.breed_codes.map((c) => BREED_BY_CODE[c]?.name_sv ?? c).join(" + ") || null,
+          breed_code: meta.breed_codes.join(","),
           age_category: meta.age_category,
           months_since_last_shear: meta.months_since_last_shear,
           photo_urls: [],
@@ -624,12 +633,31 @@ function Classify() {
 
             <div>
               <Label className="text-base">{t("breed")}</Label>
-              <Select value={meta.breed_code} onValueChange={(v) => setMeta({ ...meta, breed_code: v })}>
-                <SelectTrigger className="h-14 mt-2 rounded-xl text-base"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {BREEDS.map((b) => <SelectItem key={b.code} value={b.code}>{b.name_sv}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                {lang === "sv"
+                  ? "Välj en eller flera raser (t.ex. korsning eller blandfäll)."
+                  : "Pick one or more breeds (e.g. crossbreed or mixed fleece)."}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {BREEDS.map((b) => {
+                  const selected = meta.breed_codes.includes(b.code);
+                  return (
+                    <button
+                      key={b.code}
+                      type="button"
+                      onClick={() => toggleBreed(b.code)}
+                      className={
+                        "px-3 py-2 rounded-full text-sm font-semibold border-2 transition active:scale-95 " +
+                        (selected
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background text-foreground border-border hover:border-primary/60")
+                      }
+                    >
+                      {b.name_sv}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             {mode === "on_sheep" && (
               <div>

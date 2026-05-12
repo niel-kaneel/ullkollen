@@ -386,6 +386,14 @@ function Classify() {
       navigate({ to: "/app/result/$id", params: { id: classId } });
     } catch (err) {
       console.error(err);
+      // Don't strand the row in "processing" — mark it failed so the user
+      // sees a proper error state and can retry.
+      if (createdClassId) {
+        await supabase
+          .from("classifications")
+          .update({ status: "failed", retake_reason_sv: err instanceof Error ? err.message : null })
+          .eq("id", createdClassId);
+      }
       toast.error(err instanceof Error ? err.message : t("error"));
     } finally {
       setBusy(false);

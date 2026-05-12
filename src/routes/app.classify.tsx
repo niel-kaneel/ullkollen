@@ -139,7 +139,7 @@ function Classify() {
     sheepName: "",
     sheep_id: "",
     body_area: "flank",
-    breed_codes: ["gotland"] as string[],
+    breed_codes: [] as string[],
     age_category: "Tacka" as "Lamm" | "Tacka" | "Bagge",
     months_since_last_shear: 6,
     fleece_id: "",

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, MapPin, Truck, Warehouse, Package, RefreshCw, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -178,7 +178,11 @@ function HolmaCentral() {
 
   if (loading) return <div className="p-6 text-center text-sm text-muted-foreground">Laddar…</div>;
   if (!isAdmin) {
-    throw redirect({ to: "/app" });
+    return (
+      <div className="p-6 text-center text-sm text-muted-foreground">
+        Endast administratörer har åtkomst. <Link to="/app" className="underline">Tillbaka</Link>
+      </div>
+    );
   }
 
   return (

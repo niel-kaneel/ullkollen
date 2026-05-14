@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Route as RouteIcon, MapPin, Truck, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -217,7 +217,13 @@ function RoutePlanner() {
   };
 
   if (loading) return <div className="p-6 text-center text-sm text-muted-foreground">Laddar…</div>;
-  if (!user) throw redirect({ to: "/auth" });
+  if (!user) {
+    return (
+      <div className="p-6 text-center text-sm text-muted-foreground">
+        Logga in för att planera rutter. <Link to="/auth" className="underline">Logga in</Link>
+      </div>
+    );
+  }
   if (!shearer && !isAdmin) {
     return (
       <div className="min-h-screen bg-background pb-24">

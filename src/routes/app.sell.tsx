@@ -269,6 +269,12 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
     if (method === "with_shearer" && !shearerId) {
       return toast.error("Välj klippare");
     }
+    if ((method === "dropoff_station" || method === "pickup") && !stationId) {
+      return toast.error("Välj insamlingsstation");
+    }
+    if (method === "with_shearer" && sharePct < 20) {
+      return toast.error("Andelen måste vara minst 20%");
+    }
     setSaving(true);
     const { data: lot, error: e1 } = await supabase
       .from("wool_lots")
@@ -287,6 +293,8 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
       wool_lot_id: lot.id,
       method,
       shearer_id: method === "with_shearer" ? shearerId : null,
+      destination_station_id:
+        method === "dropoff_station" || method === "pickup" ? stationId : null,
       status: "pending",
     });
     if (e2) { setSaving(false); return toast.error(e2.message); }

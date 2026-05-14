@@ -18,10 +18,6 @@ export type Database = {
         Row: {
           contact_phone: string | null
           created_at: string
-          expected_confidence: string | null
-          expected_wool_class: string | null
-          expected_wool_class_name_en: string | null
-          expected_wool_class_name_sv: string | null
           farmer_id: string
           id: string
           message: string | null
@@ -35,10 +31,6 @@ export type Database = {
         Insert: {
           contact_phone?: string | null
           created_at?: string
-          expected_confidence?: string | null
-          expected_wool_class?: string | null
-          expected_wool_class_name_en?: string | null
-          expected_wool_class_name_sv?: string | null
           farmer_id: string
           id?: string
           message?: string | null
@@ -52,10 +44,6 @@ export type Database = {
         Update: {
           contact_phone?: string | null
           created_at?: string
-          expected_confidence?: string | null
-          expected_wool_class?: string | null
-          expected_wool_class_name_en?: string | null
-          expected_wool_class_name_sv?: string | null
           farmer_id?: string
           id?: string
           message?: string | null
@@ -709,6 +697,32 @@ export type Database = {
           n: number
           wool_class: string
         }[]
+      }
+      bump_station_stock: {
+        Args: { _delta_kg: number; _station_id: string }
+        Returns: {
+          active: boolean
+          address: string | null
+          approved: boolean
+          capacity_kg: number
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          current_stock_kg: number
+          id: string
+          lat: number | null
+          lng: number | null
+          manager_user_id: string | null
+          name: string
+          notes: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "collection_stations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       has_role: {
         Args: {

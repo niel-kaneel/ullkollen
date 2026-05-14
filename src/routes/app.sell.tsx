@@ -215,6 +215,7 @@ function statusLabel(s: string) {
 }
 
 type ShearerOpt = { id: string; display_name: string };
+type StationOpt = { id: string; name: string; current_stock_kg: number; capacity_kg: number };
 type RecentClass = { id: string; wool_class: string | null; wool_class_name_sv: string | null; created_at: string };
 
 function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: () => void }) {
@@ -225,6 +226,8 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
   const [sharePct, setSharePct] = useState(20);
   const [shearerId, setShearerId] = useState<string | null>(null);
   const [shearers, setShearers] = useState<ShearerOpt[]>([]);
+  const [stations, setStations] = useState<StationOpt[]>([]);
+  const [stationId, setStationId] = useState<string | null>(null);
   const [classificationId, setClassificationId] = useState<string | null>(null);
   const [recents, setRecents] = useState<RecentClass[]>([]);
   const [saving, setSaving] = useState(false);
@@ -241,6 +244,13 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
       .eq("active", true)
       .order("display_name")
       .then(({ data }) => setShearers((data as ShearerOpt[]) ?? []));
+    void supabase
+      .from("collection_stations")
+      .select("id, name, current_stock_kg, capacity_kg")
+      .eq("approved", true)
+      .eq("active", true)
+      .order("name")
+      .then(({ data }) => setStations((data as StationOpt[]) ?? []));
     if (user) {
       void supabase
         .from("classifications")
@@ -258,6 +268,12 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
     if (!user || !validKg || !method) return;
     if (method === "with_shearer" && !shearerId) {
       return toast.error("Välj klippare");
+    }
+    if ((method === "dropoff_station" || method === "pickup") && !stationId) {
+      return toast.error("Välj insamlingsstation");
+    }
+    if (method === "with_shearer" && sharePct < 20) {
+      return toast.error("Andelen måste vara minst 20%");
     }
     setSaving(true);
     const { data: lot, error: e1 } = await supabase
@@ -277,6 +293,8 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
       wool_lot_id: lot.id,
       method,
       shearer_id: method === "with_shearer" ? shearerId : null,
+      destination_station_id:
+        method === "dropoff_station" || method === "pickup" ? stationId : null,
       status: "pending",
     });
     if (e2) { setSaving(false); return toast.error(e2.message); }
@@ -389,6 +407,30 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
               );
             })}
           </div>
+        </div>
+      )}
+
+      {(method === "dropoff_station" || method === "pickup") && (
+        <div className="bg-accent/10 border border-accent/30 rounded-2xl p-4 space-y-2">
+          <Label className="text-sm font-semibold">Välj insamlingsstation</Label>
+          {stations.length === 0 ? (
+            <p className="text-xs text-muted-foreground">Inga aktiva stationer tillgängliga.</p>
+          ) : (
+            <div className="flex flex-wrap gap-2 mt-1">
+              {stations.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setStationId(s.id)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border-2 ${
+                    stationId === s.id ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border"
+                  }`}
+                >
+                  {s.name} ({s.current_stock_kg}/{s.capacity_kg} kg)
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

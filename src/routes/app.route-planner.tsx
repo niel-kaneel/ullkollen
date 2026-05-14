@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Route as RouteIcon, MapPin, Truck, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -201,23 +201,56 @@ function RoutePlanner() {
     if (!plan || selected.size === 0 || !destStation) return;
     setSaving(true);
     const ids = Array.from(selected);
+    const noteText = `Planerad rutt → ${destStation.name} (${plan.totalKm.toFixed(1)} km, ~${estMileageSek} SEK)${shearer ? ` av ${shearer.display_name}` : ""}`;
     const { error } = await supabase
       .from("pickup_requests")
       .update({
         status: "scheduled",
         scheduled_for: scheduledFor,
-        notes: `Planerad rutt → ${destStation.name} (${plan.totalKm.toFixed(1)} km, ~${estMileageSek} SEK)${shearer ? ` av ${shearer.display_name}` : ""}`,
+        notes: noteText,
       })
       .in("id", ids);
+    if (error) { setSaving(false); toast.error(error.message); return; }
+
+    // Best-effort: link any owner lots in `registered` to a delivery toward destStation
+    const ownerIds = pickups
+      .filter((p) => ids.includes(p.id) && p.owner_id)
+      .map((p) => p.owner_id as string);
+    if (ownerIds.length > 0 && shearer) {
+      const { data: lots } = await supabase
+        .from("wool_lots")
+        .select("id, owner_id")
+        .in("owner_id", ownerIds)
+        .eq("status", "registered");
+      if (lots && lots.length > 0) {
+        await supabase.from("deliveries").insert(
+          lots.map((l) => ({
+            wool_lot_id: l.id,
+            method: "pickup",
+            shearer_id: shearer.id,
+            destination_station_id: destStation.id,
+            status: "scheduled",
+            scheduled_for: scheduledFor,
+            distance_km: plan.totalKm,
+            mileage_sek: estMileageSek,
+          })),
+        );
+      }
+    }
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
     toast.success(`${ids.length} hämtning(ar) schemalagda`);
     setSelected(new Set());
     load();
   };
 
   if (loading) return <div className="p-6 text-center text-sm text-muted-foreground">Laddar…</div>;
-  if (!user) throw redirect({ to: "/auth" });
+  if (!user) {
+    return (
+      <div className="p-6 text-center text-sm text-muted-foreground">
+        Logga in för att planera rutter. <Link to="/auth" className="underline">Logga in</Link>
+      </div>
+    );
+  }
   if (!shearer && !isAdmin) {
     return (
       <div className="min-h-screen bg-background pb-24">

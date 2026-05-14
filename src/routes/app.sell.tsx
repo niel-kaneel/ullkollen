@@ -214,24 +214,61 @@ function statusLabel(s: string) {
   }
 }
 
+type ShearerOpt = { id: string; display_name: string };
+type RecentClass = { id: string; wool_class: string | null; wool_class_name_sv: string | null; created_at: string };
+
 function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: () => void }) {
   const { user } = useAuth();
   const [kg, setKg] = useState<string>("");
   const [notes, setNotes] = useState("");
   const [method, setMethod] = useState<DeliveryMethod | null>(null);
   const [sharePct, setSharePct] = useState(20);
+  const [shearerId, setShearerId] = useState<string | null>(null);
+  const [shearers, setShearers] = useState<ShearerOpt[]>([]);
+  const [classificationId, setClassificationId] = useState<string | null>(null);
+  const [recents, setRecents] = useState<RecentClass[]>([]);
   const [saving, setSaving] = useState(false);
 
   const kgNum = Number(kg);
   const validKg = !Number.isNaN(kgNum) && kgNum > 0;
   const tier = validKg ? tierFor(kgNum) : null;
 
+  useEffect(() => {
+    void supabase
+      .from("shearers")
+      .select("id, display_name")
+      .eq("approved", true)
+      .eq("active", true)
+      .order("display_name")
+      .then(({ data }) => setShearers((data as ShearerOpt[]) ?? []));
+    if (user) {
+      void supabase
+        .from("classifications")
+        .select("id, wool_class, wool_class_name_sv, created_at")
+        .eq("user_id", user.id)
+        .eq("status", "completed")
+        .not("wool_class", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(10)
+        .then(({ data }) => setRecents((data as RecentClass[]) ?? []));
+    }
+  }, [user]);
+
   const save = async () => {
     if (!user || !validKg || !method) return;
+    if (method === "with_shearer" && !shearerId) {
+      return toast.error("Välj klippare");
+    }
     setSaving(true);
     const { data: lot, error: e1 } = await supabase
       .from("wool_lots")
-      .insert({ owner_id: user.id, estimated_kg: kgNum, notes: notes || null, status: "registered" })
+      .insert({
+        owner_id: user.id,
+        estimated_kg: kgNum,
+        notes: notes || null,
+        status: "registered",
+        classification_id: classificationId,
+      })
       .select("id")
       .single();
     if (e1 || !lot) { setSaving(false); return toast.error(e1?.message ?? "Kunde inte spara"); }
@@ -239,16 +276,18 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
     const { error: e2 } = await supabase.from("deliveries").insert({
       wool_lot_id: lot.id,
       method,
+      shearer_id: method === "with_shearer" ? shearerId : null,
       status: "pending",
     });
     if (e2) { setSaving(false); return toast.error(e2.message); }
 
-    if (method === "with_shearer") {
-      // Note: shearer is selected later when booking; we record the % intent on the lot via notes for now.
-      // A proper revenue_shares row is created when the shearer is assigned.
-      await supabase.from("wool_lots").update({
-        notes: `${notes ? notes + "\n" : ""}Avtalad andel till klippare: ${sharePct}%`,
-      }).eq("id", lot.id);
+    if (method === "with_shearer" && shearerId) {
+      const { error: e3 } = await supabase.from("revenue_shares").insert({
+        wool_lot_id: lot.id,
+        shearer_id: shearerId,
+        percent: sharePct,
+      });
+      if (e3) { setSaving(false); return toast.error(e3.message); }
     }
 
     haptic("success");
@@ -276,6 +315,36 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
           <span className="text-base font-semibold text-muted-foreground">kg</span>
         </div>
       </div>
+
+      {recents.length > 0 && (
+        <div>
+          <Label className="text-sm font-semibold">Koppla till klassning (valfritt)</Label>
+          <p className="text-xs text-muted-foreground mt-0.5 mb-2">Hjälper oss räkna ut ditt förväntade pris.</p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setClassificationId(null)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold border-2 ${
+                classificationId === null ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border"
+              }`}
+            >
+              Ingen
+            </button>
+            {recents.map((r) => (
+              <button
+                key={r.id}
+                type="button"
+                onClick={() => setClassificationId(r.id)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border-2 ${
+                  classificationId === r.id ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border"
+                }`}
+              >
+                {r.wool_class ?? "?"} {r.wool_class_name_sv ? `· ${r.wool_class_name_sv}` : ""}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div>
         <Label htmlFor="notes" className="text-sm font-semibold">Anteckningar (valfritt)</Label>
@@ -324,23 +393,44 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
       )}
 
       {method === "with_shearer" && (
-        <div className="bg-accent/10 border border-accent/30 rounded-2xl p-4 space-y-3">
+        <div className="bg-accent/10 border border-accent/30 rounded-2xl p-4 space-y-4">
+          <div>
+            <Label className="text-sm font-semibold">Välj klippare</Label>
+            {shearers.length === 0 ? (
+              <p className="text-xs text-muted-foreground mt-1">Inga klippare tillgängliga ännu.</p>
+            ) : (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {shearers.map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setShearerId(s.id)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border-2 ${
+                      shearerId === s.id ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border"
+                    }`}
+                  >
+                    {s.display_name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <div>
             <Label htmlFor="share" className="text-sm font-semibold">Andel av intäkt till klipparen</Label>
             <p className="text-xs text-muted-foreground mt-0.5">Minst 20%. Klipparen får sin andel automatiskt utbetald när ullen sålts.</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <input
-              id="share"
-              type="range"
-              min={20}
-              max={50}
-              step={1}
-              value={sharePct}
-              onChange={(e) => setSharePct(Number(e.target.value))}
-              className="flex-1 accent-primary"
-            />
-            <span className="font-bold text-lg w-14 text-right">{sharePct}%</span>
+            <div className="flex items-center gap-3 mt-2">
+              <input
+                id="share"
+                type="range"
+                min={20}
+                max={50}
+                step={1}
+                value={sharePct}
+                onChange={(e) => setSharePct(Number(e.target.value))}
+                className="flex-1 accent-primary"
+              />
+              <span className="font-bold text-lg w-14 text-right">{sharePct}%</span>
+            </div>
           </div>
         </div>
       )}

@@ -410,6 +410,30 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
         </div>
       )}
 
+      {(method === "dropoff_station" || method === "pickup") && (
+        <div className="bg-accent/10 border border-accent/30 rounded-2xl p-4 space-y-2">
+          <Label className="text-sm font-semibold">Välj insamlingsstation</Label>
+          {stations.length === 0 ? (
+            <p className="text-xs text-muted-foreground">Inga aktiva stationer tillgängliga.</p>
+          ) : (
+            <div className="flex flex-wrap gap-2 mt-1">
+              {stations.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setStationId(s.id)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border-2 ${
+                    stationId === s.id ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border"
+                  }`}
+                >
+                  {s.name} ({s.current_stock_kg}/{s.capacity_kg} kg)
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {method === "with_shearer" && (
         <div className="bg-accent/10 border border-accent/30 rounded-2xl p-4 space-y-4">
           <div>

@@ -186,7 +186,7 @@ function HolmaCentral() {
       <PageHeader
         title="Holma central"
         subtitle="Översikt: stationer, lager och hämtningar"
-        backTo="/app"
+        back="/app"
       />
 
       <div className="p-4 space-y-4 max-w-5xl mx-auto">

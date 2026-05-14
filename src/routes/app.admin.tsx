@@ -68,8 +68,9 @@ function Admin() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
   const [details, setDetails] = useState<Record<string, Detail>>({});
-  const [tab, setTab] = useState<"users" | "support">("users");
+  const [tab, setTab] = useState<"users" | "support" | "stations">("users");
   const [support, setSupport] = useState<SupportRow[]>([]);
+  const [stations, setStations] = useState<Array<{ id: string; name: string; address: string | null; capacity_kg: number; current_stock_kg: number; approved: boolean; active: boolean; manager_user_id: string | null; contact_phone: string | null; contact_email: string | null; created_at: string }>>([]);
 
   const callAdmin = async (body: Record<string, unknown>) => {
     const { data, error } = await supabase.functions.invoke("admin-actions", { body });

@@ -183,6 +183,187 @@ export type Database = {
           },
         ]
       }
+      collection_stations: {
+        Row: {
+          active: boolean
+          address: string | null
+          approved: boolean
+          capacity_kg: number
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          current_stock_kg: number
+          id: string
+          lat: number | null
+          lng: number | null
+          manager_user_id: string | null
+          name: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          address?: string | null
+          approved?: boolean
+          capacity_kg?: number
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          current_stock_kg?: number
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          manager_user_id?: string | null
+          name: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          address?: string | null
+          approved?: boolean
+          capacity_kg?: number
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          current_stock_kg?: number
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          manager_user_id?: string | null
+          name?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      deliveries: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          destination_station_id: string | null
+          distance_km: number | null
+          fuel_type: string | null
+          id: string
+          method: string
+          mileage_sek: number | null
+          origin_station_id: string | null
+          scheduled_for: string | null
+          shearer_id: string | null
+          status: string
+          updated_at: string
+          wool_lot_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          destination_station_id?: string | null
+          distance_km?: number | null
+          fuel_type?: string | null
+          id?: string
+          method: string
+          mileage_sek?: number | null
+          origin_station_id?: string | null
+          scheduled_for?: string | null
+          shearer_id?: string | null
+          status?: string
+          updated_at?: string
+          wool_lot_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          destination_station_id?: string | null
+          distance_km?: number | null
+          fuel_type?: string | null
+          id?: string
+          method?: string
+          mileage_sek?: number | null
+          origin_station_id?: string | null
+          scheduled_for?: string | null
+          shearer_id?: string | null
+          status?: string
+          updated_at?: string
+          wool_lot_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deliveries_destination_station_id_fkey"
+            columns: ["destination_station_id"]
+            isOneToOne: false
+            referencedRelation: "collection_stations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deliveries_origin_station_id_fkey"
+            columns: ["origin_station_id"]
+            isOneToOne: false
+            referencedRelation: "collection_stations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deliveries_shearer_id_fkey"
+            columns: ["shearer_id"]
+            isOneToOne: false
+            referencedRelation: "shearers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deliveries_wool_lot_id_fkey"
+            columns: ["wool_lot_id"]
+            isOneToOne: false
+            referencedRelation: "wool_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pickup_requests: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          owner_id: string | null
+          priority: string
+          requested_kg: number
+          scheduled_for: string | null
+          station_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          owner_id?: string | null
+          priority?: string
+          requested_kg: number
+          scheduled_for?: string | null
+          station_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          owner_id?: string | null
+          priority?: string
+          requested_kg?: number
+          scheduled_for?: string | null
+          station_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pickup_requests_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "collection_stations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           address: string | null
@@ -236,6 +417,54 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      revenue_shares: {
+        Row: {
+          amount_sek: number | null
+          created_at: string
+          id: string
+          paid_at: string | null
+          percent: number
+          shearer_id: string
+          updated_at: string
+          wool_lot_id: string
+        }
+        Insert: {
+          amount_sek?: number | null
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          percent: number
+          shearer_id: string
+          updated_at?: string
+          wool_lot_id: string
+        }
+        Update: {
+          amount_sek?: number | null
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          percent?: number
+          shearer_id?: string
+          updated_at?: string
+          wool_lot_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revenue_shares_shearer_id_fkey"
+            columns: ["shearer_id"]
+            isOneToOne: false
+            referencedRelation: "shearers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "revenue_shares_wool_lot_id_fkey"
+            columns: ["wool_lot_id"]
+            isOneToOne: false
+            referencedRelation: "wool_lots"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shearers: {
         Row: {
@@ -393,6 +622,48 @@ export type Database = {
         }
         Relationships: []
       }
+      wool_lots: {
+        Row: {
+          actual_kg: number | null
+          breed_codes: string[] | null
+          classification_id: string | null
+          created_at: string
+          estimated_kg: number
+          id: string
+          notes: string | null
+          owner_id: string
+          sheep_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          actual_kg?: number | null
+          breed_codes?: string[] | null
+          classification_id?: string | null
+          created_at?: string
+          estimated_kg: number
+          id?: string
+          notes?: string | null
+          owner_id: string
+          sheep_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          actual_kg?: number | null
+          breed_codes?: string[] | null
+          classification_id?: string | null
+          created_at?: string
+          estimated_kg?: number
+          id?: string
+          notes?: string | null
+          owner_id?: string
+          sheep_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -480,7 +751,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "station_manager"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -608,7 +879,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "station_manager"],
     },
   },
 } as const

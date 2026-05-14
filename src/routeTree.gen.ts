@@ -18,6 +18,7 @@ import { Route as AuthResetRouteImport } from './routes/auth.reset'
 import { Route as AuthConfirmRouteImport } from './routes/auth.confirm'
 import { Route as AppSupportRouteImport } from './routes/app.support'
 import { Route as AppShearersRouteImport } from './routes/app.shearers'
+import { Route as AppSellRouteImport } from './routes/app.sell'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
 import { Route as AppFlockRouteImport } from './routes/app.flock'
 import { Route as AppClassifyRouteImport } from './routes/app.classify'
@@ -71,6 +72,11 @@ const AppShearersRoute = AppShearersRouteImport.update({
   path: '/shearers',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSellRoute = AppSellRouteImport.update({
+  id: '/sell',
+  path: '/sell',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppProfileRoute = AppProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/app/classify': typeof AppClassifyRoute
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
+  '/app/sell': typeof AppSellRoute
   '/app/shearers': typeof AppShearersRoute
   '/app/support': typeof AppSupportRoute
   '/auth/confirm': typeof AuthConfirmRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/app/classify': typeof AppClassifyRoute
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
+  '/app/sell': typeof AppSellRoute
   '/app/shearers': typeof AppShearersRoute
   '/app/support': typeof AppSupportRoute
   '/auth/confirm': typeof AuthConfirmRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/app/classify': typeof AppClassifyRoute
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
+  '/app/sell': typeof AppSellRoute
   '/app/shearers': typeof AppShearersRoute
   '/app/support': typeof AppSupportRoute
   '/auth/confirm': typeof AuthConfirmRoute
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | '/app/classify'
     | '/app/flock'
     | '/app/profile'
+    | '/app/sell'
     | '/app/shearers'
     | '/app/support'
     | '/auth/confirm'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/app/classify'
     | '/app/flock'
     | '/app/profile'
+    | '/app/sell'
     | '/app/shearers'
     | '/app/support'
     | '/auth/confirm'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/app/classify'
     | '/app/flock'
     | '/app/profile'
+    | '/app/sell'
     | '/app/shearers'
     | '/app/support'
     | '/auth/confirm'
@@ -289,6 +301,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppShearersRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/sell': {
+      id: '/app/sell'
+      path: '/sell'
+      fullPath: '/app/sell'
+      preLoaderRoute: typeof AppSellRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/profile': {
       id: '/app/profile'
       path: '/profile'
@@ -348,6 +367,7 @@ interface AppRouteChildren {
   AppClassifyRoute: typeof AppClassifyRoute
   AppFlockRoute: typeof AppFlockRoute
   AppProfileRoute: typeof AppProfileRoute
+  AppSellRoute: typeof AppSellRoute
   AppShearersRoute: typeof AppShearersRoute
   AppSupportRoute: typeof AppSupportRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -361,6 +381,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppClassifyRoute: AppClassifyRoute,
   AppFlockRoute: AppFlockRoute,
   AppProfileRoute: AppProfileRoute,
+  AppSellRoute: AppSellRoute,
   AppShearersRoute: AppShearersRoute,
   AppSupportRoute: AppSupportRoute,
   AppIndexRoute: AppIndexRoute,
@@ -390,13 +411,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

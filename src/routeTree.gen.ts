@@ -22,6 +22,7 @@ import { Route as AppShearersRouteImport } from './routes/app.shearers'
 import { Route as AppShearerHubRouteImport } from './routes/app.shearer-hub'
 import { Route as AppSellRouteImport } from './routes/app.sell'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
+import { Route as AppHolmaRouteImport } from './routes/app.holma'
 import { Route as AppFlockRouteImport } from './routes/app.flock'
 import { Route as AppClassifyRouteImport } from './routes/app.classify'
 import { Route as AppCalendarRouteImport } from './routes/app.calendar'
@@ -94,6 +95,11 @@ const AppProfileRoute = AppProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AppRoute,
 } as any)
+const AppHolmaRoute = AppHolmaRouteImport.update({
+  id: '/holma',
+  path: '/holma',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppFlockRoute = AppFlockRouteImport.update({
   id: '/flock',
   path: '/flock',
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/app/calendar': typeof AppCalendarRoute
   '/app/classify': typeof AppClassifyRoute
   '/app/flock': typeof AppFlockRoute
+  '/app/holma': typeof AppHolmaRoute
   '/app/profile': typeof AppProfileRoute
   '/app/sell': typeof AppSellRoute
   '/app/shearer-hub': typeof AppShearerHubRoute
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/app/calendar': typeof AppCalendarRoute
   '/app/classify': typeof AppClassifyRoute
   '/app/flock': typeof AppFlockRoute
+  '/app/holma': typeof AppHolmaRoute
   '/app/profile': typeof AppProfileRoute
   '/app/sell': typeof AppSellRoute
   '/app/shearer-hub': typeof AppShearerHubRoute
@@ -177,6 +185,7 @@ export interface FileRoutesById {
   '/app/calendar': typeof AppCalendarRoute
   '/app/classify': typeof AppClassifyRoute
   '/app/flock': typeof AppFlockRoute
+  '/app/holma': typeof AppHolmaRoute
   '/app/profile': typeof AppProfileRoute
   '/app/sell': typeof AppSellRoute
   '/app/shearer-hub': typeof AppShearerHubRoute
@@ -200,6 +209,7 @@ export interface FileRouteTypes {
     | '/app/calendar'
     | '/app/classify'
     | '/app/flock'
+    | '/app/holma'
     | '/app/profile'
     | '/app/sell'
     | '/app/shearer-hub'
@@ -220,6 +230,7 @@ export interface FileRouteTypes {
     | '/app/calendar'
     | '/app/classify'
     | '/app/flock'
+    | '/app/holma'
     | '/app/profile'
     | '/app/sell'
     | '/app/shearer-hub'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/app/calendar'
     | '/app/classify'
     | '/app/flock'
+    | '/app/holma'
     | '/app/profile'
     | '/app/sell'
     | '/app/shearer-hub'
@@ -353,6 +365,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfileRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/holma': {
+      id: '/app/holma'
+      path: '/holma'
+      fullPath: '/app/holma'
+      preLoaderRoute: typeof AppHolmaRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/flock': {
       id: '/app/flock'
       path: '/flock'
@@ -404,6 +423,7 @@ interface AppRouteChildren {
   AppCalendarRoute: typeof AppCalendarRoute
   AppClassifyRoute: typeof AppClassifyRoute
   AppFlockRoute: typeof AppFlockRoute
+  AppHolmaRoute: typeof AppHolmaRoute
   AppProfileRoute: typeof AppProfileRoute
   AppSellRoute: typeof AppSellRoute
   AppShearerHubRoute: typeof AppShearerHubRoute
@@ -420,6 +440,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCalendarRoute: AppCalendarRoute,
   AppClassifyRoute: AppClassifyRoute,
   AppFlockRoute: AppFlockRoute,
+  AppHolmaRoute: AppHolmaRoute,
   AppProfileRoute: AppProfileRoute,
   AppSellRoute: AppSellRoute,
   AppShearerHubRoute: AppShearerHubRoute,

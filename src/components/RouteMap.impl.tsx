@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polyline, CircleMarker } from "react-leaflet";
+import { MapContainer, TileLayer, Popup, Polyline, CircleMarker } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -21,12 +20,8 @@ export type RoutePoint = {
 };
 
 export function RouteMap({ points, polyline }: { points: RoutePoint[]; polyline: [number, number][] }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) {
-    return <div className="h-[420px] rounded-2xl bg-muted animate-pulse" />;
-  }
   const center: [number, number] = points[0] ? [points[0].lat, points[0].lng] : [55.93, 13.54];
+  const bounds = points.length >= 2 ? (points.map((p) => [p.lat, p.lng] as [number, number])) : undefined;
 
   const colorFor = (k: RoutePoint["kind"]) =>
     k === "start" ? "#16a34a" : k === "station" ? "#2563eb" : "#f59e0b";

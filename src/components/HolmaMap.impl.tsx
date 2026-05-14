@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup, CircleMarker } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -50,22 +50,21 @@ type Props = {
 };
 
 export function HolmaMap({ stations, owners, pickups }: Props) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) {
-    return (
-      <div className="h-[480px] rounded-2xl bg-muted animate-pulse flex items-center justify-center text-sm text-muted-foreground">
-        Laddar karta…
-      </div>
-    );
-  }
-
   // Holma, Höör (approx) as default center
-  const center: [number, number] = [55.93, 13.54];
+  const defaultCenter: [number, number] = [55.93, 13.54];
+  const bounds = useMemo(() => {
+    const pts: [number, number][] = [
+      ...stations.map((s) => [s.lat, s.lng] as [number, number]),
+      ...owners.map((o) => [o.lat, o.lng] as [number, number]),
+      ...pickups.map((p) => [p.lat, p.lng] as [number, number]),
+    ];
+    return pts.length >= 2 ? pts : null;
+  }, [stations, owners, pickups]);
+  const center = bounds && bounds.length === 1 ? bounds[0] : defaultCenter;
 
   return (
     <div className="h-[480px] rounded-2xl overflow-hidden border border-border shadow-card">
-      <MapContainer center={center} zoom={7} style={{ height: "100%", width: "100%" }}>
+      <MapContainer center={center} zoom={7} bounds={bounds ?? undefined} style={{ height: "100%", width: "100%" }}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

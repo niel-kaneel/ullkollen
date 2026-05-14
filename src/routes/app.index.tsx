@@ -155,17 +155,25 @@ function Home() {
         </Link>
       </Button>
 
-      <Button asChild variant="outline" className="w-full h-14 rounded-2xl text-base">
-        <Link to="/app/bookings">
-          <Calendar className="w-5 h-5 mr-2" />
-          {lang === "sv" ? "Mina bokningar" : "My bookings"}
-          {pendingBookings > 0 && (
-            <span className="ml-2 inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 text-xs font-bold rounded-full bg-primary text-primary-foreground">
-              {pendingBookings}
-            </span>
-          )}
-        </Link>
-      </Button>
+      <div className="grid grid-cols-2 gap-3">
+        <Button asChild variant="outline" className="h-14 rounded-2xl text-sm">
+          <Link to="/app/bookings">
+            <Calendar className="w-4 h-4 mr-1.5" />
+            {lang === "sv" ? "Bokningar" : "Bookings"}
+            {pendingBookings > 0 && (
+              <span className="ml-1.5 inline-flex items-center justify-center min-w-[20px] h-[20px] px-1.5 text-[10px] font-bold rounded-full bg-primary text-primary-foreground">
+                {pendingBookings}
+              </span>
+            )}
+          </Link>
+        </Button>
+        <Button asChild variant="outline" className="h-14 rounded-2xl text-sm">
+          <Link to="/app/sell">
+            <Package className="w-4 h-4 mr-1.5" />
+            {lang === "sv" ? "Sälj ull" : "Sell wool"}
+          </Link>
+        </Button>
+      </div>
 
       <div>
         <div className="flex items-center justify-between mb-3">

@@ -472,63 +472,78 @@ export type Database = {
           approved: boolean | null
           breed_specialties: string[] | null
           certified_by_farklipparforbundet: boolean | null
+          collects_wool: boolean
           created_at: string
           display_name: string
           email: string | null
+          has_trailer: boolean
           home_lat: number | null
           home_lng: number | null
           hourly_rate_sek: number | null
           id: string
           languages: string[] | null
           listed_by_faravelsforbundet: boolean | null
+          mileage_rate_with_trailer_sek: number
+          mileage_rate_without_trailer_sek: number
           notes: string | null
           phone: string | null
           self_managed: boolean | null
           service_areas: string[] | null
           user_id: string | null
           website: string | null
+          wool_capacity_kg: number
         }
         Insert: {
           active?: boolean | null
           approved?: boolean | null
           breed_specialties?: string[] | null
           certified_by_farklipparforbundet?: boolean | null
+          collects_wool?: boolean
           created_at?: string
           display_name: string
           email?: string | null
+          has_trailer?: boolean
           home_lat?: number | null
           home_lng?: number | null
           hourly_rate_sek?: number | null
           id?: string
           languages?: string[] | null
           listed_by_faravelsforbundet?: boolean | null
+          mileage_rate_with_trailer_sek?: number
+          mileage_rate_without_trailer_sek?: number
           notes?: string | null
           phone?: string | null
           self_managed?: boolean | null
           service_areas?: string[] | null
           user_id?: string | null
           website?: string | null
+          wool_capacity_kg?: number
         }
         Update: {
           active?: boolean | null
           approved?: boolean | null
           breed_specialties?: string[] | null
           certified_by_farklipparforbundet?: boolean | null
+          collects_wool?: boolean
           created_at?: string
           display_name?: string
           email?: string | null
+          has_trailer?: boolean
           home_lat?: number | null
           home_lng?: number | null
           hourly_rate_sek?: number | null
           id?: string
           languages?: string[] | null
           listed_by_faravelsforbundet?: boolean | null
+          mileage_rate_with_trailer_sek?: number
+          mileage_rate_without_trailer_sek?: number
           notes?: string | null
           phone?: string | null
           self_managed?: boolean | null
           service_areas?: string[] | null
           user_id?: string | null
           website?: string | null
+          wool_capacity_kg?: number
         }
         Relationships: []
       }

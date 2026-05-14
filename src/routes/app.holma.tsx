@@ -63,7 +63,7 @@ function HolmaCentral() {
       supabase
         .from("wool_lots")
         .select("id, owner_id, estimated_kg, actual_kg, status, breed_codes")
-        .in("status", ["registered", "ready_for_pickup", "picked_up"]),
+        .in("status", ["registered", "in_transit", "at_station"]),
       supabase
         .from("pickup_requests")
         .select("id, owner_id, station_id, requested_kg, priority, status, notes, scheduled_for, created_at")
@@ -156,7 +156,7 @@ function HolmaCentral() {
     const totalStock = stations.reduce((sum, s) => sum + s.current_stock_kg, 0);
     const totalCapacity = stations.reduce((sum, s) => sum + s.capacity_kg, 0);
     const inField = lots
-      .filter((l) => l.status === "registered" || l.status === "ready_for_pickup")
+      .filter((l) => l.status === "registered" || l.status === "in_transit")
       .reduce((sum, l) => sum + Number(l.actual_kg ?? l.estimated_kg ?? 0), 0);
     return { totalStock, totalCapacity, inField, pendingPickups: pickups.length };
   }, [stations, lots, pickups]);

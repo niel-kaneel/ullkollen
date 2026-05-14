@@ -200,6 +200,17 @@ function Home() {
         </Button>
       )}
 
+      <Button asChild variant="outline" className="w-full h-14 rounded-2xl text-sm">
+        <Link to="/app/station">
+          <Warehouse className="w-4 h-4 mr-1.5" />
+          {stationStatus === "approved"
+            ? (lang === "sv" ? "Min insamlingsstation" : "My collection station")
+            : stationStatus === "pending"
+            ? (lang === "sv" ? "Stationsansökan – väntar" : "Station application – pending")
+            : (lang === "sv" ? "Driv en insamlingsstation" : "Run a collection station")}
+        </Link>
+      </Button>
+
       <div>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.25em]">

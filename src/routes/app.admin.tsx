@@ -297,6 +297,12 @@ function Admin() {
         >
           <Inbox className="w-4 h-4" /> Support ({totals.openSupport})
         </button>
+        <button
+          onClick={() => setTab("stations")}
+          className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-semibold inline-flex items-center justify-center gap-1.5 transition-colors ${tab === "stations" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          <Warehouse className="w-4 h-4" /> Stationer ({stations.filter((s) => !s.approved).length})
+        </button>
       </div>
 
       {tab === "users" && (

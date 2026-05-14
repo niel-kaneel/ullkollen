@@ -438,20 +438,6 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
       return;
     }
 
-    // Look up latest classification for picked sheep (for expected wool quality)
-    let expected: { code: string | null; sv: string | null; en: string | null; conf: string | null } = { code: null, sv: null, en: null, conf: null };
-    if (sheepId) {
-      const { data: c } = await supabase
-        .from("classifications")
-        .select("wool_class, wool_class_name_sv, wool_class_name_en, confidence")
-        .eq("sheep_id", sheepId)
-        .eq("status", "completed")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (c) expected = { code: c.wool_class, sv: c.wool_class_name_sv, en: c.wool_class_name_en, conf: c.confidence };
-    }
-
     const { error } = await supabase.from("bookings").insert({
       farmer_id: user.id,
       shearer_id: shearerId,
@@ -461,10 +447,6 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
       message: message || null,
       status: "pending",
       sheep_id: sheepId || null,
-      expected_wool_class: expected.code,
-      expected_wool_class_name_sv: expected.sv,
-      expected_wool_class_name_en: expected.en,
-      expected_confidence: expected.conf,
     });
     setBusy(false);
     if (error) toast.error(error.message);

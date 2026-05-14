@@ -128,9 +128,14 @@ function Home() {
           )}
         </div>
         {isAdmin && (
-          <Button asChild variant="outline" size="sm" className="rounded-full bg-card">
-            <Link to="/app/admin">{t("admin")}</Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild variant="outline" size="sm" className="rounded-full bg-card">
+              <Link to="/app/holma">Holma</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="rounded-full bg-card">
+              <Link to="/app/admin">{t("admin")}</Link>
+            </Button>
+          </div>
         )}
       </div>
 

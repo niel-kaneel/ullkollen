@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { haptic } from "@/lib/haptics";
+import { PaymentBreakdownCard } from "@/components/PaymentBreakdownCard";
 
 type Classification = {
   id: string;

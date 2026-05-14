@@ -672,6 +672,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_dashboard: { Args: never; Returns: Json }
       admin_list_users: {
         Args: never
         Returns: {

@@ -40,6 +40,7 @@ function Home() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [pendingBookings, setPendingBookings] = useState(0);
+  const [isShearer, setIsShearer] = useState(false);
   const [modeFilter, setModeFilter] = useState<ModeFilter>("all");
 
   const load = async () => {

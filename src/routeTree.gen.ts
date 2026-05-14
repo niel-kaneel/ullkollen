@@ -18,6 +18,7 @@ import { Route as AuthResetRouteImport } from './routes/auth.reset'
 import { Route as AuthConfirmRouteImport } from './routes/auth.confirm'
 import { Route as AppSupportRouteImport } from './routes/app.support'
 import { Route as AppShearersRouteImport } from './routes/app.shearers'
+import { Route as AppShearerHubRouteImport } from './routes/app.shearer-hub'
 import { Route as AppSellRouteImport } from './routes/app.sell'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
 import { Route as AppFlockRouteImport } from './routes/app.flock'
@@ -70,6 +71,11 @@ const AppSupportRoute = AppSupportRouteImport.update({
 const AppShearersRoute = AppShearersRouteImport.update({
   id: '/shearers',
   path: '/shearers',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppShearerHubRoute = AppShearerHubRouteImport.update({
+  id: '/shearer-hub',
+  path: '/shearer-hub',
   getParentRoute: () => AppRoute,
 } as any)
 const AppSellRoute = AppSellRouteImport.update({
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
   '/app/sell': typeof AppSellRoute
+  '/app/shearer-hub': typeof AppShearerHubRoute
   '/app/shearers': typeof AppShearersRoute
   '/app/support': typeof AppSupportRoute
   '/auth/confirm': typeof AuthConfirmRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
   '/app/sell': typeof AppSellRoute
+  '/app/shearer-hub': typeof AppShearerHubRoute
   '/app/shearers': typeof AppShearersRoute
   '/app/support': typeof AppSupportRoute
   '/auth/confirm': typeof AuthConfirmRoute
@@ -163,6 +171,7 @@ export interface FileRoutesById {
   '/app/flock': typeof AppFlockRoute
   '/app/profile': typeof AppProfileRoute
   '/app/sell': typeof AppSellRoute
+  '/app/shearer-hub': typeof AppShearerHubRoute
   '/app/shearers': typeof AppShearersRoute
   '/app/support': typeof AppSupportRoute
   '/auth/confirm': typeof AuthConfirmRoute
@@ -184,6 +193,7 @@ export interface FileRouteTypes {
     | '/app/flock'
     | '/app/profile'
     | '/app/sell'
+    | '/app/shearer-hub'
     | '/app/shearers'
     | '/app/support'
     | '/auth/confirm'
@@ -202,6 +212,7 @@ export interface FileRouteTypes {
     | '/app/flock'
     | '/app/profile'
     | '/app/sell'
+    | '/app/shearer-hub'
     | '/app/shearers'
     | '/app/support'
     | '/auth/confirm'
@@ -221,6 +232,7 @@ export interface FileRouteTypes {
     | '/app/flock'
     | '/app/profile'
     | '/app/sell'
+    | '/app/shearer-hub'
     | '/app/shearers'
     | '/app/support'
     | '/auth/confirm'
@@ -301,6 +313,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppShearersRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/shearer-hub': {
+      id: '/app/shearer-hub'
+      path: '/shearer-hub'
+      fullPath: '/app/shearer-hub'
+      preLoaderRoute: typeof AppShearerHubRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/sell': {
       id: '/app/sell'
       path: '/sell'
@@ -368,6 +387,7 @@ interface AppRouteChildren {
   AppFlockRoute: typeof AppFlockRoute
   AppProfileRoute: typeof AppProfileRoute
   AppSellRoute: typeof AppSellRoute
+  AppShearerHubRoute: typeof AppShearerHubRoute
   AppShearersRoute: typeof AppShearersRoute
   AppSupportRoute: typeof AppSupportRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -382,6 +402,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppFlockRoute: AppFlockRoute,
   AppProfileRoute: AppProfileRoute,
   AppSellRoute: AppSellRoute,
+  AppShearerHubRoute: AppShearerHubRoute,
   AppShearersRoute: AppShearersRoute,
   AppSupportRoute: AppSupportRoute,
   AppIndexRoute: AppIndexRoute,

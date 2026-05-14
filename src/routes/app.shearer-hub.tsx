@@ -166,6 +166,10 @@ function ShearerHubPage() {
     <div className="space-y-4 pb-10">
       <PageHeader title="Klipparhub" subtitle={shearer.display_name} />
 
+      <Button asChild variant="outline" className="w-full rounded-2xl">
+        <Link to="/app/route-planner"><Truck className="w-4 h-4 mr-2" />Planera hämtningsrutt</Link>
+      </Button>
+
       {/* Earnings summary */}
       <Card>
         <CardHeader className="pb-3">

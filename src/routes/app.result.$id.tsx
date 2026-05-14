@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { haptic } from "@/lib/haptics";
+import { PaymentBreakdownCard } from "@/components/PaymentBreakdownCard";
 
 type Classification = {
   id: string;
@@ -510,6 +511,10 @@ function Result() {
                 ? (lang === "sv" ? `Korrigerad från ${data.original_wool_class ?? "?"} → ${data.wool_class} — AI:n lär sig` : `Corrected from ${data.original_wool_class ?? "?"} → ${data.wool_class} — AI is learning`)
                 : (lang === "sv" ? "Bekräftad — bidrar till AI-träning" : "Confirmed — contributing to AI training")}
             </div>
+          )}
+
+          {data.wool_class && (
+            <PaymentBreakdownCard classificationId={data.id} woolClass={data.wool_class} />
           )}
 
           <div className={data.mode === "sheared" ? "" : "grid grid-cols-2 gap-3"}>

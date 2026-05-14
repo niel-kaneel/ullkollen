@@ -182,6 +182,15 @@ function Home() {
         </Button>
       </div>
 
+      {isShearer && (
+        <Button asChild variant="outline" className="w-full h-14 rounded-2xl text-sm">
+          <Link to="/app/shearer-hub">
+            <Truck className="w-4 h-4 mr-1.5" />
+            {lang === "sv" ? "Klipparhub – insamling & intäkter" : "Shearer hub – collection & earnings"}
+          </Link>
+        </Button>
+      )}
+
       <div>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.25em]">

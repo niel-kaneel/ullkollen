@@ -21,6 +21,7 @@ import { Route as AppStationRouteImport } from './routes/app.station'
 import { Route as AppShearersRouteImport } from './routes/app.shearers'
 import { Route as AppShearerHubRouteImport } from './routes/app.shearer-hub'
 import { Route as AppSellRouteImport } from './routes/app.sell'
+import { Route as AppRoutePlannerRouteImport } from './routes/app.route-planner'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
 import { Route as AppHolmaRouteImport } from './routes/app.holma'
 import { Route as AppFlockRouteImport } from './routes/app.flock'
@@ -90,6 +91,11 @@ const AppSellRoute = AppSellRouteImport.update({
   path: '/sell',
   getParentRoute: () => AppRoute,
 } as any)
+const AppRoutePlannerRoute = AppRoutePlannerRouteImport.update({
+  id: '/route-planner',
+  path: '/route-planner',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppProfileRoute = AppProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -143,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/app/flock': typeof AppFlockRoute
   '/app/holma': typeof AppHolmaRoute
   '/app/profile': typeof AppProfileRoute
+  '/app/route-planner': typeof AppRoutePlannerRoute
   '/app/sell': typeof AppSellRoute
   '/app/shearer-hub': typeof AppShearerHubRoute
   '/app/shearers': typeof AppShearersRoute
@@ -164,6 +171,7 @@ export interface FileRoutesByTo {
   '/app/flock': typeof AppFlockRoute
   '/app/holma': typeof AppHolmaRoute
   '/app/profile': typeof AppProfileRoute
+  '/app/route-planner': typeof AppRoutePlannerRoute
   '/app/sell': typeof AppSellRoute
   '/app/shearer-hub': typeof AppShearerHubRoute
   '/app/shearers': typeof AppShearersRoute
@@ -187,6 +195,7 @@ export interface FileRoutesById {
   '/app/flock': typeof AppFlockRoute
   '/app/holma': typeof AppHolmaRoute
   '/app/profile': typeof AppProfileRoute
+  '/app/route-planner': typeof AppRoutePlannerRoute
   '/app/sell': typeof AppSellRoute
   '/app/shearer-hub': typeof AppShearerHubRoute
   '/app/shearers': typeof AppShearersRoute
@@ -211,6 +220,7 @@ export interface FileRouteTypes {
     | '/app/flock'
     | '/app/holma'
     | '/app/profile'
+    | '/app/route-planner'
     | '/app/sell'
     | '/app/shearer-hub'
     | '/app/shearers'
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/app/flock'
     | '/app/holma'
     | '/app/profile'
+    | '/app/route-planner'
     | '/app/sell'
     | '/app/shearer-hub'
     | '/app/shearers'
@@ -254,6 +265,7 @@ export interface FileRouteTypes {
     | '/app/flock'
     | '/app/holma'
     | '/app/profile'
+    | '/app/route-planner'
     | '/app/sell'
     | '/app/shearer-hub'
     | '/app/shearers'
@@ -358,6 +370,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSellRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/route-planner': {
+      id: '/app/route-planner'
+      path: '/route-planner'
+      fullPath: '/app/route-planner'
+      preLoaderRoute: typeof AppRoutePlannerRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/profile': {
       id: '/app/profile'
       path: '/profile'
@@ -425,6 +444,7 @@ interface AppRouteChildren {
   AppFlockRoute: typeof AppFlockRoute
   AppHolmaRoute: typeof AppHolmaRoute
   AppProfileRoute: typeof AppProfileRoute
+  AppRoutePlannerRoute: typeof AppRoutePlannerRoute
   AppSellRoute: typeof AppSellRoute
   AppShearerHubRoute: typeof AppShearerHubRoute
   AppShearersRoute: typeof AppShearersRoute
@@ -442,6 +462,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppFlockRoute: AppFlockRoute,
   AppHolmaRoute: AppHolmaRoute,
   AppProfileRoute: AppProfileRoute,
+  AppRoutePlannerRoute: AppRoutePlannerRoute,
   AppSellRoute: AppSellRoute,
   AppShearerHubRoute: AppShearerHubRoute,
   AppShearersRoute: AppShearersRoute,

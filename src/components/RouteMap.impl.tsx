@@ -28,7 +28,7 @@ export function RouteMap({ points, polyline }: { points: RoutePoint[]; polyline:
 
   return (
     <div className="h-[420px] rounded-2xl overflow-hidden border border-border shadow-card">
-      <MapContainer center={center} zoom={8} style={{ height: "100%", width: "100%" }}>
+      <MapContainer center={center} zoom={8} bounds={bounds} style={{ height: "100%", width: "100%" }}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

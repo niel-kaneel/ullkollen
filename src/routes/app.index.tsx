@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Sparkles, Trash2, Calendar, Bell, Camera, Package, Truck } from "lucide-react";
+import { Plus, Sparkles, Trash2, Calendar, Bell, Camera, Package, Truck, Warehouse } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useTranslation } from "@/lib/i18n";
@@ -41,11 +41,12 @@ function Home() {
   const [loaded, setLoaded] = useState(false);
   const [pendingBookings, setPendingBookings] = useState(0);
   const [isShearer, setIsShearer] = useState(false);
+  const [stationStatus, setStationStatus] = useState<"none" | "pending" | "approved">("none");
   const [modeFilter, setModeFilter] = useState<ModeFilter>("all");
 
   const load = async () => {
     if (!user) return;
-    const [{ data: classRows }, { data: bookingRows }, { data: shearerRow }] = await Promise.all([
+    const [{ data: classRows }, { data: bookingRows }, { data: shearerRow }, { data: stationRow }] = await Promise.all([
       supabase
         .from("classifications")
         .select("id, created_at, wool_class, wool_class_name_sv, recommendation_text_sv, status, photo_urls, shear_recommendation, mode")
@@ -62,10 +63,18 @@ function Home() {
         .select("id")
         .eq("user_id", user.id)
         .maybeSingle(),
+      supabase
+        .from("collection_stations")
+        .select("id, approved")
+        .eq("manager_user_id", user.id)
+        .maybeSingle(),
     ]);
     setRows((classRows as Row[]) ?? []);
     setPendingBookings(bookingRows?.length ?? 0);
     setIsShearer(!!shearerRow);
+    setStationStatus(
+      stationRow ? ((stationRow as { approved: boolean }).approved ? "approved" : "pending") : "none",
+    );
     setLoaded(true);
   };
 
@@ -190,6 +199,17 @@ function Home() {
           </Link>
         </Button>
       )}
+
+      <Button asChild variant="outline" className="w-full h-14 rounded-2xl text-sm">
+        <Link to="/app/station">
+          <Warehouse className="w-4 h-4 mr-1.5" />
+          {stationStatus === "approved"
+            ? (lang === "sv" ? "Min insamlingsstation" : "My collection station")
+            : stationStatus === "pending"
+            ? (lang === "sv" ? "Stationsansökan – väntar" : "Station application – pending")
+            : (lang === "sv" ? "Driv en insamlingsstation" : "Run a collection station")}
+        </Link>
+      </Button>
 
       <div>
         <div className="flex items-center justify-between mb-3">

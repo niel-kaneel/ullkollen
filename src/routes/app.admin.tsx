@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   Shield, Users, Trash2, ShieldOff, ShieldCheck, ChevronDown, ChevronUp,
-  Mail, KeyRound, Download, Inbox, Send, FileText,
+  Mail, KeyRound, Download, Inbox, Send, FileText, Warehouse, Check, X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,8 +68,9 @@ function Admin() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
   const [details, setDetails] = useState<Record<string, Detail>>({});
-  const [tab, setTab] = useState<"users" | "support">("users");
+  const [tab, setTab] = useState<"users" | "support" | "stations">("users");
   const [support, setSupport] = useState<SupportRow[]>([]);
+  const [stations, setStations] = useState<Array<{ id: string; name: string; address: string | null; capacity_kg: number; current_stock_kg: number; approved: boolean; active: boolean; manager_user_id: string | null; contact_phone: string | null; contact_email: string | null; created_at: string }>>([]);
 
   const callAdmin = async (body: Record<string, unknown>) => {
     const { data, error } = await supabase.functions.invoke("admin-actions", { body });
@@ -93,10 +94,20 @@ function Admin() {
     setSupport((data as SupportRow[]) ?? []);
   };
 
+  const loadStations = async () => {
+    const { data, error } = await supabase
+      .from("collection_stations")
+      .select("id, name, address, capacity_kg, current_stock_kg, approved, active, manager_user_id, contact_phone, contact_email, created_at")
+      .order("created_at", { ascending: false });
+    if (error) return toast.error(error.message);
+    setStations((data as typeof stations) ?? []);
+  };
+
   useEffect(() => {
     if (!isAdmin) return;
     loadUsers();
     loadSupport();
+    loadStations();
   }, [isAdmin]);
 
   const openUser = async (id: string) => {
@@ -286,6 +297,12 @@ function Admin() {
         >
           <Inbox className="w-4 h-4" /> Support ({totals.openSupport})
         </button>
+        <button
+          onClick={() => setTab("stations")}
+          className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-semibold inline-flex items-center justify-center gap-1.5 transition-colors ${tab === "stations" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          <Warehouse className="w-4 h-4" /> Stationer ({stations.filter((s) => !s.approved).length})
+        </button>
       </div>
 
       {tab === "users" && (
@@ -365,6 +382,110 @@ function Admin() {
       {tab === "support" && (
         <SupportInbox rows={support} onChanged={loadSupport} />
       )}
+
+      {tab === "stations" && (
+        <StationsAdmin rows={stations} onChanged={loadStations} />
+      )}
+    </div>
+  );
+}
+
+function StationsAdmin({
+  rows,
+  onChanged,
+}: {
+  rows: Array<{ id: string; name: string; address: string | null; capacity_kg: number; current_stock_kg: number; approved: boolean; active: boolean; manager_user_id: string | null; contact_phone: string | null; contact_email: string | null; created_at: string }>;
+  onChanged: () => void;
+}) {
+  const setApproved = async (id: string, approved: boolean) => {
+    const { error } = await supabase.from("collection_stations").update({ approved }).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success(approved ? "Godkänd" : "Återkallad");
+    onChanged();
+  };
+  const setActive = async (id: string, active: boolean) => {
+    const { error } = await supabase.from("collection_stations").update({ active }).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success(active ? "Aktiv" : "Inaktiv");
+    onChanged();
+  };
+
+  const pending = rows.filter((s) => !s.approved);
+  const approved = rows.filter((s) => s.approved);
+
+  return (
+    <div className="space-y-5">
+      {pending.length > 0 && (
+        <section className="space-y-2">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Väntar på godkännande ({pending.length})
+          </h3>
+          {pending.map((s) => (
+            <StationRow key={s.id} s={s} onApprove={() => setApproved(s.id, true)} onReject={() => setApproved(s.id, false)} onActive={(a) => setActive(s.id, a)} />
+          ))}
+        </section>
+      )}
+
+      <section className="space-y-2">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Godkända stationer ({approved.length})
+        </h3>
+        {approved.length === 0 && <p className="text-sm text-muted-foreground">Inga godkända stationer ännu.</p>}
+        {approved.map((s) => (
+          <StationRow key={s.id} s={s} onApprove={() => setApproved(s.id, true)} onReject={() => setApproved(s.id, false)} onActive={(a) => setActive(s.id, a)} />
+        ))}
+      </section>
+    </div>
+  );
+}
+
+function StationRow({
+  s,
+  onApprove,
+  onReject,
+  onActive,
+}: {
+  s: { id: string; name: string; address: string | null; capacity_kg: number; current_stock_kg: number; approved: boolean; active: boolean; contact_phone: string | null; contact_email: string | null; created_at: string };
+  onApprove: () => void;
+  onReject: () => void;
+  onActive: (a: boolean) => void;
+}) {
+  const util = s.capacity_kg > 0 ? Math.round((s.current_stock_kg / s.capacity_kg) * 100) : 0;
+  return (
+    <div className="bg-card border border-border rounded-2xl p-4 shadow-soft">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="min-w-0">
+          <p className="font-semibold">{s.name}</p>
+          {s.address && <p className="text-xs text-muted-foreground">{s.address}</p>}
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground mt-1">
+            <span>{s.current_stock_kg}/{s.capacity_kg} kg ({util}%)</span>
+            {s.contact_phone && <span>📞 {s.contact_phone}</span>}
+            {s.contact_email && <span>✉ {s.contact_email}</span>}
+            <span>{new Date(s.created_at).toLocaleDateString("sv-SE")}</span>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2 shrink-0">
+          {!s.approved ? (
+            <>
+              <Button size="sm" onClick={onApprove}>
+                <Check className="w-4 h-4 mr-1" /> Godkänn
+              </Button>
+              <Button size="sm" variant="outline" onClick={onReject}>
+                <X className="w-4 h-4" />
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button size="sm" variant={s.active ? "outline" : "default"} onClick={() => onActive(!s.active)}>
+                {s.active ? "Inaktivera" : "Aktivera"}
+              </Button>
+              <Button size="sm" variant="outline" onClick={onReject}>
+                Återkalla
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

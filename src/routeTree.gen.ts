@@ -17,6 +17,7 @@ import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AuthResetRouteImport } from './routes/auth.reset'
 import { Route as AuthConfirmRouteImport } from './routes/auth.confirm'
 import { Route as AppSupportRouteImport } from './routes/app.support'
+import { Route as AppStationRouteImport } from './routes/app.station'
 import { Route as AppShearersRouteImport } from './routes/app.shearers'
 import { Route as AppShearerHubRouteImport } from './routes/app.shearer-hub'
 import { Route as AppSellRouteImport } from './routes/app.sell'
@@ -66,6 +67,11 @@ const AuthConfirmRoute = AuthConfirmRouteImport.update({
 const AppSupportRoute = AppSupportRouteImport.update({
   id: '/support',
   path: '/support',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppStationRoute = AppStationRouteImport.update({
+  id: '/station',
+  path: '/station',
   getParentRoute: () => AppRoute,
 } as any)
 const AppShearersRoute = AppShearersRouteImport.update({
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/app/sell': typeof AppSellRoute
   '/app/shearer-hub': typeof AppShearerHubRoute
   '/app/shearers': typeof AppShearersRoute
+  '/app/station': typeof AppStationRoute
   '/app/support': typeof AppSupportRoute
   '/auth/confirm': typeof AuthConfirmRoute
   '/auth/reset': typeof AuthResetRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/app/sell': typeof AppSellRoute
   '/app/shearer-hub': typeof AppShearerHubRoute
   '/app/shearers': typeof AppShearersRoute
+  '/app/station': typeof AppStationRoute
   '/app/support': typeof AppSupportRoute
   '/auth/confirm': typeof AuthConfirmRoute
   '/auth/reset': typeof AuthResetRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/app/sell': typeof AppSellRoute
   '/app/shearer-hub': typeof AppShearerHubRoute
   '/app/shearers': typeof AppShearersRoute
+  '/app/station': typeof AppStationRoute
   '/app/support': typeof AppSupportRoute
   '/auth/confirm': typeof AuthConfirmRoute
   '/auth/reset': typeof AuthResetRoute
@@ -195,6 +204,7 @@ export interface FileRouteTypes {
     | '/app/sell'
     | '/app/shearer-hub'
     | '/app/shearers'
+    | '/app/station'
     | '/app/support'
     | '/auth/confirm'
     | '/auth/reset'
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
     | '/app/sell'
     | '/app/shearer-hub'
     | '/app/shearers'
+    | '/app/station'
     | '/app/support'
     | '/auth/confirm'
     | '/auth/reset'
@@ -234,6 +245,7 @@ export interface FileRouteTypes {
     | '/app/sell'
     | '/app/shearer-hub'
     | '/app/shearers'
+    | '/app/station'
     | '/app/support'
     | '/auth/confirm'
     | '/auth/reset'
@@ -304,6 +316,13 @@ declare module '@tanstack/react-router' {
       path: '/support'
       fullPath: '/app/support'
       preLoaderRoute: typeof AppSupportRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/station': {
+      id: '/app/station'
+      path: '/station'
+      fullPath: '/app/station'
+      preLoaderRoute: typeof AppStationRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/shearers': {
@@ -389,6 +408,7 @@ interface AppRouteChildren {
   AppSellRoute: typeof AppSellRoute
   AppShearerHubRoute: typeof AppShearerHubRoute
   AppShearersRoute: typeof AppShearersRoute
+  AppStationRoute: typeof AppStationRoute
   AppSupportRoute: typeof AppSupportRoute
   AppIndexRoute: typeof AppIndexRoute
   AppResultIdRoute: typeof AppResultIdRoute
@@ -404,6 +424,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppSellRoute: AppSellRoute,
   AppShearerHubRoute: AppShearerHubRoute,
   AppShearersRoute: AppShearersRoute,
+  AppStationRoute: AppStationRoute,
   AppSupportRoute: AppSupportRoute,
   AppIndexRoute: AppIndexRoute,
   AppResultIdRoute: AppResultIdRoute,

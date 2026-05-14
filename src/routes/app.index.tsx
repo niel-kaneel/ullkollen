@@ -41,6 +41,7 @@ function Home() {
   const [loaded, setLoaded] = useState(false);
   const [pendingBookings, setPendingBookings] = useState(0);
   const [isShearer, setIsShearer] = useState(false);
+  const [stationStatus, setStationStatus] = useState<"none" | "pending" | "approved">("none");
   const [modeFilter, setModeFilter] = useState<ModeFilter>("all");
 
   const load = async () => {

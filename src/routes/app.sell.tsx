@@ -215,6 +215,7 @@ function statusLabel(s: string) {
 }
 
 type ShearerOpt = { id: string; display_name: string };
+type StationOpt = { id: string; name: string; current_stock_kg: number; capacity_kg: number };
 type RecentClass = { id: string; wool_class: string | null; wool_class_name_sv: string | null; created_at: string };
 
 function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: () => void }) {
@@ -225,6 +226,8 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
   const [sharePct, setSharePct] = useState(20);
   const [shearerId, setShearerId] = useState<string | null>(null);
   const [shearers, setShearers] = useState<ShearerOpt[]>([]);
+  const [stations, setStations] = useState<StationOpt[]>([]);
+  const [stationId, setStationId] = useState<string | null>(null);
   const [classificationId, setClassificationId] = useState<string | null>(null);
   const [recents, setRecents] = useState<RecentClass[]>([]);
   const [saving, setSaving] = useState(false);
@@ -241,6 +244,13 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
       .eq("active", true)
       .order("display_name")
       .then(({ data }) => setShearers((data as ShearerOpt[]) ?? []));
+    void supabase
+      .from("collection_stations")
+      .select("id, name, current_stock_kg, capacity_kg")
+      .eq("approved", true)
+      .eq("active", true)
+      .order("name")
+      .then(({ data }) => setStations((data as StationOpt[]) ?? []));
     if (user) {
       void supabase
         .from("classifications")

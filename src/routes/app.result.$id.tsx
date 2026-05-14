@@ -513,6 +513,10 @@ function Result() {
             </div>
           )}
 
+          {data.wool_class && (
+            <PaymentBreakdownCard classificationId={data.id} woolClass={data.wool_class} />
+          )}
+
           <div className={data.mode === "sheared" ? "" : "grid grid-cols-2 gap-3"}>
             {data.mode !== "sheared" && (
               <Button asChild size="lg" className="h-14 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => haptic("tap")}>

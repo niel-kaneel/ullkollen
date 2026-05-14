@@ -382,6 +382,110 @@ function Admin() {
       {tab === "support" && (
         <SupportInbox rows={support} onChanged={loadSupport} />
       )}
+
+      {tab === "stations" && (
+        <StationsAdmin rows={stations} onChanged={loadStations} />
+      )}
+    </div>
+  );
+}
+
+function StationsAdmin({
+  rows,
+  onChanged,
+}: {
+  rows: Array<{ id: string; name: string; address: string | null; capacity_kg: number; current_stock_kg: number; approved: boolean; active: boolean; manager_user_id: string | null; contact_phone: string | null; contact_email: string | null; created_at: string }>;
+  onChanged: () => void;
+}) {
+  const setApproved = async (id: string, approved: boolean) => {
+    const { error } = await supabase.from("collection_stations").update({ approved }).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success(approved ? "Godkänd" : "Återkallad");
+    onChanged();
+  };
+  const setActive = async (id: string, active: boolean) => {
+    const { error } = await supabase.from("collection_stations").update({ active }).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success(active ? "Aktiv" : "Inaktiv");
+    onChanged();
+  };
+
+  const pending = rows.filter((s) => !s.approved);
+  const approved = rows.filter((s) => s.approved);
+
+  return (
+    <div className="space-y-5">
+      {pending.length > 0 && (
+        <section className="space-y-2">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Väntar på godkännande ({pending.length})
+          </h3>
+          {pending.map((s) => (
+            <StationRow key={s.id} s={s} onApprove={() => setApproved(s.id, true)} onReject={() => setApproved(s.id, false)} onActive={(a) => setActive(s.id, a)} />
+          ))}
+        </section>
+      )}
+
+      <section className="space-y-2">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Godkända stationer ({approved.length})
+        </h3>
+        {approved.length === 0 && <p className="text-sm text-muted-foreground">Inga godkända stationer ännu.</p>}
+        {approved.map((s) => (
+          <StationRow key={s.id} s={s} onApprove={() => setApproved(s.id, true)} onReject={() => setApproved(s.id, false)} onActive={(a) => setActive(s.id, a)} />
+        ))}
+      </section>
+    </div>
+  );
+}
+
+function StationRow({
+  s,
+  onApprove,
+  onReject,
+  onActive,
+}: {
+  s: { id: string; name: string; address: string | null; capacity_kg: number; current_stock_kg: number; approved: boolean; active: boolean; contact_phone: string | null; contact_email: string | null; created_at: string };
+  onApprove: () => void;
+  onReject: () => void;
+  onActive: (a: boolean) => void;
+}) {
+  const util = s.capacity_kg > 0 ? Math.round((s.current_stock_kg / s.capacity_kg) * 100) : 0;
+  return (
+    <div className="bg-card border border-border rounded-2xl p-4 shadow-soft">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="min-w-0">
+          <p className="font-semibold">{s.name}</p>
+          {s.address && <p className="text-xs text-muted-foreground">{s.address}</p>}
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground mt-1">
+            <span>{s.current_stock_kg}/{s.capacity_kg} kg ({util}%)</span>
+            {s.contact_phone && <span>📞 {s.contact_phone}</span>}
+            {s.contact_email && <span>✉ {s.contact_email}</span>}
+            <span>{new Date(s.created_at).toLocaleDateString("sv-SE")}</span>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2 shrink-0">
+          {!s.approved ? (
+            <>
+              <Button size="sm" onClick={onApprove}>
+                <Check className="w-4 h-4 mr-1" /> Godkänn
+              </Button>
+              <Button size="sm" variant="outline" onClick={onReject}>
+                <X className="w-4 h-4" />
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button size="sm" variant={s.active ? "outline" : "default"} onClick={() => onActive(!s.active)}>
+                {s.active ? "Inaktivera" : "Aktivera"}
+              </Button>
+              <Button size="sm" variant="outline" onClick={onReject}>
+                Återkalla
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -94,10 +94,20 @@ function Admin() {
     setSupport((data as SupportRow[]) ?? []);
   };
 
+  const loadStations = async () => {
+    const { data, error } = await supabase
+      .from("collection_stations")
+      .select("id, name, address, capacity_kg, current_stock_kg, approved, active, manager_user_id, contact_phone, contact_email, created_at")
+      .order("created_at", { ascending: false });
+    if (error) return toast.error(error.message);
+    setStations((data as typeof stations) ?? []);
+  };
+
   useEffect(() => {
     if (!isAdmin) return;
     loadUsers();
     loadSupport();
+    loadStations();
   }, [isAdmin]);
 
   const openUser = async (id: string) => {

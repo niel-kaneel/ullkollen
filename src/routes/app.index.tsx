@@ -45,7 +45,7 @@ function Home() {
 
   const load = async () => {
     if (!user) return;
-    const [{ data: classRows }, { data: bookingRows }] = await Promise.all([
+    const [{ data: classRows }, { data: bookingRows }, { data: shearerRow }] = await Promise.all([
       supabase
         .from("classifications")
         .select("id, created_at, wool_class, wool_class_name_sv, recommendation_text_sv, status, photo_urls, shear_recommendation, mode")
@@ -57,9 +57,15 @@ function Home() {
         .select("id", { count: "exact", head: false })
         .eq("farmer_id", user.id)
         .in("status", ["pending", "accepted"]),
+      supabase
+        .from("shearers")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle(),
     ]);
     setRows((classRows as Row[]) ?? []);
     setPendingBookings(bookingRows?.length ?? 0);
+    setIsShearer(!!shearerRow);
     setLoaded(true);
   };
 

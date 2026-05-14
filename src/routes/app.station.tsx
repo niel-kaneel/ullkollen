@@ -223,18 +223,15 @@ function ManagerDashboard({ station, onUpdate }: { station: Station; onUpdate: (
   const isFull = utilization >= 90;
 
   const addStock = async (kg: number) => {
-    const newStock = Math.max(0, station.current_stock_kg + kg);
-    const { data, error } = await supabase
-      .from("collection_stations")
-      .update({ current_stock_kg: newStock })
-      .eq("id", station.id)
-      .select("*")
-      .single();
+    const { data, error } = await supabase.rpc("bump_station_stock", {
+      _station_id: station.id,
+      _delta_kg: kg,
+    });
     if (error) {
       toast.error(error.message);
       return;
     }
-    onUpdate(data as Station);
+    if (data) onUpdate(data as Station);
   };
 
   const requestPickup = async () => {
@@ -265,7 +262,7 @@ function ManagerDashboard({ station, onUpdate }: { station: Station; onUpdate: (
       return;
     }
     if (d.wool_lot_id) {
-      await supabase.from("wool_lots").update({ status: "received" }).eq("id", d.wool_lot_id);
+      await supabase.from("wool_lots").update({ status: "at_station" }).eq("id", d.wool_lot_id);
     }
     if (kg > 0) await addStock(kg);
     toast.success("Mottagning registrerad");
@@ -389,8 +386,8 @@ function ManualLotDialog({ stationId, onAdded }: { stationId: string; onAdded: (
         owner_id: user.id,
         estimated_kg: weight,
         actual_kg: weight,
-        status: "received",
-        notes: "Registrerad direkt på station",
+        status: "at_station",
+        notes: "Registrerad direkt på station (proxy)",
       })
       .select("id")
       .single();
@@ -402,26 +399,24 @@ function ManualLotDialog({ stationId, onAdded }: { stationId: string; onAdded: (
     const { error: delErr } = await supabase.from("deliveries").insert({
       wool_lot_id: lot.id,
       destination_station_id: stationId,
-      method: "drop_off",
+      method: "dropoff_station",
       status: "completed",
       completed_at: new Date().toISOString(),
     });
-    setBusy(false);
     if (delErr) {
+      setBusy(false);
       toast.error(delErr.message);
       return;
     }
-    // bump stock
-    const { data: st } = await supabase
-      .from("collection_stations")
-      .select("current_stock_kg")
-      .eq("id", stationId)
-      .single();
-    if (st) {
-      await supabase
-        .from("collection_stations")
-        .update({ current_stock_kg: Number(st.current_stock_kg) + weight })
-        .eq("id", stationId);
+    // Atomic stock bump
+    const { error: bumpErr } = await supabase.rpc("bump_station_stock", {
+      _station_id: stationId,
+      _delta_kg: weight,
+    });
+    setBusy(false);
+    if (bumpErr) {
+      toast.error(bumpErr.message);
+      return;
     }
     toast.success(`${weight} kg registrerat`);
     setKg("");

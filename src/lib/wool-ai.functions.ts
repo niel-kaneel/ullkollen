@@ -283,8 +283,15 @@ export const classifyWool = createServerFn({ method: "POST" })
       .join("\n");
 
     const modeLine = data.metadata?.mode === "sheared"
-      ? `Scan context: SHEARED FLEECE — loose wool laid out after shearing. Photos show the fleece off the animal. Use the spread of the fleece, staple structure and (if present) the scale reference to judge length and fineness.`
-      : `Scan context: ON LIVING SHEEP — wool still attached to the animal${data.metadata?.body_area ? `, photographed on the ${data.metadata.body_area}` : ""}. Treat any "full_body" / "fleece_closeup" labels accordingly.`;
+      ? `Scan context: SHEARED FLEECE — loose wool laid out AFTER shearing. The wool is ALREADY OFF the animal. Use the spread of the fleece, staple structure and (if present) the scale reference to judge length and fineness.
+
+IMPORTANT — RECOMMENDATION RULES FOR SHEARED MODE:
+The fleece is already shorn. DO NOT recommend shearing or waiting to shear.
+Set shear_recommendation = "shear_now" (used here as a neutral "ready" marker; the UI suppresses any shearing call-to-action in sheared mode).
+Set weeks_until_optimal = 0.
+recommendation_text_sv MUST describe the fleece's sorting/handling, e.g. "Sortera enligt klass X och leverera till uppsamlingsstation." or "Hög andel växtmaterial — skaka ur innan leverans." — NEVER "Klipp nu" eller "Vänta med klippning".
+recommendation_text_en MUST mirror that: sorting/storage/delivery guidance, NEVER "shear now" or "wait to shear".`
+      : `Scan context: ON LIVING SHEEP — wool still attached to the animal${data.metadata?.body_area ? `, photographed on the ${data.metadata.body_area}` : ""}. Treat any "full_body" / "fleece_closeup" labels accordingly. The recommendation should advise WHEN to shear (now, urgent, wait short, wait long, or do not shear due to lambing).`;
 
     const userText = `Metadata:
 Breed: ${data.metadata?.breed ?? "unknown"}

@@ -202,7 +202,14 @@ function Result() {
     );
   }
 
-  const recText = lang === "sv" ? data.recommendation_text_sv : data.recommendation_text_en;
+  const rawRecText = lang === "sv" ? data.recommendation_text_sv : data.recommendation_text_en;
+  // Safety net: if the wool is already sheared, never display a "shear now / wait to shear" suggestion.
+  const looksLikeShearAdvice = !!rawRecText && /\b(klipp|shear)/i.test(rawRecText);
+  const recText = data.mode === "sheared" && looksLikeShearAdvice
+    ? (lang === "sv"
+        ? `Sortera som ${data.wool_class ?? "klassad"} och leverera till uppsamlingsstation.`
+        : `Sort as ${data.wool_class ?? "classified"} and deliver to a collection station.`)
+    : rawRecText;
   const className = lang === "sv" ? data.wool_class_name_sv : data.wool_class_name_en;
 
   if (data.status !== "completed") {

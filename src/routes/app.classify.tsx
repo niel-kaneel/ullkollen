@@ -572,7 +572,32 @@ function Classify() {
 
       {step === 2 && (
         <>
-          
+          <div className="rounded-2xl border-2 border-border bg-card p-4 flex items-start gap-3 shadow-soft">
+            <div className="text-2xl leading-none mt-0.5">{mode === "sheared" ? "🧶" : "🐑"}</div>
+            <div className="flex-1 min-w-0">
+              <Label htmlFor="sheared-toggle" className="text-base font-semibold cursor-pointer">
+                {lang === "sv" ? "Ullen är redan klippt" : "Wool is already shorn"}
+              </Label>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                {mode === "sheared"
+                  ? lang === "sv"
+                    ? "Rekommendationen handlar om sortering och leverans — inte om när du ska klippa."
+                    : "Recommendation will cover sorting and delivery — not when to shear."
+                  : lang === "sv"
+                    ? "Rekommendationen handlar om när det är bäst att klippa fåret."
+                    : "Recommendation will advise when to shear the sheep."}
+              </p>
+            </div>
+            <Switch
+              id="sheared-toggle"
+              checked={mode === "sheared"}
+              onCheckedChange={(checked) => {
+                haptic("select");
+                setMode(checked ? "sheared" : "on_sheep");
+              }}
+            />
+          </div>
+
           <div className="space-y-4">
             {mode === "on_sheep" && (
               <>

@@ -210,21 +210,22 @@ function FilterPill({ label, active, onClick }: { label: string; active: boolean
 }
 
 function Badges({ s }: { s: Shearer }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-wrap gap-1.5 mt-2">
       {s.certified_by_farklipparforbundet && (
         <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
-          🟢 Certifierad
+          🟢 {t("badgeCertified")}
         </span>
       )}
       {s.listed_by_faravelsforbundet && (
         <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-600 text-white">
-          🔵 Listad
+          🔵 {t("badgeListed")}
         </span>
       )}
       {s.self_managed && (
         <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">
-          ⚪ Egen profil
+          ⚪ {t("badgeSelfManaged")}
         </span>
       )}
     </div>
@@ -232,6 +233,7 @@ function Badges({ s }: { s: Shearer }) {
 }
 
 function ShearerCard({ s, onTap }: { s: Shearer; onTap: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="bg-card border border-border rounded-2xl p-4 shadow-soft">
       <button onClick={onTap} className="w-full text-left">
@@ -239,7 +241,7 @@ function ShearerCard({ s, onTap }: { s: Shearer; onTap: () => void }) {
           <h3 className="font-bold text-lg text-primary leading-tight">{s.display_name}</h3>
           {s.distance_km != null && (
             <span className="text-xs text-muted-foreground inline-flex items-center gap-1 flex-shrink-0">
-              <MapPin className="w-3 h-3" /> {Math.round(s.distance_km)} km bort
+              <MapPin className="w-3 h-3" /> {Math.round(s.distance_km)} {t("kmAway")}
             </span>
           )}
         </div>

@@ -79,6 +79,11 @@ const dict = {
     emailAction: "E-post",
     languagesLabel: "Språk",
     specializesIn: "Raser",
+    area: "Område",
+    bookViaUllkollen: "Boka via Ullkollen",
+    sourceKlipparforbundet: "Källa: Svenska Fårklipparförbundet",
+    sourceFaravelsforbundet: "Källa: Svenska Fåravelsförbundet",
+    sourceSelfManaged: "Profil hanterad av klipparen",
     // misc
     back: "Tillbaka",
     cancel: "Avbryt",

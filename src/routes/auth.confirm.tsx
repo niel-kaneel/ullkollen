@@ -53,7 +53,7 @@ function ConfirmPage() {
           return;
         }
         setStatus("success");
-        toast.success("E-post bekräftad!");
+        toast.success(t("emailConfirmed"));
         setTimeout(() => navigate({ to: search.next || "/onboarding" }), 800);
         return;
       }
@@ -77,7 +77,7 @@ function ConfirmPage() {
             return;
           }
           setStatus("success");
-          toast.success("E-post bekräftad!");
+          toast.success(t("emailConfirmed"));
           setTimeout(() => navigate({ to: search.next || "/onboarding" }), 800);
           return;
         }
@@ -101,7 +101,7 @@ function ConfirmPage() {
       <p className="text-muted-foreground max-w-sm mb-6">{message}</p>
       {status === "error" && (
         <Button onClick={() => navigate({ to: "/auth", search: { mode: "signin" } })} size="lg">
-          Till inloggning
+          {t("backToSignIn")}
         </Button>
       )}
     </div>

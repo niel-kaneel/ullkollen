@@ -60,7 +60,7 @@ export const Route = createFileRoute("/app/shearer-hub")({
 });
 
 function ShearerHubPage() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [shearer, setShearer] = useState<Shearer | null>(null);

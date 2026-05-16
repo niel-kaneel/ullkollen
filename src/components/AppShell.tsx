@@ -78,7 +78,7 @@ export function AppShell({ children, hideNav = false }: { children: React.ReactN
                   classifyActive ? "text-primary font-semibold" : "text-muted-foreground"
                 }`}
               >
-                {lang === "sv" ? "Klassa" : "Classify"}
+                {t({ sv: "Klassa", en: "Classify" })}
               </span>
             </div>
 

@@ -176,7 +176,7 @@ function Result() {
     const wasCorrection = draft.wool_class && draft.wool_class !== data.original_wool_class;
     toast.success(wasCorrection
       ? (t({ sv: "Korrigering sparad — AI:n lär sig", en: "Correction saved — AI is learning" }))
-      : (lang === "sv" ? "Sparat" : "Saved"));
+      : (t({ sv: "Sparat", en: "Saved" })));
   };
 
   const confirmClass = async () => {
@@ -233,16 +233,16 @@ function Result() {
   return (
     <div className="space-y-5 pb-4">
       <PageHeader
-        title={className || (lang === "sv" ? "Resultat" : "Result")}
+        title={className || (t({ sv: "Resultat", en: "Result" }))}
         action={
           <div className="flex items-center gap-1">
           {!editing && data.status === "completed" && data.wool_class && (
             <>
-              <Button variant="ghost" size="sm" onClick={onShare} aria-label={lang === "sv" ? "Dela" : "Share"}>
-                <Share2 className="w-4 h-4 mr-1" /> {lang === "sv" ? "Dela" : "Share"}
+              <Button variant="ghost" size="sm" onClick={onShare} aria-label={t({ sv: "Dela", en: "Share" })}>
+                <Share2 className="w-4 h-4 mr-1" /> {t({ sv: "Dela", en: "Share" })}
               </Button>
               <Button variant="ghost" size="sm" onClick={startEdit}>
-                <Pencil className="w-4 h-4 mr-1" /> {lang === "sv" ? "Redigera" : "Edit"}
+                <Pencil className="w-4 h-4 mr-1" /> {t({ sv: "Redigera", en: "Edit" })}
               </Button>
             </>
           )}
@@ -252,7 +252,7 @@ function Result() {
                 <X className="w-4 h-4 mr-1" /> {t("cancel")}
               </Button>
               <Button size="sm" onClick={() => { haptic("success"); saveEdit(); }} disabled={saving}>
-                <Check className="w-4 h-4 mr-1" /> {saving ? "..." : (lang === "sv" ? "Spara" : "Save")}
+                <Check className="w-4 h-4 mr-1" /> {saving ? "..." : (t({ sv: "Spara", en: "Save" }))}
               </Button>
             </>
           )}
@@ -376,7 +376,7 @@ function Result() {
         <div className="space-y-4 bg-card rounded-3xl p-5 border border-border">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="wc">{lang === "sv" ? "Klass" : "Class"}</Label>
+              <Label htmlFor="wc">{t({ sv: "Klass", en: "Class" })}</Label>
               <Input id="wc" value={draft.wool_class ?? ""} onChange={(e) => setDraft({ ...draft, wool_class: e.target.value })} />
             </div>
             <div>
@@ -413,7 +413,7 @@ function Result() {
               onChange={(e) => setDraft({ ...draft, [lang === "sv" ? "recommendation_text_sv" : "recommendation_text_en"]: e.target.value })} />
           </div>
           <div>
-            <Label htmlFor="rs">{lang === "sv" ? "Motivering" : "Reasoning"}</Label>
+            <Label htmlFor="rs">{t({ sv: "Motivering", en: "Reasoning" })}</Label>
             <Textarea id="rs" rows={4} value={draft.reasoning_sv ?? ""} onChange={(e) => setDraft({ ...draft, reasoning_sv: e.target.value })} />
           </div>
         </div>

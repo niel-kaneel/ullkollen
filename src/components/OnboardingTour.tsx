@@ -111,7 +111,7 @@ export function OnboardingTour() {
                 setStep((s) => s - 1);
               }}
             >
-              {lang === "sv" ? "Tillbaka" : "Back"}
+              {t({ sv: "Tillbaka", en: "Back" })}
             </Button>
           )}
           <Button

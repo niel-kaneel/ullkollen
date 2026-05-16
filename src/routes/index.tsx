@@ -33,7 +33,7 @@ function Landing() {
           onClick={() => setLang(lang === "sv" ? "en" : "sv")}
           className="text-xs font-semibold tracking-widest text-primary px-4 py-2 rounded-full bg-card border border-border shadow-soft"
         >
-          {lang === "sv" ? "EN" : "SV"}
+          {t({ sv: "EN", en: "SV" })}
         </button>
       </div>
 

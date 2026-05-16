@@ -8,8 +8,8 @@ type Tab = "list" | "calendar";
 export function BookingsTabs({ active }: { active: Tab }) {
   const { lang } = useTranslation();
   const tabs: { id: Tab; to: string; label: string; icon: typeof List }[] = [
-    { id: "list", to: "/app/bookings", label: lang === "sv" ? "Lista" : "List", icon: List },
-    { id: "calendar", to: "/app/calendar", label: lang === "sv" ? "Kalender" : "Calendar", icon: CalendarIcon },
+    { id: "list", to: "/app/bookings", label: t({ sv: "Lista", en: "List" }), icon: List },
+    { id: "calendar", to: "/app/calendar", label: t({ sv: "Kalender", en: "Calendar" }), icon: CalendarIcon },
   ];
   return (
     <div className="grid grid-cols-2 gap-1 p-1 bg-secondary/60 rounded-2xl">

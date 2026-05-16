@@ -151,7 +151,7 @@ function CalendarPage() {
           sheep_count: b.sheep_count,
           message: b.message,
           contact_phone: b.contact_phone,
-          counterparty: b.shearer?.display_name ?? (lang === "sv" ? "Klippare" : "Shearer"),
+          counterparty: b.shearer?.display_name ?? (t({ sv: "Klippare", en: "Shearer" })),
           sheep_name: b.sheep?.name || b.sheep?.ear_tag_id || null,
           expected_class_code: b.expected_wool_class,
           expected_class_name: t({ sv: b.expected_wool_class_name_sv, en: b.expected_wool_class_name_en }),
@@ -170,7 +170,7 @@ function CalendarPage() {
           sheep_count: b.sheep_count,
           message: b.message,
           contact_phone: b.contact_phone,
-          counterparty: b._farmer?.farm_name || b._farmer?.full_name || (lang === "sv" ? "Bonde" : "Farmer"),
+          counterparty: b._farmer?.farm_name || b._farmer?.full_name || (t({ sv: "Bonde", en: "Farmer" })),
           sheep_name: b.sheep?.name || b.sheep?.ear_tag_id || null,
           expected_class_code: b.expected_wool_class,
           expected_class_name: t({ sv: b.expected_wool_class_name_sv, en: b.expected_wool_class_name_en }),
@@ -296,8 +296,8 @@ function CalendarPage() {
                   <div>
                     <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
                       {e.role === "shearer"
-                        ? (lang === "sv" ? "Bonde" : "Farmer")
-                        : (lang === "sv" ? "Klippare" : "Shearer")}
+                        ? (t({ sv: "Bonde", en: "Farmer" }))
+                        : (t({ sv: "Klippare", en: "Shearer" }))}
                     </p>
                     <p className="font-bold flex items-center gap-1.5"><UserIcon className="w-4 h-4 text-primary" />{e.counterparty}</p>
                   </div>
@@ -406,10 +406,10 @@ function CalendarPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setReschedule(null); setSuggestions([]); setNoAlts(false); }} disabled={saving}>
-              {lang === "sv" ? "Avbryt" : "Cancel"}
+              {t({ sv: "Avbryt", en: "Cancel" })}
             </Button>
             <Button onClick={handleReschedule} disabled={saving || !reschedule?.date}>
-              {saving ? (t({ sv: "Sparar…", en: "Saving…" })) : (lang === "sv" ? "Spara" : "Save")}
+              {saving ? (t({ sv: "Sparar…", en: "Saving…" })) : (t({ sv: "Spara", en: "Save" }))}
             </Button>
           </DialogFooter>
         </DialogContent>

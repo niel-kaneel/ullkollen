@@ -753,7 +753,7 @@ function ShotSlot({
               </span>
             ) : (
               <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-secondary text-muted-foreground font-bold">
-                {lang === "sv" ? "Valfri" : "Optional"}
+                {t({ sv: "Valfri", en: "Optional" })}
               </span>
             )}
           </div>
@@ -812,7 +812,7 @@ function ShotSlot({
             className="h-11 rounded-xl border-2 border-dashed border-border bg-background flex items-center justify-center gap-2 text-foreground font-semibold active:scale-95 transition"
           >
             <ImagePlus className="w-4 h-4" />
-            <span className="text-xs">{lang === "sv" ? "Galleri" : "Gallery"}</span>
+            <span className="text-xs">{t({ sv: "Galleri", en: "Gallery" })}</span>
           </button>
         </div>
       )}

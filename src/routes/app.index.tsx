@@ -120,7 +120,7 @@ function Home() {
             {new Date().toLocaleDateString(lang === "sv" ? "sv-SE" : "en-GB", { weekday: "long", day: "numeric", month: "long" })}
           </p>
           <h2 className="font-display text-3xl font-bold text-primary mt-1">
-            {lang === "sv" ? "Hej" : "Hi"}
+            {t({ sv: "Hej", en: "Hi" })}
             {profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
           </h2>
           {profile?.farm_name && (
@@ -178,7 +178,7 @@ function Home() {
         <Button asChild variant="outline" className="h-14 rounded-2xl text-sm">
           <Link to="/app/bookings">
             <Calendar className="w-4 h-4 mr-1.5" />
-            {lang === "sv" ? "Bokningar" : "Bookings"}
+            {t({ sv: "Bokningar", en: "Bookings" })}
             {pendingBookings > 0 && (
               <span className="ml-1.5 inline-flex items-center justify-center min-w-[20px] h-[20px] px-1.5 text-[10px] font-bold rounded-full bg-primary text-primary-foreground">
                 {pendingBookings}
@@ -228,7 +228,7 @@ function Home() {
         {rows.length > 0 && (
           <div className="flex gap-2 mb-3">
             {([
-              { v: "all", label: lang === "sv" ? "Alla" : "All" },
+              { v: "all", label: t({ sv: "Alla", en: "All" })},
               { v: "on_sheep", label: t({ sv: "🐑 På fåret", en: "🐑 On sheep" })},
               { v: "sheared", label: t({ sv: "🧶 Klippt", en: "🧶 Sheared" })},
             ] as const).map((p) => (

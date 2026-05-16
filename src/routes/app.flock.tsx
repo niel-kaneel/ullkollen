@@ -160,7 +160,7 @@ function Flock() {
       toast.error(error.message);
       return;
     }
-    toast.success(lang === "sv" ? "Sparat" : "Saved");
+    toast.success(t({ sv: "Sparat", en: "Saved" }));
     setEditing(null);
     load();
   };
@@ -173,7 +173,7 @@ function Flock() {
       toast.error(error.message);
       return;
     }
-    toast.success(lang === "sv" ? "Borttaget" : "Deleted");
+    toast.success(t({ sv: "Borttaget", en: "Deleted" }));
     setEditing(null);
     load();
   };
@@ -208,7 +208,7 @@ function Flock() {
             {query && (
               <button
                 onClick={() => setQuery("")}
-                aria-label={lang === "sv" ? "Rensa" : "Clear"}
+                aria-label={t({ sv: "Rensa", en: "Clear" })}
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground rounded-md"
               >
                 <X className="w-4 h-4" />
@@ -304,7 +304,7 @@ function Flock() {
                 size="icon"
                 variant="ghost"
                 onClick={() => openEdit(s)}
-                aria-label={lang === "sv" ? "Redigera" : "Edit"}
+                aria-label={t({ sv: "Redigera", en: "Edit" })}
               >
                 <Pencil />
               </Button>
@@ -372,7 +372,7 @@ function Flock() {
               </div>
 
               <div className="space-y-1.5">
-                <Label>{lang === "sv" ? "Ras" : "Breed"}</Label>
+                <Label>{t({ sv: "Ras", en: "Breed" })}</Label>
                 <Select
                   value={editing.breed_code ?? ""}
                   onValueChange={(v) => setEditing({ ...editing, breed_code: v })}
@@ -416,13 +416,11 @@ function Flock() {
             </Button>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setEditing(null)} disabled={saving}>
-                {lang === "sv" ? "Avbryt" : "Cancel"}
+                {t({ sv: "Avbryt", en: "Cancel" })}
               </Button>
               <Button onClick={onSave} disabled={saving}>
                 {saving
-                  ? t({ sv: "Sparar…", en: "Saving…" }): lang === "sv"
-                    ? "Spara"
-                    : "Save"}
+                  ? t({ sv: "Sparar…", en: "Saving…" }): t({ sv: "Spara", en: "Save" })}
               </Button>
             </div>
           </DialogFooter>

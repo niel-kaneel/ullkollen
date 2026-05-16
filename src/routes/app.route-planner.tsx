@@ -10,6 +10,7 @@ import { supabase } from "@/lib/supabase";
 import { RouteMap, type RoutePoint } from "@/components/RouteMap";
 import { planRoute, haversineKm, type Stop } from "@/lib/route-planner";
 import { toast } from "sonner";
+import { useTranslation } from "@/lib/i18n";
 
 export const Route = createFileRoute("/app/route-planner")({
   component: RoutePlanner,

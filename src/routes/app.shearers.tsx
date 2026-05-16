@@ -280,6 +280,7 @@ function ShearerCard({ s, onTap }: { s: Shearer; onTap: () => void }) {
 
 function DetailModal({ s, onClose }: { s: Shearer; onClose: () => void }) {
   const { user, profile } = useAuth();
+  const { t } = useTranslation();
   const [showBook, setShowBook] = useState(false);
 
   const source = s.certified_by_farklipparforbundet
@@ -373,7 +374,7 @@ function DetailModal({ s, onClose }: { s: Shearer; onClose: () => void }) {
           {!showBook ? (
             <button
               onClick={() => {
-                if (!user) { toast.error("Logga in för att boka"); return; }
+                if (!user) { toast.error(t("loginToBook")); return; }
                 setShowBook(true);
               }}
               className="w-full bg-primary text-primary-foreground rounded-xl py-3 font-semibold flex items-center justify-center gap-2"
@@ -420,7 +421,7 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
   const submit = async () => {
     if (!user) return;
     if (!date) {
-      toast.error(t({ sv: "Välj ett datum", en: "Pick a date" }));
+      toast.error(t("pickDate"));
       return;
     }
     setBusy(true);
@@ -457,16 +458,16 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
     setBusy(false);
     if (error) toast.error(error.message);
     else {
-      toast.success("Bokningsförfrågan skickad!");
+      toast.success(t("requestSent"));
       onDone();
     }
   };
 
   return (
     <div className="border-t border-border pt-4 space-y-3">
-      <h4 className="font-bold flex items-center gap-2"><Calendar className="w-4 h-4 text-primary" /> Skicka bokningsförfrågan</h4>
+      <h4 className="font-bold flex items-center gap-2"><Calendar className="w-4 h-4 text-primary" /> {t("bookingFormTitle")}</h4>
       <div>
-        <label className="text-xs font-semibold text-muted-foreground">Önskat datum</label>
+        <label className="text-xs font-semibold text-muted-foreground">{t("preferredDate")}</label>
         <input type="date" value={date} onChange={(e) => { setSuggestions([]); setNoAlts(false); setDate(e.target.value); }} className="w-full h-11 rounded-xl border border-border px-3 mt-1 bg-background" />
         {suggestions.length > 0 && (
           <div className="bg-secondary/50 rounded-xl p-3 mt-2 space-y-2">
@@ -495,9 +496,9 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
       </div>
       {sheepList.length > 0 && (
         <div>
-          <label className="text-xs font-semibold text-muted-foreground">Får (valfritt — bifogar förväntad ullkvalitet)</label>
+          <label className="text-xs font-semibold text-muted-foreground">{t("sheepOptionalLabel")}</label>
           <select value={sheepId} onChange={(e) => setSheepId(e.target.value)} className="w-full h-11 rounded-xl border border-border px-3 mt-1 bg-background">
-            <option value="">— Inget specifikt får —</option>
+            <option value="">{t("noSpecificSheep")}</option>
             {sheepList.map((s) => (
               <option key={s.id} value={s.id}>{s.name || s.ear_tag_id || s.id.slice(0, 6)}</option>
             ))}
@@ -505,21 +506,21 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
         </div>
       )}
       <div>
-        <label className="text-xs font-semibold text-muted-foreground">Antal får</label>
+        <label className="text-xs font-semibold text-muted-foreground">{t("sheepCountLabel")}</label>
         <input type="number" min="1" value={sheepCount} onChange={(e) => setSheepCount(e.target.value)} className="w-full h-11 rounded-xl border border-border px-3 mt-1 bg-background" />
       </div>
       <div>
-        <label className="text-xs font-semibold text-muted-foreground">Ditt telefonnummer</label>
+        <label className="text-xs font-semibold text-muted-foreground">{t("yourPhone")}</label>
         <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full h-11 rounded-xl border border-border px-3 mt-1 bg-background" />
       </div>
       <div>
-        <label className="text-xs font-semibold text-muted-foreground">Meddelande (valfritt)</label>
-        <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} className="w-full rounded-xl border border-border px-3 py-2 mt-1 bg-background" placeholder="Ras, plats, övriga önskemål..." />
+        <label className="text-xs font-semibold text-muted-foreground">{t("messageOptional")}</label>
+        <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} className="w-full rounded-xl border border-border px-3 py-2 mt-1 bg-background" placeholder={t("messagePlaceholder")} />
       </div>
       <div className="flex gap-2">
-        <button onClick={onCancel} className="flex-1 bg-secondary text-secondary-foreground rounded-xl py-3 font-semibold">Avbryt</button>
+        <button onClick={onCancel} className="flex-1 bg-secondary text-secondary-foreground rounded-xl py-3 font-semibold">{t("cancel")}</button>
         <button onClick={submit} disabled={busy} className="flex-1 bg-primary text-primary-foreground rounded-xl py-3 font-semibold disabled:opacity-50">
-          {busy ? "Skickar..." : "Skicka förfrågan"}
+          {busy ? t("sending") : t("sendRequest")}
         </button>
       </div>
     </div>

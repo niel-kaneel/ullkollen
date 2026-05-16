@@ -10,6 +10,20 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
+import { useTranslation, type Translatable } from "@/lib/i18n";
+
+function deliveryStatusLabel(status: string, t: (k: Translatable) => string): string {
+  switch (status) {
+    case "pending": return t("statusPending");
+    case "accepted": return t("bookingAccepted");
+    case "declined": return t("bookingDeclined");
+    case "cancelled": return t("bookingCancelled");
+    case "completed": return t("bookingCompleted");
+    case "in_transit": return t("statusInTransit");
+    case "at_station": return t("statusAtStation");
+    default: return status;
+  }
+}
 
 type Shearer = {
   id: string;

@@ -233,6 +233,7 @@ function Badges({ s }: { s: Shearer }) {
 }
 
 function ShearerCard({ s, onTap }: { s: Shearer; onTap: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="bg-card border border-border rounded-2xl p-4 shadow-soft">
       <button onClick={onTap} className="w-full text-left">

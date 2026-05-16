@@ -86,7 +86,7 @@ function BookingsPage() {
     const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
     if (error) toast.error(error.message);
     else {
-      toast.success(status === "accepted" ? "Bokning accepterad" : "Bokning avböjd");
+      toast.success(status === "accepted" ? t("bookingAccepted") : t("bookingDeclined"));
       load();
     }
   };
@@ -94,13 +94,13 @@ function BookingsPage() {
   const cancel = async (id: string) => {
     const { error } = await supabase.from("bookings").update({ status: "cancelled" }).eq("id", id);
     if (error) toast.error(error.message);
-    else { toast.success("Bokning avbokad"); load(); }
+    else { toast.success(t("bookingCancelled")); load(); }
   };
 
   return (
     <div className="space-y-5 pb-8 pt-2">
       <PullToRefreshIndicator pull={pull} refreshing={refreshing} threshold={threshold} />
-      <PageHeader title="Mina bokningar" />
+      <PageHeader title={t("myBookings")} />
       <BookingsTabs active="list" />
 
       {loading && (
@@ -154,8 +154,8 @@ function BookingsPage() {
         {!loading && outgoing.length === 0 && incoming.length === 0 && (
           <EmptyState
             emoji="📅"
-            title="Inga bokningar ännu"
-            description="Hitta en fårklippare nära dig och boka direkt i appen."
+            title={t("noBookingsYet")}
+            description={t("noBookingsDesc")}
             action={
               <Button asChild className="rounded-xl">
                 <Link to="/app/shearers" onClick={() => haptic("tap")}>
@@ -192,8 +192,9 @@ function BookingsPage() {
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation();
   const map: Record<string, { label: string; cls: string; icon: any }> = {
-    pending: { label: "Väntar", cls: "bg-yellow-100 text-yellow-900", icon: Clock },
+    pending: { label: t("statusPending"), cls: "bg-yellow-100 text-yellow-900", icon: Clock },
     accepted: { label: "Accepterad", cls: "bg-green-100 text-green-900", icon: CheckCircle2 },
     declined: { label: "Avböjd", cls: "bg-red-100 text-red-900", icon: XCircle },
     cancelled: { label: "Avbokad", cls: "bg-secondary text-secondary-foreground", icon: XCircle },

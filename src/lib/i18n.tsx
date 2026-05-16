@@ -155,6 +155,19 @@ const dict = {
     sheepOptionalLabel: "Får (valfritt — bifogar förväntad ullkvalitet)",
     pickDate: "Välj ett datum",
     bookingFormTitle: "Skicka bokningsförfrågan",
+    // bookings list
+    myBookings: "Mina bokningar",
+    bookingAccepted: "Bokning accepterad",
+    bookingDeclined: "Bokning avböjd",
+    bookingCancelled: "Bokning avbokad",
+    noBookingsYet: "Inga bokningar ännu",
+    noBookingsDesc: "Hitta en fårklippare nära dig och boka direkt i appen.",
+    statusPending: "Väntar",
+    // route planner
+    routePlanning: "Ruttplanering",
+    routePlanningSubtitle: "Optimera hämtningar längs en rutt",
+    farmerLabel: "Fårägare",
+    startLabel: "Start (du)",
   },
   en: {
     appName: "Ullkollen",
@@ -299,6 +312,19 @@ const dict = {
     sheepOptionalLabel: "Sheep (optional — attaches expected wool quality)",
     pickDate: "Pick a date",
     bookingFormTitle: "Send booking request",
+    // bookings list
+    myBookings: "My bookings",
+    bookingAccepted: "Booking accepted",
+    bookingDeclined: "Booking declined",
+    bookingCancelled: "Booking cancelled",
+    noBookingsYet: "No bookings yet",
+    noBookingsDesc: "Find a shearer near you and book directly in the app.",
+    statusPending: "Pending",
+    // route planner
+    routePlanning: "Route planning",
+    routePlanningSubtitle: "Optimise pickups along a route",
+    farmerLabel: "Farmer",
+    startLabel: "Start (you)",
   },
 } as const;
 

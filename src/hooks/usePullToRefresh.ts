@@ -15,6 +15,7 @@ export function usePullToRefresh({ onRefresh, threshold = 70, enabled = true }: 
   const [refreshing, setRefreshing] = useState(false);
   const startY = useRef<number | null>(null);
   const tracking = useRef(false);
+  const pullRef = useRef(0);
 
   useEffect(() => {
     if (!enabled || typeof window === "undefined") return;
@@ -34,8 +35,10 @@ export function usePullToRefresh({ onRefresh, threshold = 70, enabled = true }: 
       if (dy > 0 && window.scrollY <= 0) {
         // resistans
         const damped = Math.min(120, Math.pow(dy, 0.85));
+        pullRef.current = damped;
         setPull(damped);
       } else {
+        pullRef.current = 0;
         setPull(0);
       }
     };
@@ -44,7 +47,7 @@ export function usePullToRefresh({ onRefresh, threshold = 70, enabled = true }: 
       if (!tracking.current) return;
       tracking.current = false;
       startY.current = null;
-      if (pull >= threshold && !refreshing) {
+      if (pullRef.current >= threshold && !refreshing) {
         setRefreshing(true);
         setPull(threshold);
         try {
@@ -52,9 +55,11 @@ export function usePullToRefresh({ onRefresh, threshold = 70, enabled = true }: 
         } finally {
           setRefreshing(false);
           setPull(0);
+          pullRef.current = 0;
         }
       } else {
         setPull(0);
+        pullRef.current = 0;
       }
     };
 
@@ -66,7 +71,7 @@ export function usePullToRefresh({ onRefresh, threshold = 70, enabled = true }: 
       window.removeEventListener("touchmove", onTouchMove);
       window.removeEventListener("touchend", onTouchEnd);
     };
-  }, [enabled, onRefresh, pull, threshold, refreshing]);
+  }, [enabled, onRefresh, threshold, refreshing]);
 
   return { pull, refreshing, threshold };
 }

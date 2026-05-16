@@ -79,11 +79,12 @@ function Flock() {
 
   const load = async () => {
     if (!user) return;
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("sheep")
       .select("id, name, ear_tag_id, breed, breed_code, age_category, created_at")
       .eq("owner_id", user.id)
       .order("created_at", { ascending: false });
+    if (error) { console.warn(error); toast.error(t("error")); return; }
     const list = (data as unknown as Sheep[]) ?? [];
     setSheep(list);
     setLoaded(true);
@@ -91,12 +92,13 @@ function Flock() {
     // Fetch latest classification per sheep for thumbnails + quick-view link
     const ids = list.map((s) => s.id);
     if (ids.length) {
-      const { data: cls } = await supabase
+      const { data: cls, error: clsError } = await supabase
         .from("classifications")
         .select("id, sheep_id, photo_urls, created_at")
         .eq("user_id", user.id)
         .in("sheep_id", ids)
         .order("created_at", { ascending: false });
+      if (clsError) { console.warn(clsError); toast.error(t("error")); return; }
       const byS: Record<string, { classId: string; thumb: string | null }> = {};
       for (const c of (cls ?? []) as Array<{ id: string; sheep_id: string; photo_urls: string[] | null }>) {
         if (!c.sheep_id || byS[c.sheep_id]) continue;

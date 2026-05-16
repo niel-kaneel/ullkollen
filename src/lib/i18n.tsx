@@ -155,6 +155,19 @@ const dict = {
     sheepOptionalLabel: "Får (valfritt — bifogar förväntad ullkvalitet)",
     pickDate: "Välj ett datum",
     bookingFormTitle: "Skicka bokningsförfrågan",
+    // bookings list
+    myBookings: "Mina bokningar",
+    bookingAccepted: "Bokning accepterad",
+    bookingDeclined: "Bokning avböjd",
+    bookingCancelled: "Bokning avbokad",
+    noBookingsYet: "Inga bokningar ännu",
+    noBookingsDesc: "Hitta en fårklippare nära dig och boka direkt i appen.",
+    statusPending: "Väntar",
+    // route planner
+    routePlanning: "Ruttplanering",
+    routePlanningSubtitle: "Optimera hämtningar längs en rutt",
+    farmerLabel: "Fårägare",
+    startLabel: "Start (du)",
   },
   en: {
     appName: "Ullkollen",

@@ -90,7 +90,7 @@ function getTiers(t: (k: Translatable) => string) {
 }
 
 function SellWool() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const { user } = useAuth();
   const [lots, setLots] = useState<Lot[]>([]);
   const [loaded, setLoaded] = useState(false);

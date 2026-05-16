@@ -284,11 +284,11 @@ function DetailModal({ s, onClose }: { s: Shearer; onClose: () => void }) {
   const [showBook, setShowBook] = useState(false);
 
   const source = s.certified_by_farklipparforbundet
-    ? "Källa: Svenska Fårklipparförbundet"
+    ? t("sourceKlipparforbundet")
     : s.listed_by_faravelsforbundet
-    ? "Källa: Svenska Fåravelsförbundet"
+    ? t("sourceFaravelsforbundet")
     : s.self_managed
-    ? "Profil hanterad av klipparen"
+    ? t("sourceSelfManaged")
     : null;
 
   return (
@@ -302,7 +302,7 @@ function DetailModal({ s, onClose }: { s: Shearer; onClose: () => void }) {
             <h3 className="text-xl font-bold text-primary">{s.display_name}</h3>
             {s.distance_km != null && (
               <p className="text-xs text-muted-foreground inline-flex items-center gap-1 mt-0.5">
-                <MapPin className="w-3 h-3" /> {Math.round(s.distance_km)} km bort
+                <MapPin className="w-3 h-3" /> {Math.round(s.distance_km)} {t("kmAway")}
               </p>
             )}
           </div>
@@ -316,14 +316,14 @@ function DetailModal({ s, onClose }: { s: Shearer; onClose: () => void }) {
 
           {s.service_areas && s.service_areas.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Område</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">{t("area")}</p>
               <p className="text-sm">{s.service_areas.join(" • ")}</p>
             </div>
           )}
 
           {s.languages && s.languages.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Språk</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">{t("languagesLabel")}</p>
               <p className="text-base">{s.languages.map((l) => FLAGS[l] ?? l).join(" ")}</p>
             </div>
           )}
@@ -357,16 +357,16 @@ function DetailModal({ s, onClose }: { s: Shearer; onClose: () => void }) {
             {s.phone && (
               <>
                 <a href={`tel:${s.phone}`} className="flex-1 min-w-[100px] bg-primary text-primary-foreground rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-1.5">
-                  <Phone className="w-4 h-4" /> Ring
+                  <Phone className="w-4 h-4" /> {t("call")}
                 </a>
                 <a href={`sms:${s.phone}`} className="flex-1 min-w-[100px] bg-secondary text-secondary-foreground rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-1.5">
-                  <MessageSquare className="w-4 h-4" /> SMS
+                  <MessageSquare className="w-4 h-4" /> {t("sms")}
                 </a>
               </>
             )}
             {s.email && (
               <a href={`mailto:${s.email}`} className="flex-1 min-w-[100px] bg-accent text-accent-foreground rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-1.5">
-                <Mail className="w-4 h-4" /> E-post
+                <Mail className="w-4 h-4" /> {t("emailAction")}
               </a>
             )}
           </div>
@@ -379,7 +379,7 @@ function DetailModal({ s, onClose }: { s: Shearer; onClose: () => void }) {
               }}
               className="w-full bg-primary text-primary-foreground rounded-xl py-3 font-semibold flex items-center justify-center gap-2"
             >
-              Boka via Ullkollen <ChevronRight className="w-4 h-4" />
+              {t("bookViaUllkollen")} <ChevronRight className="w-4 h-4" />
             </button>
           ) : (
             <BookingForm

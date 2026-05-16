@@ -14,7 +14,7 @@ type Lot = {
 
 type Share = { percent: number; amount_sek: number | null; paid_at: string | null; shearer: { display_name: string } | null };
 
-function lotStatusLabel(s: string, t: (k: string) => string): string {
+function lotStatusLabel(s: string, t: (k: Translatable) => string): string {
   const map: Record<string, string> = {
     registered: t("statusRegistered"),
     in_transit: t("statusInTransit"),

@@ -51,7 +51,7 @@ const STEPS: Step[] = [
 ];
 
 export function OnboardingTour() {
-  const { lang } = useTranslation();
+  const { t, lang } = useTranslation();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
 

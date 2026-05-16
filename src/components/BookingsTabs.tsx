@@ -6,7 +6,7 @@ import { haptic } from "@/lib/haptics";
 type Tab = "list" | "calendar";
 
 export function BookingsTabs({ active }: { active: Tab }) {
-  const { lang } = useTranslation();
+  const { t, lang } = useTranslation();
   const tabs: { id: Tab; to: string; label: string; icon: typeof List }[] = [
     { id: "list", to: "/app/bookings", label: t({ sv: "Lista", en: "List" }), icon: List },
     { id: "calendar", to: "/app/calendar", label: t({ sv: "Kalender", en: "Calendar" }), icon: CalendarIcon },

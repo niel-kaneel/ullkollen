@@ -52,7 +52,7 @@ function ymd(d: Date) {
 
 function CalendarPage() {
   const { user } = useAuth();
-  const { lang } = useTranslation();
+  const { t, lang } = useTranslation();
   const [cursor, setCursor] = useState(() => {
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);

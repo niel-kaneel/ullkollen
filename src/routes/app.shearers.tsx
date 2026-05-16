@@ -33,6 +33,7 @@ export const Route = createFileRoute("/app/shearers")({
 });
 
 function ShearersPage() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const [list, setList] = useState<Shearer[]>([]);
   const [filter, setFilter] = useState<Filter>("all");
@@ -80,7 +81,7 @@ function ShearersPage() {
 
   const requestLocation = () => {
     if (!navigator.geolocation) {
-      toast.error("Geolocation stöds inte");
+      toast.error(t({ sv: "Geolocation stöds inte", en: "Geolocation is not supported" }));
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -91,13 +92,13 @@ function ShearersPage() {
           .update({ home_lat: pos.coords.latitude, home_lng: pos.coords.longitude })
           .eq("id", profile.id);
         if (error) {
-          toast.error("Kunde inte spara plats");
+          toast.error(t({ sv: "Kunde inte spara plats", en: "Could not save location" }));
         } else {
-          toast.success("Plats sparad");
+          toast.success(t({ sv: "Plats sparad", en: "Location saved" }));
           window.location.reload();
         }
       },
-      () => toast.error("Plats nekad"),
+      () => toast.error(t({ sv: "Plats nekad", en: "Location denied" })),
     );
   };
 

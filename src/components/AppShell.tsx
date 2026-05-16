@@ -40,7 +40,7 @@ export function AppShell({ children, hideNav = false }: { children: React.ReactN
       {!hideNav && (
         <nav
           className="fixed bottom-3 left-3 right-3 max-w-md mx-auto bg-card/95 backdrop-blur border border-border rounded-3xl shadow-card"
-          aria-label="Primär navigation"
+          aria-label={lang === "sv" ? "Primär navigation" : "Primary navigation"}
         >
           <div className="relative grid grid-cols-5 items-end">
             {leftItems.map(({ to, label, icon: Icon, match }) => {

@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 
 type Lang = "sv" | "en";
 
+// Use t("key") for strings used 2+ times or shared across components.
+// Use t({ sv, en }) for one-off dynamic labels.
 const dict = {
   sv: {
     appName: "Ullkollen",
@@ -60,6 +62,7 @@ const dict = {
     bookShearer: "Boka klippare",
     saveToFlock: "Spara till flock",
     saved: "Sparad",
+    savedSuccess: "Sparat",
     // shearers
     shearersNearYou: "Klippare nära dig",
     findShearers: "Hitta fårklippare",
@@ -81,7 +84,9 @@ const dict = {
     uploading: "Laddar upp bilder...",
     delete: "Ta bort",
     deleted: "Borttagen",
+    deletedSuccess: "Borttaget",
     deleteConfirm: "Är du säker? Detta kan inte ångras.",
+    deleteSheepConfirm: "Ta bort detta får?",
     admin: "Admin",
     users: "Användare",
     statistics: "Statistik",
@@ -147,6 +152,8 @@ const dict = {
     bookShearer: "Book shearer",
     saveToFlock: "Save to flock",
     saved: "Saved",
+    savedSuccess: "Saved",
+    // shearers
     shearersNearYou: "Shearers near you",
     findShearers: "Find shearers",
     filterAll: "All",
@@ -166,7 +173,9 @@ const dict = {
     uploading: "Uploading photos...",
     delete: "Delete",
     deleted: "Deleted",
+    deletedSuccess: "Deleted",
     deleteConfirm: "Are you sure? This cannot be undone.",
+    deleteSheepConfirm: "Delete this sheep?",
     admin: "Admin",
     users: "Users",
     statistics: "Statistics",

@@ -162,20 +162,20 @@ function Flock() {
       toast.error(error.message);
       return;
     }
-    toast.success(t({ sv: "Sparat", en: "Saved" }));
+    toast.success(t("savedSuccess"));
     setEditing(null);
     load();
   };
 
   const onDelete = async () => {
     if (!editing) return;
-    if (!confirm(t({ sv: "Ta bort detta får?", en: "Delete this sheep?" }))) return;
+    if (!confirm(t("deleteSheepConfirm"))) return;
     const { error } = await supabase.from("sheep").delete().eq("id", editing.id);
     if (error) {
       toast.error(error.message);
       return;
     }
-    toast.success(t({ sv: "Borttaget", en: "Deleted" }));
+    toast.success(t("deletedSuccess"));
     setEditing(null);
     load();
   };

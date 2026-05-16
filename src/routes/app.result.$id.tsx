@@ -70,10 +70,10 @@ function Result() {
     const recText = t({ sv: data.recommendation_text_sv, en: data.recommendation_text_en });
     const text = [
       `🐑 Ullkollen — ${data.wool_class ?? "?"}${className ? ` (${className})` : ""}`,
-      data.breed ? `Ras: ${data.breed}` : null,
-      recText ? `Rekommendation: ${recText}` : null,
+      data.breed ? `${t("breedLabel")}: ${data.breed}` : null,
+      recText ? `${t("recommendationLabel")}: ${recText}` : null,
       "",
-      "Klassificerat med Ullkollen",
+      t("classifiedWith"),
     ].filter(Boolean).join("\n");
     const shareUrl = typeof window !== "undefined" ? window.location.href : "";
     try {

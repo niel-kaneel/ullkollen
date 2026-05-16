@@ -129,16 +129,16 @@ function ShearersPage() {
         <div className="bg-secondary/60 border border-border rounded-2xl p-4">
           <p className="text-sm font-medium flex items-start gap-2">
             <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-            <span>Aktivera plats för att se närmaste klippare</span>
+            <span>{t("enableLocationTitle")}</span>
           </p>
           <button
             onClick={requestLocation}
             className="mt-3 bg-primary text-primary-foreground rounded-xl px-4 py-2 text-sm font-semibold"
           >
-            Aktivera plats
+            {t("enableLocationBtn")}
           </button>
           <p className="text-xs text-muted-foreground mt-2">
-            Visar alla klippare i bokstavsordning. Aktivera plats för avståndssortering.
+            {t("showingAllAlpha")}
           </p>
         </div>
       )}

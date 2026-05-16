@@ -60,7 +60,7 @@ export const Route = createFileRoute("/app/shearer-hub")({
 });
 
 function ShearerHubPage() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [shearer, setShearer] = useState<Shearer | null>(null);
@@ -324,7 +324,7 @@ function ShearerHubPage() {
                 <div>
                   <p className="font-medium">{s.percent}{t("sharePercentLabel")}</p>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(s.created_at).toLocaleDateString("sv-SE")}
+                    {new Date(s.created_at).toLocaleDateString(lang === "sv" ? "sv-SE" : "en-GB")}
                     {s.paid_at ? ` • ${t("paidOut")}` : ` • ${t("pending")}`}
                   </p>
                 </div>

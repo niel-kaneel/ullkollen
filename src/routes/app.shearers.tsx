@@ -185,7 +185,7 @@ function ShearersPage() {
         onClick={() => setShowAbout(true)}
         className="w-full text-center text-xs text-muted-foreground underline pt-4 flex items-center justify-center gap-1"
       >
-        <Info className="w-3 h-3" /> Om klipparlistan
+        <Info className="w-3 h-3" /> {t("aboutList")}
       </button>
 
       {active && <DetailModal s={active} onClose={() => setActive(null)} />}

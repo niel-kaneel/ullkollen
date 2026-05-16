@@ -85,7 +85,7 @@ function Flock() {
       .eq("owner_id", user.id)
       .order("created_at", { ascending: false });
     if (error) { console.warn(error); toast.error(t("error")); return; }
-    const list = (data as unknown as Sheep[]) ?? [];
+    const list: Sheep[] = data ?? [];
     setSheep(list);
     setLoaded(true);
 

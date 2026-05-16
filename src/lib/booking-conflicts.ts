@@ -92,7 +92,7 @@ export async function suggestAlternativeDates({
   const { data, error } = await query;
   if (error) console.warn("suggestAlternativeDates query failed", error);
   const taken = new Set<string>();
-  (data ?? []).forEach((b: any) => {
+  (data ?? []).forEach((b) => {
     if (b.preferred_date) taken.add(b.preferred_date);
   });
 

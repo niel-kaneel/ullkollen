@@ -239,7 +239,7 @@ function ShearerCard({ s, onTap }: { s: Shearer; onTap: () => void }) {
           <h3 className="font-bold text-lg text-primary leading-tight">{s.display_name}</h3>
           {s.distance_km != null && (
             <span className="text-xs text-muted-foreground inline-flex items-center gap-1 flex-shrink-0">
-              <MapPin className="w-3 h-3" /> {Math.round(s.distance_km)} km bort
+              <MapPin className="w-3 h-3" /> {Math.round(s.distance_km)} {t("kmAway")}
             </span>
           )}
         </div>

@@ -195,10 +195,10 @@ function StatusBadge({ status }: { status: string }) {
   const { t } = useTranslation();
   const map: Record<string, { label: string; cls: string; icon: any }> = {
     pending: { label: t("statusPending"), cls: "bg-yellow-100 text-yellow-900", icon: Clock },
-    accepted: { label: "Accepterad", cls: "bg-green-100 text-green-900", icon: CheckCircle2 },
-    declined: { label: "Avböjd", cls: "bg-red-100 text-red-900", icon: XCircle },
-    cancelled: { label: "Avbokad", cls: "bg-secondary text-secondary-foreground", icon: XCircle },
-    completed: { label: "Klar", cls: "bg-primary/10 text-primary", icon: CheckCircle2 },
+    accepted: { label: t("bookingAccepted"), cls: "bg-green-100 text-green-900", icon: CheckCircle2 },
+    declined: { label: t("bookingDeclined"), cls: "bg-red-100 text-red-900", icon: XCircle },
+    cancelled: { label: t("bookingCancelled"), cls: "bg-secondary text-secondary-foreground", icon: XCircle },
+    completed: { label: t("bookingCompleted"), cls: "bg-primary/10 text-primary", icon: CheckCircle2 },
   };
   const s = map[status] ?? map.pending;
   const Icon = s.icon;

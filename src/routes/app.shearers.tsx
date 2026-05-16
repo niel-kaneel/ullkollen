@@ -210,21 +210,22 @@ function FilterPill({ label, active, onClick }: { label: string; active: boolean
 }
 
 function Badges({ s }: { s: Shearer }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-wrap gap-1.5 mt-2">
       {s.certified_by_farklipparforbundet && (
         <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
-          🟢 Certifierad
+          🟢 {t("badgeCertified")}
         </span>
       )}
       {s.listed_by_faravelsforbundet && (
         <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-600 text-white">
-          🔵 Listad
+          🔵 {t("badgeListed")}
         </span>
       )}
       {s.self_managed && (
         <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">
-          ⚪ Egen profil
+          ⚪ {t("badgeSelfManaged")}
         </span>
       )}
     </div>

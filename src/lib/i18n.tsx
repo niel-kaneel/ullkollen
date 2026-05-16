@@ -312,6 +312,19 @@ const dict = {
     sheepOptionalLabel: "Sheep (optional — attaches expected wool quality)",
     pickDate: "Pick a date",
     bookingFormTitle: "Send booking request",
+    // bookings list
+    myBookings: "My bookings",
+    bookingAccepted: "Booking accepted",
+    bookingDeclined: "Booking declined",
+    bookingCancelled: "Booking cancelled",
+    noBookingsYet: "No bookings yet",
+    noBookingsDesc: "Find a shearer near you and book directly in the app.",
+    statusPending: "Pending",
+    // route planner
+    routePlanning: "Route planning",
+    routePlanningSubtitle: "Optimise pickups along a route",
+    farmerLabel: "Farmer",
+    startLabel: "Start (you)",
   },
 } as const;
 

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/lib/supabase";
 import { SheepLogo } from "@/components/SheepLogo";
 import { toast } from "sonner";
+import { useTranslation } from "@/lib/i18n";
 
 export const Route = createFileRoute("/auth/reset")({
   component: ResetPage,
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/auth/reset")({
 
 function ResetPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
@@ -33,22 +35,22 @@ function ResetPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 6) {
-      toast.error("Lösenordet måste vara minst 6 tecken.");
+      toast.error(t("passwordTooShort"));
       return;
     }
     if (password !== confirm) {
-      toast.error("Lösenorden matchar inte.");
+      toast.error(t("passwordsDoNotMatch"));
       return;
     }
     setBusy(true);
     try {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
-      toast.success("Lösenord uppdaterat — du kan logga in.", { duration: 6000 });
+      toast.success(t("passwordUpdated"), { duration: 6000 });
       await supabase.auth.signOut();
       navigate({ to: "/auth", search: { mode: "signin" } });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Något gick fel");
+      toast.error(err instanceof Error ? err.message : t("error"));
     } finally {
       setBusy(false);
     }
@@ -57,7 +59,7 @@ function ResetPage() {
   return (
     <div className="min-h-screen flex flex-col px-6 py-8">
       <Link to="/auth" search={{ mode: "signin" }} className="text-muted-foreground text-sm mb-6 hover:text-primary transition">
-        ← Tillbaka till inloggning
+        ← {t("backToSignIn")}
       </Link>
 
       <div className="flex flex-col items-center mb-10">
@@ -67,24 +69,24 @@ function ResetPage() {
         <span className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground font-semibold mb-2">
           Ullkollen
         </span>
-        <h1 className="font-display text-3xl font-bold text-primary">Nytt lösenord</h1>
+        <h1 className="font-display text-3xl font-bold text-primary">{t("newPassword")}</h1>
         <div className="dashed-divider w-16 mt-4" />
       </div>
 
       {hasSession === false ? (
         <div className="bg-card border border-border rounded-3xl p-6 text-center shadow-card">
           <p className="text-sm text-muted-foreground">
-            Återställningslänken är ogiltig eller har gått ut. Be om en ny från inloggningssidan.
+            {t("resetLinkInvalid")}
           </p>
           <Button asChild className="mt-4 w-full h-12 rounded-2xl">
-            <Link to="/auth" search={{ mode: "signin" }}>Tillbaka till inloggning</Link>
+            <Link to="/auth" search={{ mode: "signin" }}>{t("backToSignIn")}</Link>
           </Button>
         </div>
       ) : (
         <form onSubmit={onSubmit} className="space-y-5 bg-card border border-border rounded-3xl p-6 shadow-card">
           <div>
             <Label htmlFor="password" className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Nytt lösenord
+              {t("newPassword")}
             </Label>
             <div className="relative mt-2">
               <Input
@@ -100,7 +102,7 @@ function ResetPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? "Dölj lösenord" : "Visa lösenord"}
+                aria-label={showPassword ? t("hidePassword") : t("showPassword")}
                 tabIndex={-1}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground transition rounded-md"
               >
@@ -110,7 +112,7 @@ function ResetPage() {
           </div>
           <div>
             <Label htmlFor="confirm" className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Bekräfta lösenord
+              {t("confirmPassword")}
             </Label>
             <Input
               id="confirm"
@@ -130,7 +132,7 @@ function ResetPage() {
             className="w-full h-14 text-base font-semibold rounded-2xl shadow-card"
             style={{ background: "var(--gradient-pine)" }}
           >
-            {busy ? "..." : "Spara nytt lösenord"}
+            {busy ? "..." : t("saveNewPassword")}
           </Button>
         </form>
       )}

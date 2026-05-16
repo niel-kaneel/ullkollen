@@ -107,17 +107,20 @@ function ShearersPage() {
     <div className="space-y-4 pb-8">
       <PageHeader
         back={false}
-        title="Hitta fårklippare"
-        subtitle={`${list.length} klippare i Sverige${hasLocation ? " • Sorterat efter avstånd" : " • A–Ö"}`}
+        title={t("findShearers")}
+        subtitle={t({
+          sv: `${list.length} klippare i Sverige${hasLocation ? " • Sorterat efter avstånd" : " • A–Ö"}`,
+          en: `${list.length} shearers in Sweden${hasLocation ? " • Sorted by distance" : " • A–Z"}`,
+        })}
       />
 
       <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1">
-        <FilterPill label="Alla" active={filter === "all"} onClick={() => setFilter("all")} />
-        <FilterPill label="Certifierade" active={filter === "certified"} onClick={() => setFilter("certified")} />
+        <FilterPill label={t("filterAll")} active={filter === "all"} onClick={() => setFilter("all")} />
+        <FilterPill label={t("filterCertified")} active={filter === "certified"} onClick={() => setFilter("certified")} />
         {hasLocation && (
           <>
-            <FilterPill label="Inom 50 km" active={filter === "near50"} onClick={() => setFilter("near50")} />
-            <FilterPill label="Inom 100 km" active={filter === "near100"} onClick={() => setFilter("near100")} />
+            <FilterPill label={t("filterNear50")} active={filter === "near50"} onClick={() => setFilter("near50")} />
+            <FilterPill label={t("filterNear100")} active={filter === "near100"} onClick={() => setFilter("near100")} />
           </>
         )}
       </div>

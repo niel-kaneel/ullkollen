@@ -161,6 +161,7 @@ const dict = {
     bookingAccepted: "Bokning accepterad",
     bookingDeclined: "Bokning avböjd",
     bookingCancelled: "Bokning avbokad",
+    bookingCompleted: "Klar",
     noBookingsYet: "Inga bokningar ännu",
     noBookingsDesc: "Hitta en fårklippare nära dig och boka direkt i appen.",
     statusPending: "Väntar",

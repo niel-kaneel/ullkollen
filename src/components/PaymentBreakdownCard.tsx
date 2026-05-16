@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Banknote, Package } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { calcBreakdown, formatSEK, WOOL_PRICE_SEK_PER_KG } from "@/lib/wool-pricing";
-import { useTranslation } from "@/lib/i18n";
+import { useTranslation, type Translatable } from "@/lib/i18n";
 
 type Lot = {
   id: string;

@@ -103,6 +103,9 @@ const dict = {
     classifications: "Klassificeringar",
     sheepCount: "Får",
     joined: "Registrerad",
+    noShearersFound: "Inga klippare hittade",
+    noShearersFoundDesc: "Prova ett bredare filter eller välj 'Alla' för att se hela listan.",
+    showAll: "Visa alla",
   },
   en: {
     appName: "Ullkollen",

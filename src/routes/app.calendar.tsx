@@ -223,9 +223,7 @@ function CalendarPage() {
     return m;
   }, [events]);
 
-  const dayLabels = lang === "sv"
-    ? ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"]
-    : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const dayLabels = [t("dayMon"), t("dayTue"), t("dayWed"), t("dayThu"), t("dayFri"), t("daySat"), t("daySun")];
 
   const todayStr = ymd(new Date());
   const selectedEvents = eventsByDate.get(selectedDate) ?? [];

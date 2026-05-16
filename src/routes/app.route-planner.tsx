@@ -120,7 +120,7 @@ function RoutePlanner() {
     if (p.owner_id) {
       const prof = profiles.get(p.owner_id);
       if (prof?.home_lat != null && prof?.home_lng != null) {
-        return { lat: prof.home_lat, lng: prof.home_lng, label: prof.farm_name || prof.full_name || "Fårägare" };
+        return { lat: prof.home_lat, lng: prof.home_lng, label: prof.farm_name || prof.full_name || t("farmerLabel") };
       }
     }
     return null;
@@ -145,7 +145,7 @@ function RoutePlanner() {
 
   const startPoint: Stop | null = useMemo(() => {
     if (shearer?.home_lat != null && shearer?.home_lng != null) {
-      return { id: "start", lat: shearer.home_lat, lng: shearer.home_lng, label: "Start (du)" };
+      return { id: "start", lat: shearer.home_lat, lng: shearer.home_lng, label: t("startLabel") };
     }
     return null;
   }, [shearer]);
@@ -256,7 +256,7 @@ function RoutePlanner() {
   if (!shearer && !isAdmin) {
     return (
       <div className="min-h-screen bg-background pb-24">
-        <PageHeader title="Ruttplanering" back="/app" />
+        <PageHeader title={t("routePlanning")} back="/app" />
         <div className="p-4 max-w-md mx-auto">
           <p className="text-sm text-muted-foreground">
             Endast klippare/insamlare och administratörer kan planera rutter.{" "}
@@ -269,7 +269,7 @@ function RoutePlanner() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title="Ruttplanering" subtitle="Optimera hämtningar längs en rutt" back="/app" />
+      <PageHeader title={t("routePlanning")} subtitle={t("routePlanningSubtitle")} back="/app" />
 
       <div className="p-4 space-y-4 max-w-5xl mx-auto">
         {!startPoint && (

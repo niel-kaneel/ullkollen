@@ -320,6 +320,7 @@ const dict = {
     bookingAccepted: "Booking accepted",
     bookingDeclined: "Booking declined",
     bookingCancelled: "Booking cancelled",
+    bookingCompleted: "Completed",
     noBookingsYet: "No bookings yet",
     noBookingsDesc: "Find a shearer near you and book directly in the app.",
     statusPending: "Pending",

@@ -28,8 +28,9 @@ export const Route = createFileRoute("/auth/confirm")({
 function ConfirmPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [status, setStatus] = useState<"working" | "success" | "error">("working");
-  const [message, setMessage] = useState("Bekräftar din e-post...");
+  const [message, setMessage] = useState(t("confirmingEmail"));
 
   useEffect(() => {
     (async () => {

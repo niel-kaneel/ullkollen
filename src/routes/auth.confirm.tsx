@@ -84,7 +84,7 @@ function ConfirmPage() {
       }
 
       setStatus("error");
-      setMessage("Bekräftelselänken är ogiltig eller har gått ut.");
+      setMessage(t("confirmLinkInvalid"));
     })();
   }, []);
 
@@ -94,9 +94,9 @@ function ConfirmPage() {
         <SheepLogo className="w-12 h-12 text-primary" />
       </div>
       <h1 className="font-display text-2xl font-bold text-primary mb-3">
-        {status === "working" && "Bekräftar..."}
-        {status === "success" && "Klart!"}
-        {status === "error" && "Något gick fel"}
+        {status === "working" && t("confirming")}
+        {status === "success" && t("done")}
+        {status === "error" && t("error")}
       </h1>
       <p className="text-muted-foreground max-w-sm mb-6">{message}</p>
       {status === "error" && (

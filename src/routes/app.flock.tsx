@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pencil, Trash2, Search, X, Image as ImageIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
@@ -77,7 +77,7 @@ function Flock() {
 
   const ppn = profile?.production_place_number ?? null;
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!user) return;
     const { data, error } = await supabase
       .from("sheep")
@@ -116,9 +116,9 @@ function Flock() {
     } else {
       setLatest({});
     }
-  };
+  }, [user]);
 
-  useEffect(() => { void load(); /* eslint-disable-next-line */ }, [user]);
+  useEffect(() => { void load(); }, [load]);
 
   const { pull, refreshing, threshold } = usePullToRefresh({
     onRefresh: async () => { haptic("tap"); await load(); },

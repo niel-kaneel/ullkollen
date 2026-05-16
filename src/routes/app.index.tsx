@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Plus, Sparkles, Trash2, Calendar, Bell, Camera, Package, Truck, Warehouse } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
@@ -46,7 +46,7 @@ function Home() {
   const [stationStatus, setStationStatus] = useState<"none" | "pending" | "approved">("none");
   const [modeFilter, setModeFilter] = useState<ModeFilter>("all");
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!user) return;
     const [{ data: classRows }, { data: bookingRows }, { data: shearerRow }, { data: stationRow }] = await Promise.all([
       supabase
@@ -78,12 +78,11 @@ function Home() {
       stationRow ? ((stationRow as { approved: boolean }).approved ? "approved" : "pending") : "none",
     );
     setLoaded(true);
-  };
+  }, [user]);
 
   useEffect(() => {
     void load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [load]);
 
   const { pull, refreshing, threshold } = usePullToRefresh({
     onRefresh: async () => {

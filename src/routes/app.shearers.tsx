@@ -158,14 +158,14 @@ function ShearersPage() {
       {!loading && filtered.length === 0 && (
         <EmptyState
           emoji="✂️"
-          title="Inga klippare hittade"
-          description="Prova ett bredare filter eller välj 'Alla' för att se hela listan."
+          title={t("noShearersFound")}
+          description={t("noShearersFoundDesc")}
           action={
             <button
               onClick={() => setFilter("all")}
               className="bg-primary text-primary-foreground rounded-xl px-4 py-2 text-sm font-semibold"
             >
-              Visa alla
+              {t("showAll")}
             </button>
           }
         />

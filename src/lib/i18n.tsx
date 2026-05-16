@@ -198,6 +198,9 @@ const dict = {
     classifications: "Classifications",
     sheepCount: "Sheep",
     joined: "Joined",
+    noShearersFound: "No shearers found",
+    noShearersFoundDesc: "Try a wider filter or select 'All' to see the full list.",
+    showAll: "Show all",
   },
 } as const;
 

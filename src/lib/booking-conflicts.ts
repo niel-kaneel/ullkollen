@@ -89,7 +89,8 @@ export async function suggestAlternativeDates({
 
   if (excludeBookingId) query = query.neq("id", excludeBookingId);
 
-  const { data } = await query;
+  const { data, error } = await query;
+  if (error) console.warn("suggestAlternativeDates query failed", error);
   const taken = new Set<string>();
   (data ?? []).forEach((b: any) => {
     if (b.preferred_date) taken.add(b.preferred_date);

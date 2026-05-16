@@ -60,12 +60,13 @@ function ShearersPage() {
         }
       }
       setHasLocation(false);
-      const { data } = await supabase
+      const { data, error: listError } = await supabase
         .from("shearers")
         .select("id, display_name, phone, email, website, languages, service_areas, certified_by_farklipparforbundet, listed_by_faravelsforbundet, self_managed, notes")
         .eq("approved", true)
         .eq("active", true)
         .order("display_name");
+      if (listError) { console.warn(listError); toast.error(t("error")); setLoading(false); return; }
       setList((data as Shearer[]) ?? []);
       setLoading(false);
     };
@@ -407,7 +408,8 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("sheep").select("id, name, ear_tag_id").eq("owner_id", user.id).order("created_at", { ascending: false }).then(({ data }) => {
+    supabase.from("sheep").select("id, name, ear_tag_id").eq("owner_id", user.id).order("created_at", { ascending: false }).then(({ data, error }) => {
+      if (error) { console.warn(error); toast.error(t("error")); return; }
       setSheepList((data as any) ?? []);
     });
   }, [user?.id]);

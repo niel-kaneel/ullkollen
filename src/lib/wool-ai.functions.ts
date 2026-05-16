@@ -256,7 +256,8 @@ export const classifyWool = createServerFn({ method: "POST" })
     // user's breed, what wool classes have other sheep been graded as?
     let priorBlock = "";
     try {
-      const { data: stats } = await supabaseAdmin.rpc("breed_class_stats");
+      const { data: stats, error: statsError } = await supabaseAdmin.rpc("breed_class_stats");
+      if (statsError) console.warn("breed_class_stats failed", statsError);
       if (stats && Array.isArray(stats)) {
         const breed = data.metadata?.breed;
         const relevant = breed

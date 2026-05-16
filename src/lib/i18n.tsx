@@ -528,6 +528,11 @@ const dict = {
     statusDeclinedLabel: "Declined",
     statusCancelledLabel: "Cancelled",
     statusCompletedLabel: "Completed",
+    // misc app
+    holmaLabel: "Holma",
+    breedLabel: "Breed",
+    recommendationLabel: "Recommendation",
+    classifiedWith: "Classified with Ullkollen",
   },
 } as const;
 

@@ -548,6 +548,21 @@ const dict = {
     breedLabel: "Breed",
     recommendationLabel: "Recommendation",
     classifiedWith: "Classified with Ullkollen",
+    // payment breakdown
+    sellThisWool: "Sell this wool",
+    sellThisWoolDesc: "Register quantity and choose delivery method.",
+    saleAndPayout: "Sale & payout",
+    noPriceForClass: "No indicative price for class",
+    priceSetAtHolma: "Price is set upon receipt at Holma.",
+    quantity: "Quantity",
+    pricePerKg: "Price per kg",
+    estimated: "(estimated)",
+    grossRevenue: "Gross revenue",
+    shearerShare: "Shearer's share",
+    youReceive: "You receive",
+    shearerSharePaid: "Shearer's share paid",
+    shearerSharePending: "The shearer's share is paid out automatically when the wool is sold.",
+    indicativePrices: "Indicative prices",
   },
 } as const;
 

@@ -106,6 +106,9 @@ const dict = {
     noShearersFound: "Inga klippare hittade",
     noShearersFoundDesc: "Prova ett bredare filter eller välj 'Alla' för att se hela listan.",
     showAll: "Visa alla",
+    shearerCTA: "Är du fårklippare?",
+    shearerCTALink: "Skapa ett konto",
+    shearerCTASuffix: "för att hantera din egen profil",
   },
   en: {
     appName: "Ullkollen",

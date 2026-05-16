@@ -204,6 +204,9 @@ const dict = {
     noShearersFound: "No shearers found",
     noShearersFoundDesc: "Try a wider filter or select 'All' to see the full list.",
     showAll: "Show all",
+    shearerCTA: "Are you a shearer?",
+    shearerCTALink: "Create an account",
+    shearerCTASuffix: "to manage your own profile",
   },
 } as const;
 

@@ -118,7 +118,7 @@ function Flock() {
     }
   }, [user]);
 
-  useEffect(() => { void load(); /* eslint-disable-next-line */ }, [user]);
+  useEffect(() => { void load(); }, [load]);
 
   const { pull, refreshing, threshold } = usePullToRefresh({
     onRefresh: async () => { haptic("tap"); await load(); },

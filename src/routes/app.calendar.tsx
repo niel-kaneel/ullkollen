@@ -313,7 +313,7 @@ function CalendarPage() {
                     <p className="font-bold flex items-center gap-1.5"><UserIcon className="w-4 h-4 text-primary" />{e.counterparty}</p>
                   </div>
                   <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full text-white ${STATUS_COLOR[e.status] ?? "bg-primary"}`}>
-                    {e.status}
+                    {bookingStatusLabel(e.status, t)}
                   </span>
                 </div>
                 {e.sheep_name && (

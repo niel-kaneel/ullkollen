@@ -29,14 +29,12 @@ export const Route = createFileRoute("/app/support")({
 });
 
 function Support() {
-  const { lang } = useTranslation();
+  const { t, lang } = useTranslation();
   const { user } = useAuth();
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [items, setItems] = useState<Message[]>([]);
-
-  const sv = lang === "sv";
 
   const load = () => {
     if (!user) return;
@@ -52,7 +50,7 @@ function Support() {
   const submit = async () => {
     if (!user) return;
     if (!subject.trim() || !message.trim()) {
-      toast.error(sv ? "Fyll i båda fälten" : "Fill both fields");
+      toast.error(t({ sv: "Fyll i båda fälten", en: "Fill both fields" }));
       return;
     }
     setSending(true);
@@ -67,7 +65,7 @@ function Support() {
       toast.error(error.message);
       return;
     }
-    toast.success(sv ? "Skickat" : "Sent");
+    toast.success(t({ sv: "Skickat", en: "Sent" }));
     setSubject("");
     setMessage("");
     load();
@@ -83,11 +81,11 @@ function Support() {
 
       <div className="bg-card border border-border rounded-2xl p-4 shadow-soft space-y-3">
         <div className="space-y-1.5">
-          <Label>{sv ? "Ämne" : "Subject"}</Label>
+          <Label>{t({ sv: "Ämne", en: "Subject" })}</Label>
           <Input value={subject} onChange={(e) => setSubject(e.target.value)} maxLength={200} />
         </div>
         <div className="space-y-1.5">
-          <Label>{sv ? "Meddelande" : "Message"}</Label>
+          <Label>{t({ sv: "Meddelande", en: "Message" })}</Label>
           <Textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
@@ -96,13 +94,15 @@ function Support() {
           />
         </div>
         <Button onClick={submit} disabled={sending} className="w-full">
-          {sending ? (sv ? "Skickar…" : "Sending…") : sv ? "Skicka" : "Send"}
+          {sending
+            ? t({ sv: "Skickar…", en: "Sending…" })
+            : t({ sv: "Skicka", en: "Send" })}
         </Button>
       </div>
 
       {items.length > 0 && (
         <div className="space-y-2">
-          <h3 className="font-semibold">{sv ? "Mina ärenden" : "My enquiries"}</h3>
+          <h3 className="font-semibold">{t({ sv: "Mina ärenden", en: "My enquiries" })}</h3>
           {items.map((m) => (
             <div key={m.id} className="bg-card border border-border rounded-2xl p-4 shadow-soft">
               <div className="flex justify-between gap-2">
@@ -113,13 +113,13 @@ function Support() {
               {m.admin_notes && (
                 <div className="mt-2 p-2 rounded-lg bg-primary/10 text-sm">
                   <p className="font-semibold text-primary text-xs mb-1">
-                    {sv ? "Svar" : "Reply"}
+                    {t({ sv: "Svar", en: "Reply" })}
                   </p>
                   <p className="whitespace-pre-wrap">{m.admin_notes}</p>
                 </div>
               )}
               <p className="text-[11px] text-muted-foreground mt-2">
-                {new Date(m.created_at).toLocaleString(sv ? "sv-SE" : "en-US")}
+                {new Date(m.created_at).toLocaleString(lang === "sv" ? "sv-SE" : "en-US")}
               </p>
             </div>
           ))}

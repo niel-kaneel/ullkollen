@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Phone, Sparkles, User as UserIcon, CalendarClock } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { useTranslation } from "@/lib/i18n";
+import { useTranslation, type Translatable } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,17 @@ import { BookingsTabs } from "@/components/BookingsTabs";
 export const Route = createFileRoute("/app/calendar")({
   component: CalendarPage,
 });
+
+function bookingStatusLabel(status: string, t: (k: Translatable) => string): string {
+  switch (status) {
+    case "pending": return t("statusPendingLabel");
+    case "accepted": return t("statusAcceptedLabel");
+    case "declined": return t("statusDeclinedLabel");
+    case "cancelled": return t("statusCancelledLabel");
+    case "completed": return t("statusCompletedLabel");
+    default: return status;
+  }
+}
 
 type CalEvent = {
   id: string;
@@ -212,9 +223,7 @@ function CalendarPage() {
     return m;
   }, [events]);
 
-  const dayLabels = lang === "sv"
-    ? ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"]
-    : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const dayLabels = [t("dayMon"), t("dayTue"), t("dayWed"), t("dayThu"), t("dayFri"), t("daySat"), t("daySun")];
 
   const todayStr = ymd(new Date());
   const selectedEvents = eventsByDate.get(selectedDate) ?? [];
@@ -304,7 +313,7 @@ function CalendarPage() {
                     <p className="font-bold flex items-center gap-1.5"><UserIcon className="w-4 h-4 text-primary" />{e.counterparty}</p>
                   </div>
                   <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full text-white ${STATUS_COLOR[e.status] ?? "bg-primary"}`}>
-                    {e.status}
+                    {bookingStatusLabel(e.status, t)}
                   </span>
                 </div>
                 {e.sheep_name && (

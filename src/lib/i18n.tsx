@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 
 type Lang = "sv" | "en";
 
+// Use t("key") for strings used 2+ times or shared across components.
+// Use t({ sv, en }) for one-off dynamic labels.
 const dict = {
   sv: {
     appName: "Ullkollen",

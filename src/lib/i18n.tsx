@@ -267,6 +267,11 @@ const dict = {
     statusDeclinedLabel: "Avböjd",
     statusCancelledLabel: "Avbokad",
     statusCompletedLabel: "Klar",
+    // misc app
+    holmaLabel: "Holma",
+    breedLabel: "Ras",
+    recommendationLabel: "Rekommendation",
+    classifiedWith: "Klassificerat med Ullkollen",
   },
   en: {
     appName: "Ullkollen",
@@ -523,6 +528,11 @@ const dict = {
     statusDeclinedLabel: "Declined",
     statusCancelledLabel: "Cancelled",
     statusCompletedLabel: "Completed",
+    // misc app
+    holmaLabel: "Holma",
+    breedLabel: "Breed",
+    recommendationLabel: "Recommendation",
+    classifiedWith: "Classified with Ullkollen",
   },
 } as const;
 

@@ -23,6 +23,7 @@ type Row = Pick<
   | "created_at"
   | "wool_class"
   | "wool_class_name_sv"
+  | "wool_class_name_en"
   | "recommendation_text_sv"
   | "status"
   | "photo_urls"
@@ -51,7 +52,7 @@ function Home() {
     const [{ data: classRows }, { data: bookingRows }, { data: shearerRow }, { data: stationRow }] = await Promise.all([
       supabase
         .from("classifications")
-        .select("id, created_at, wool_class, wool_class_name_sv, recommendation_text_sv, status, photo_urls, shear_recommendation, mode")
+        .select("id, created_at, wool_class, wool_class_name_sv, wool_class_name_en, recommendation_text_sv, status, photo_urls, shear_recommendation, mode")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(1000),
@@ -131,7 +132,7 @@ function Home() {
         {isAdmin && (
           <div className="flex gap-2">
             <Button asChild variant="outline" size="sm" className="rounded-full bg-card">
-              <Link to="/app/holma">Holma</Link>
+              <Link to="/app/holma">{t("holmaLabel")}</Link>
             </Button>
             <Button asChild variant="outline" size="sm" className="rounded-full bg-card">
               <Link to="/app/admin">{t("admin")}</Link>
@@ -285,7 +286,7 @@ function Home() {
 }
 
 function ClassRow({ row, onDelete }: { row: Row; onDelete: () => void }) {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const [thumb, setThumb] = useState<string | null>(null);
 
   useEffect(() => {
@@ -317,9 +318,9 @@ function ClassRow({ row, onDelete }: { row: Row; onDelete: () => void }) {
                 <span className="text-xs text-accent">{t("analyzing")}</span>
               )}
             </div>
-            <p className="text-sm font-medium mt-1 line-clamp-1">{row.wool_class_name_sv ?? "—"}</p>
+            <p className="text-sm font-medium mt-1 line-clamp-1">{t({ sv: row.wool_class_name_sv, en: row.wool_class_name_en }) || "—"}</p>
             <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{row.recommendation_text_sv ?? ""}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">{new Date(row.created_at).toLocaleString("sv-SE")}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{new Date(row.created_at).toLocaleString(lang === "sv" ? "sv-SE" : "en-GB")}</p>
           </div>
         </div>
       </Link>

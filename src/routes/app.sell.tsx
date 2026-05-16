@@ -14,6 +14,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { haptic } from "@/lib/haptics";
+import { useTranslation, type Translatable } from "@/lib/i18n";
 
 export const Route = createFileRoute("/app/sell")({
   component: SellWool,
@@ -37,54 +38,59 @@ type Tier = {
   options: { method: DeliveryMethod; title: string; sub: string; icon: React.ComponentType<{ className?: string }> }[];
 };
 
-function tierFor(kg: number): Tier {
-  if (kg < 50) {
-    return {
-      key: "u50",
-      label: "Under 50 kg",
-      desc: "Mindre volym — välj enklaste vägen.",
-      options: [
-        { method: "dropoff_station", title: "Lämna på närmaste insamlingsstation", sub: "Du kör själv till stationen.", icon: MapPin },
-        { method: "with_shearer", title: "Skicka med klippare", sub: "Avtala intäktsdelning (min 20%).", icon: Users },
-      ],
-    };
-  }
-  if (kg < 100) {
-    return {
-      key: "u100",
-      label: "50–99 kg",
-      desc: "Samma alternativ som under 50 kg, intäktsdelning gäller.",
-      options: [
-        { method: "dropoff_station", title: "Lämna på insamlingsstation", sub: "Du kör själv.", icon: MapPin },
-        { method: "with_shearer", title: "Skicka med klippare", sub: "Avtala intäktsdelning (min 20%).", icon: Users },
-      ],
-    };
-  }
-  if (kg < 500) {
-    return {
-      key: "u500",
-      label: "100–499 kg",
-      desc: "Större volym — upphämtning kan bokas när det finns tillräckligt i området.",
-      options: [
-        { method: "dropoff_station", title: "Lämna på insamlingsstation", sub: "Du kör själv.", icon: MapPin },
-        { method: "with_shearer", title: "Skicka med klippare", sub: "Avtala intäktsdelning (min 20%).", icon: Users },
-        { method: "pickup", title: "Boka upphämtning", sub: "Vi samordnar med andra i området.", icon: Truck },
-      ],
-    };
-  }
+function getTiers(t: (k: Translatable) => string) {
   return {
-    key: "p500",
-    label: "500 kg eller mer",
-    desc: "Stor volym — prioriterad upphämtning är tillgänglig.",
-    options: [
-      { method: "pickup", title: "Prioriterad upphämtning", sub: "Snabbare bokning, vi planerar rutten.", icon: Zap },
-      { method: "dropoff_station", title: "Lämna på insamlingsstation", sub: "Du kör själv.", icon: MapPin },
-      { method: "with_shearer", title: "Skicka med klippare", sub: "Avtala intäktsdelning (min 20%).", icon: Users },
-    ],
+    forKg(kg: number): Tier {
+      if (kg < 50) {
+        return {
+          key: "u50",
+          label: t("tierU50Label"),
+          desc: t("tierU50Desc"),
+          options: [
+            { method: "dropoff_station", title: t("optDropoffNearestTitle"), sub: t("optDropoffNearestSub"), icon: MapPin },
+            { method: "with_shearer", title: t("optWithShearerTitle"), sub: t("optWithShearerSub"), icon: Users },
+          ],
+        };
+      }
+      if (kg < 100) {
+        return {
+          key: "u100",
+          label: t("tierU100Label"),
+          desc: t("tierU100Desc"),
+          options: [
+            { method: "dropoff_station", title: t("optDropoffTitle"), sub: t("optDropoffSub"), icon: MapPin },
+            { method: "with_shearer", title: t("optWithShearerTitle"), sub: t("optWithShearerSub"), icon: Users },
+          ],
+        };
+      }
+      if (kg < 500) {
+        return {
+          key: "u500",
+          label: t("tierU500Label"),
+          desc: t("tierU500Desc"),
+          options: [
+            { method: "dropoff_station", title: t("optDropoffTitle"), sub: t("optDropoffSub"), icon: MapPin },
+            { method: "with_shearer", title: t("optWithShearerTitle"), sub: t("optWithShearerSub"), icon: Users },
+            { method: "pickup", title: t("optPickupTitle"), sub: t("optPickupSub"), icon: Truck },
+          ],
+        };
+      }
+      return {
+        key: "p500",
+        label: t("tierP500Label"),
+        desc: t("tierP500Desc"),
+        options: [
+          { method: "pickup", title: t("optPriorityPickupTitle"), sub: t("optPriorityPickupSub"), icon: Zap },
+          { method: "dropoff_station", title: t("optDropoffTitle"), sub: t("optDropoffSub"), icon: MapPin },
+          { method: "with_shearer", title: t("optWithShearerTitle"), sub: t("optWithShearerSub"), icon: Users },
+        ],
+      };
+    },
   };
 }
 
 function SellWool() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [lots, setLots] = useState<Lot[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -107,7 +113,7 @@ function SellWool() {
     const { error } = await supabase.from("wool_lots").delete().eq("id", id);
     if (error) return toast.error(error.message);
     haptic("success");
-    toast.success("Borttaget");
+    toast.success(t("deletedSuccess"));
     setLots((l) => l.filter((x) => x.id !== id));
   };
 
@@ -118,8 +124,8 @@ function SellWool() {
           <Link to="/app"><ArrowLeft className="w-5 h-5" /></Link>
         </Button>
         <div>
-          <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground font-semibold">Försäljning</p>
-          <h2 className="font-display text-2xl font-bold text-primary">Sälj din ull</h2>
+          <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground font-semibold">{t("selling")}</p>
+          <h2 className="font-display text-2xl font-bold text-primary">{t("sellWool")}</h2>
         </div>
       </div>
 
@@ -131,7 +137,7 @@ function SellWool() {
           style={{ background: "var(--gradient-pine)" }}
         >
           <Plus className="w-5 h-5 mr-2" strokeWidth={3} />
-          Registrera ny ullbatch
+          {t("registerBatch")}
         </Button>
       )}
 
@@ -144,7 +150,7 @@ function SellWool() {
 
       <div>
         <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.25em] mb-3">
-          Mina batcher
+          {t("myBatches")}
         </h3>
         {!loaded ? (
           <div className="space-y-3">
@@ -154,7 +160,7 @@ function SellWool() {
         ) : lots.length === 0 ? (
           <div className="bg-card border border-border rounded-3xl p-8 text-center shadow-soft">
             <Package className="w-10 h-10 mx-auto mb-3 text-accent" />
-            <p className="text-sm text-muted-foreground">Inga registrerade batcher ännu.</p>
+            <p className="text-sm text-muted-foreground">{t("noBatchesYet")}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -167,7 +173,7 @@ function SellWool() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-semibold">{Number(l.estimated_kg).toFixed(1)} kg</span>
                     <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">
-                      {statusLabel(l.status)}
+                      {statusLabel(l.status, t)}
                     </span>
                   </div>
                   {l.notes && <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{l.notes}</p>}
@@ -175,19 +181,19 @@ function SellWool() {
                 </div>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <button aria-label="Ta bort" className="p-2 text-muted-foreground hover:text-destructive rounded-lg">
+                    <button aria-label={t("remove")} className="p-2 text-muted-foreground hover:text-destructive rounded-lg">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Ta bort batch?</AlertDialogTitle>
-                      <AlertDialogDescription>Detta kan inte ångras.</AlertDialogDescription>
+                      <AlertDialogTitle>{t("removeBatch")}</AlertDialogTitle>
+                      <AlertDialogDescription>{t("cannotBeUndone")}</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Avbryt</AlertDialogCancel>
+                      <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
                       <AlertDialogAction onClick={() => remove(l.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                        Ta bort
+                        {t("remove")}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -201,15 +207,15 @@ function SellWool() {
   );
 }
 
-function statusLabel(s: string) {
+function statusLabel(s: string, t: (k: Translatable) => string) {
   switch (s) {
-    case "registered": return "Registrerad";
-    case "in_transit": return "På väg";
-    case "at_station": return "På station";
-    case "at_holma": return "På Holma";
-    case "classified": return "Klassad";
-    case "paid": return "Utbetald";
-    case "cancelled": return "Avbruten";
+    case "registered": return t("statusRegistered");
+    case "in_transit": return t("statusInTransit");
+    case "at_station": return t("statusAtStation");
+    case "at_holma": return t("statusAtHolma");
+    case "classified": return t("statusClassified");
+    case "paid": return t("statusPaid");
+    case "cancelled": return t("statusCancelled");
     default: return s;
   }
 }
@@ -219,6 +225,7 @@ type StationOpt = { id: string; name: string; current_stock_kg: number; capacity
 type RecentClass = { id: string; wool_class: string | null; wool_class_name_sv: string | null; created_at: string };
 
 function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: () => void }) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [kg, setKg] = useState<string>("");
   const [notes, setNotes] = useState("");
@@ -234,7 +241,7 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
 
   const kgNum = Number(kg);
   const validKg = !Number.isNaN(kgNum) && kgNum > 0;
-  const tier = validKg ? tierFor(kgNum) : null;
+  const tier = validKg ? getTiers(t).forKg(kgNum) : null;
 
   useEffect(() => {
     void supabase
@@ -267,13 +274,13 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
   const save = async () => {
     if (!user || !validKg || !method) return;
     if (method === "with_shearer" && !shearerId) {
-      return toast.error("Välj klippare");
+      return toast.error(t("selectShearer"));
     }
     if ((method === "dropoff_station" || method === "pickup") && !stationId) {
-      return toast.error("Välj insamlingsstation");
+      return toast.error(t("selectStation"));
     }
     if (method === "with_shearer" && sharePct < 20) {
-      return toast.error("Andelen måste vara minst 20%");
+      return toast.error(t("sharePercent"));
     }
     setSaving(true);
     const { data: lot, error: e1 } = await supabase
@@ -287,7 +294,7 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
       })
       .select("id")
       .single();
-    if (e1 || !lot) { setSaving(false); return toast.error(e1?.message ?? "Kunde inte spara"); }
+    if (e1 || !lot) { setSaving(false); return toast.error(e1?.message ?? t("couldNotSave")); }
 
     const { error: e2 } = await supabase.from("deliveries").insert({
       wool_lot_id: lot.id,
@@ -309,7 +316,7 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
     }
 
     haptic("success");
-    toast.success("Batch registrerad");
+    toast.success(t("batchRegistered"));
     setSaving(false);
     onCreated();
   };
@@ -317,7 +324,7 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
   return (
     <div className="bg-card border border-border rounded-3xl p-5 shadow-soft space-y-5">
       <div>
-        <Label htmlFor="kg" className="text-sm font-semibold">Hur mycket ull vill du sälja?</Label>
+        <Label htmlFor="kg" className="text-sm font-semibold">{t("howMuchWool")}</Label>
         <div className="flex items-center gap-2 mt-2">
           <Input
             id="kg"
@@ -336,8 +343,8 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
 
       {recents.length > 0 && (
         <div>
-          <Label className="text-sm font-semibold">Koppla till klassning (valfritt)</Label>
-          <p className="text-xs text-muted-foreground mt-0.5 mb-2">Hjälper oss räkna ut ditt förväntade pris.</p>
+          <Label className="text-sm font-semibold">{t("linkToClassification")}</Label>
+          <p className="text-xs text-muted-foreground mt-0.5 mb-2">{t("linkToClassificationDesc")}</p>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -346,7 +353,7 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
                 classificationId === null ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border"
               }`}
             >
-              Ingen
+              {t("noClassification")}
             </button>
             {recents.map((r) => (
               <button
@@ -365,12 +372,12 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
       )}
 
       <div>
-        <Label htmlFor="notes" className="text-sm font-semibold">Anteckningar (valfritt)</Label>
+        <Label htmlFor="notes" className="text-sm font-semibold">{t("notes")}</Label>
         <Textarea
           id="notes"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Ras, kvalitet, särskilda önskemål…"
+          placeholder={t("notesPlaceholder")}
           className="mt-2 rounded-2xl"
           rows={2}
         />
@@ -382,7 +389,7 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
             <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">{tier.label}</p>
             <p className="text-sm mt-0.5">{tier.desc}</p>
           </div>
-          <Label className="text-sm font-semibold">Välj leveranssätt</Label>
+          <Label className="text-sm font-semibold">{t("chooseDelivery")}</Label>
           <div className="space-y-2">
             {tier.options.map((opt) => {
               const Icon = opt.icon;
@@ -412,9 +419,9 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
 
       {(method === "dropoff_station" || method === "pickup") && (
         <div className="bg-accent/10 border border-accent/30 rounded-2xl p-4 space-y-2">
-          <Label className="text-sm font-semibold">Välj insamlingsstation</Label>
+          <Label className="text-sm font-semibold">{t("chooseStation")}</Label>
           {stations.length === 0 ? (
-            <p className="text-xs text-muted-foreground">Inga aktiva stationer tillgängliga.</p>
+            <p className="text-xs text-muted-foreground">{t("noStationsAvailable")}</p>
           ) : (
             <div className="flex flex-wrap gap-2 mt-1">
               {stations.map((s) => (
@@ -437,9 +444,9 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
       {method === "with_shearer" && (
         <div className="bg-accent/10 border border-accent/30 rounded-2xl p-4 space-y-4">
           <div>
-            <Label className="text-sm font-semibold">Välj klippare</Label>
+            <Label className="text-sm font-semibold">{t("chooseShearer")}</Label>
             {shearers.length === 0 ? (
-              <p className="text-xs text-muted-foreground mt-1">Inga klippare tillgängliga ännu.</p>
+              <p className="text-xs text-muted-foreground mt-1">{t("noShearersAvailable")}</p>
             ) : (
               <div className="flex flex-wrap gap-2 mt-2">
                 {shearers.map((s) => (
@@ -458,8 +465,8 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
             )}
           </div>
           <div>
-            <Label htmlFor="share" className="text-sm font-semibold">Andel av intäkt till klipparen</Label>
-            <p className="text-xs text-muted-foreground mt-0.5">Minst 20%. Klipparen får sin andel automatiskt utbetald när ullen sålts.</p>
+            <Label htmlFor="share" className="text-sm font-semibold">{t("revenueShare")}</Label>
+            <p className="text-xs text-muted-foreground mt-0.5">{t("revenueShareDesc")}</p>
             <div className="flex items-center gap-3 mt-2">
               <input
                 id="share"
@@ -478,13 +485,13 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
       )}
 
       <div className="flex gap-2">
-        <Button variant="outline" className="flex-1 rounded-2xl h-12" onClick={onCancel}>Avbryt</Button>
+        <Button variant="outline" className="flex-1 rounded-2xl h-12" onClick={onCancel}>{t("cancel")}</Button>
         <Button
           className="flex-1 rounded-2xl h-12"
           disabled={!validKg || !method || saving}
           onClick={save}
         >
-          {saving ? "Sparar…" : "Registrera"}
+          {saving ? t("saving") : t("register")}
         </Button>
       </div>
     </div>

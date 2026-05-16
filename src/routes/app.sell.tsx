@@ -90,7 +90,7 @@ function getTiers(t: (k: Translatable) => string) {
 }
 
 function SellWool() {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const { user } = useAuth();
   const [lots, setLots] = useState<Lot[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -177,7 +177,7 @@ function SellWool() {
                     </span>
                   </div>
                   {l.notes && <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{l.notes}</p>}
-                  <p className="text-[10px] text-muted-foreground mt-1">{new Date(l.created_at).toLocaleString("sv-SE")}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">{new Date(l.created_at).toLocaleString(lang === "sv" ? "sv-SE" : "en-GB")}</p>
                 </div>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>

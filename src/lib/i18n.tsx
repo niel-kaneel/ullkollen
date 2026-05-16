@@ -253,6 +253,20 @@ const dict = {
     sharePercentLabel: "%andel",
     paidOut: "Utbetalt",
     planPickupRoute: "Planera hämtningsrutt",
+    // calendar days
+    dayMon: "Mån",
+    dayTue: "Tis",
+    dayWed: "Ons",
+    dayThu: "Tor",
+    dayFri: "Fre",
+    daySat: "Lör",
+    daySun: "Sön",
+    // calendar status
+    statusPendingLabel: "Väntar",
+    statusAcceptedLabel: "Accepterad",
+    statusDeclinedLabel: "Avböjd",
+    statusCancelledLabel: "Avbokad",
+    statusCompletedLabel: "Klar",
   },
   en: {
     appName: "Ullkollen",
@@ -495,6 +509,20 @@ const dict = {
     sharePercentLabel: "% share",
     paidOut: "Paid out",
     planPickupRoute: "Plan pickup route",
+    // calendar days
+    dayMon: "Mon",
+    dayTue: "Tue",
+    dayWed: "Wed",
+    dayThu: "Thu",
+    dayFri: "Fri",
+    daySat: "Sat",
+    daySun: "Sun",
+    // calendar status
+    statusPendingLabel: "Pending",
+    statusAcceptedLabel: "Accepted",
+    statusDeclinedLabel: "Declined",
+    statusCancelledLabel: "Cancelled",
+    statusCompletedLabel: "Completed",
   },
 } as const;
 

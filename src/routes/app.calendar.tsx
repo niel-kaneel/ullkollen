@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Phone, Sparkles, User as UserIcon, CalendarClock } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { useTranslation } from "@/lib/i18n";
+import { useTranslation, type Translatable } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,17 @@ import { BookingsTabs } from "@/components/BookingsTabs";
 export const Route = createFileRoute("/app/calendar")({
   component: CalendarPage,
 });
+
+function bookingStatusLabel(status: string, t: (k: Translatable) => string): string {
+  switch (status) {
+    case "pending": return t("statusPendingLabel");
+    case "accepted": return t("statusAcceptedLabel");
+    case "declined": return t("statusDeclinedLabel");
+    case "cancelled": return t("statusCancelledLabel");
+    case "completed": return t("statusCompletedLabel");
+    default: return status;
+  }
+}
 
 type CalEvent = {
   id: string;

@@ -54,7 +54,7 @@ function AuthPage() {
         // Detect "user already registered" — Supabase returns success with an obfuscated user and no identities.
         const identities = (data.user as { identities?: unknown[] } | null)?.identities;
         if (data.user && Array.isArray(identities) && identities.length === 0) {
-          toast.error("Den här e-postadressen är redan registrerad. Logga in istället.", { duration: 7000 });
+          toast.error(t("emailAlreadyRegistered"), { duration: 7000 });
           await supabase.auth.signOut();
           setPassword("");
           navigate({ to: "/auth", search: { mode: "signin", email } });
@@ -62,14 +62,14 @@ function AuthPage() {
         }
         // Sign the user out in case a session was auto-created, so they have to log in.
         await supabase.auth.signOut();
-        toast.success("Konto skapat! Logga in för att fortsätta.", { duration: 6000 });
+        toast.success(t("accountCreated"), { duration: 6000 });
         setPassword("");
         navigate({ to: "/auth", search: { mode: "signin", email } });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
           if (error.message.toLowerCase().includes("not confirmed")) {
-            toast.error("Bekräfta din e-post först — kolla din inkorg.", { duration: 6000 });
+            toast.error(t("confirmEmailFirst"), { duration: 6000 });
             return;
           }
           throw error;
@@ -194,14 +194,14 @@ function AuthPage() {
           type="button"
           onClick={async () => {
             if (!email) {
-              toast.error("Skriv in din e-postadress först.");
+              toast.error(t("enterEmailFirst"));
               return;
             }
             const { error } = await supabase.auth.resetPasswordForEmail(email, {
               redirectTo: window.location.origin + "/auth/reset",
             });
             if (error) toast.error(error.message);
-            else toast.success("Återställningslänk skickad — kolla din inkorg.", { duration: 7000 });
+            else toast.success(t("resetLinkSent"), { duration: 7000 });
           }}
           className="mt-6 text-center text-sm text-primary underline underline-offset-4 mx-auto block"
         >

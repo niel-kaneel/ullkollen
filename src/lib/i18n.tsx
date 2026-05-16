@@ -154,6 +154,7 @@ const dict = {
     saved: "Saved",
     savedSuccess: "Saved",
     // shearers
+    shearersNearYou: "Shearers near you",
     findShearers: "Find shearers",
     filterAll: "All",
     filterCertified: "Certified",

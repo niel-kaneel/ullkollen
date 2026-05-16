@@ -173,11 +173,11 @@ function ShearersPage() {
 
       <div className="bg-card border border-border rounded-2xl p-4 shadow-soft mt-6">
         <p className="text-sm">
-          Är du fårklippare?{" "}
+          {t("shearerCTA")}{" "}
           <Link to="/auth" search={{ role: "shearer" } as any} className="font-semibold text-primary underline">
-            Skapa ett konto
+            {t("shearerCTALink")}
           </Link>{" "}
-          för att hantera din egen profil ›
+          {t("shearerCTASuffix")} ›
         </p>
       </div>
 

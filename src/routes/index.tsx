@@ -33,7 +33,7 @@ function Landing() {
           onClick={() => setLang(lang === "sv" ? "en" : "sv")}
           className="text-xs font-semibold tracking-widest text-primary px-4 py-2 rounded-full bg-card border border-border shadow-soft"
         >
-          {lang === "sv" ? "EN" : "SV"}
+          {t({ sv: "EN", en: "SV" })}
         </button>
       </div>
 
@@ -42,7 +42,7 @@ function Landing() {
           <SheepLogo className="w-24 h-24 text-primary" />
         </div>
         <span className="text-[11px] uppercase tracking-[0.3em] text-accent-foreground/70 font-semibold mb-3">
-          {lang === "sv" ? "Från gård till garn" : "From farm to yarn"}
+          {t({ sv: "Från gård till garn", en: "From farm to yarn" })}
         </span>
         <h1 className="font-display text-6xl font-bold text-primary tracking-tight leading-none">
           {t("appName")}

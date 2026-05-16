@@ -33,6 +33,7 @@ export const Route = createFileRoute("/app/shearers")({
 });
 
 function ShearersPage() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const [list, setList] = useState<Shearer[]>([]);
   const [filter, setFilter] = useState<Filter>("all");
@@ -80,7 +81,7 @@ function ShearersPage() {
 
   const requestLocation = () => {
     if (!navigator.geolocation) {
-      toast.error("Geolocation stöds inte");
+      toast.error(t({ sv: "Geolocation stöds inte", en: "Geolocation is not supported" }));
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -91,13 +92,13 @@ function ShearersPage() {
           .update({ home_lat: pos.coords.latitude, home_lng: pos.coords.longitude })
           .eq("id", profile.id);
         if (error) {
-          toast.error("Kunde inte spara plats");
+          toast.error(t({ sv: "Kunde inte spara plats", en: "Could not save location" }));
         } else {
-          toast.success("Plats sparad");
+          toast.success(t({ sv: "Plats sparad", en: "Location saved" }));
           window.location.reload();
         }
       },
-      () => toast.error("Plats nekad"),
+      () => toast.error(t({ sv: "Plats nekad", en: "Location denied" })),
     );
   };
 
@@ -393,7 +394,7 @@ function DetailModal({ s, onClose }: { s: Shearer; onClose: () => void }) {
 
 function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId: string; defaultPhone: string; onDone: () => void; onCancel: () => void }) {
   const { user } = useAuth();
-  const { lang } = useTranslation();
+  const { t, lang } = useTranslation();
   const [date, setDate] = useState("");
   const [sheepCount, setSheepCount] = useState("");
   const [phone, setPhone] = useState(defaultPhone);
@@ -414,7 +415,7 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
   const submit = async () => {
     if (!user) return;
     if (!date) {
-      toast.error(lang === "sv" ? "Välj ett datum" : "Pick a date");
+      toast.error(t({ sv: "Välj ett datum", en: "Pick a date" }));
       return;
     }
     setBusy(true);
@@ -465,7 +466,7 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
         {suggestions.length > 0 && (
           <div className="bg-secondary/50 rounded-xl p-3 mt-2 space-y-2">
             <p className="text-xs font-semibold text-muted-foreground">
-              {lang === "sv" ? "Förslag på lediga datum:" : "Suggested free dates:"}
+              {t({ sv: "Förslag på lediga datum:", en: "Suggested free dates:" })}
             </p>
             <div className="flex flex-wrap gap-2">
               {suggestions.map((s) => (
@@ -483,9 +484,7 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
         )}
         {noAlts && suggestions.length === 0 && (
           <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-3 mt-2 text-xs text-destructive">
-            {lang === "sv"
-              ? "Inga lediga datum hittades inom 30 dagar. Prova att välja ett datum längre fram."
-              : "No free dates found within 30 days. Try picking a date further ahead."}
+            {t({ sv: "Inga lediga datum hittades inom 30 dagar. Prova att välja ett datum längre fram.", en: "No free dates found within 30 days. Try picking a date further ahead." })}
           </div>
         )}
       </div>

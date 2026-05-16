@@ -51,7 +51,7 @@ const STEPS: Step[] = [
 ];
 
 export function OnboardingTour() {
-  const { lang } = useTranslation();
+  const { t, lang } = useTranslation();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
 
@@ -83,7 +83,7 @@ export function OnboardingTour() {
           </div>
           <button
             onClick={close}
-            aria-label={lang === "sv" ? "Stäng" : "Close"}
+            aria-label={t({ sv: "Stäng", en: "Close" })}
             className="p-1.5 rounded-md text-muted-foreground hover:bg-secondary"
           >
             <X className="w-4 h-4" />
@@ -93,10 +93,10 @@ export function OnboardingTour() {
         <div className="px-6 pb-2 pt-2 text-center">
           <div className="text-7xl mb-4">{s.emoji}</div>
           <h3 className="font-display text-2xl font-bold text-primary">
-            {lang === "sv" ? s.title_sv : s.title_en}
+            {t({ sv: s.title_sv, en: s.title_en })}
           </h3>
           <p className="text-muted-foreground mt-3 leading-relaxed">
-            {lang === "sv" ? s.body_sv : s.body_en}
+            {t({ sv: s.body_sv, en: s.body_en })}
           </p>
         </div>
 
@@ -111,7 +111,7 @@ export function OnboardingTour() {
                 setStep((s) => s - 1);
               }}
             >
-              {lang === "sv" ? "Tillbaka" : "Back"}
+              {t({ sv: "Tillbaka", en: "Back" })}
             </Button>
           )}
           <Button
@@ -124,7 +124,7 @@ export function OnboardingTour() {
               else setStep((s) => s + 1);
             }}
           >
-            {isLast ? (lang === "sv" ? "Sätt igång!" : "Let's go!") : (lang === "sv" ? "Nästa" : "Next")}
+            {isLast ? (t({ sv: "Sätt igång!", en: "Let's go!" })) : (t({ sv: "Nästa", en: "Next" }))}
             {!isLast && <ChevronRight className="w-4 h-4 ml-1" />}
           </Button>
         </div>
@@ -134,7 +134,7 @@ export function OnboardingTour() {
             onClick={close}
             className="w-full text-xs text-muted-foreground py-3 hover:text-foreground border-t border-border"
           >
-            {lang === "sv" ? "Hoppa över rundturen" : "Skip the tour"}
+            {t({ sv: "Hoppa över rundturen", en: "Skip the tour" })}
           </button>
         )}
       </div>

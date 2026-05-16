@@ -40,7 +40,7 @@ export function AppShell({ children, hideNav = false }: { children: React.ReactN
       {!hideNav && (
         <nav
           className="fixed bottom-3 left-3 right-3 max-w-md mx-auto bg-card/95 backdrop-blur border border-border rounded-3xl shadow-card"
-          aria-label="Primär navigation"
+          aria-label={lang === "sv" ? "Primär navigation" : "Primary navigation"}
         >
           <div className="relative grid grid-cols-5 items-end">
             {leftItems.map(({ to, label, icon: Icon, match }) => {
@@ -65,7 +65,7 @@ export function AppShell({ children, hideNav = false }: { children: React.ReactN
               <Link
                 to="/app/classify"
                 onClick={() => haptic("tap")}
-                aria-label={lang === "sv" ? "Ny klassificering" : "New classification"}
+                aria-label={t({ sv: "Ny klassificering", en: "New classification" })}
                 className={`-mt-7 w-16 h-16 rounded-full flex items-center justify-center text-primary-foreground shadow-card border-4 border-background transition active:scale-95 ${
                   classifyActive ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""
                 }`}
@@ -78,7 +78,7 @@ export function AppShell({ children, hideNav = false }: { children: React.ReactN
                   classifyActive ? "text-primary font-semibold" : "text-muted-foreground"
                 }`}
               >
-                {lang === "sv" ? "Klassa" : "Classify"}
+                {t({ sv: "Klassa", en: "Classify" })}
               </span>
             </div>
 

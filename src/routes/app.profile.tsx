@@ -87,22 +87,18 @@ function ProfilePage() {
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-4 h-4 text-primary" />
             <p className="text-sm font-semibold">
-              {lang === "sv" ? "AI:n lär sig din gård" : "AI is learning your farm"}
+              {t({ sv: "AI:n lär sig din gård", en: "AI is learning your farm" })}
             </p>
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-black text-primary">{stats.accuracy}%</span>
             <span className="text-xs text-muted-foreground">
-              {lang === "sv"
-                ? `träff på ${stats.total} bekräftade klassningar`
-                : `accuracy across ${stats.total} confirmed classifications`}
+              {t({ sv: `träff på ${stats.total} bekräftade klassningar`, en: `accuracy across ${stats.total} confirmed classifications` })}
             </span>
           </div>
           {stats.corrected > 0 && (
             <p className="text-xs text-muted-foreground mt-1">
-              {lang === "sv"
-                ? `Du har korrigerat ${stats.corrected} st — varje rättelse gör nästa klassning skarpare.`
-                : `You've corrected ${stats.corrected} — each correction sharpens the next classification.`}
+              {t({ sv: `Du har korrigerat ${stats.corrected} st — varje rättelse gör nästa klassning skarpare.`, en: `You've corrected ${stats.corrected} — each correction sharpens the next classification.` })}
             </p>
           )}
         </div>
@@ -111,17 +107,15 @@ function ProfilePage() {
       {/* Konto */}
       <section className="bg-card border border-border rounded-2xl p-4 shadow-soft space-y-4">
         <h2 className="text-[11px] uppercase tracking-[0.2em] font-bold text-muted-foreground">
-          {lang === "sv" ? "Konto & gård" : "Account & farm"}
+          {t({ sv: "Konto & gård", en: "Account & farm" })}
         </h2>
         <Field label={t("fullName")} value={form.full_name} onChange={(v) => setForm({ ...form, full_name: v })} />
         <Field label={t("farmName")} value={form.farm_name} onChange={(v) => setForm({ ...form, farm_name: v })} />
         <Field label={t("phone")} value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} type="tel" />
         <Field label={t("address")} value={form.address} onChange={(v) => setForm({ ...form, address: v })} />
         <Field
-          label={lang === "sv" ? "Produktionsplatsnummer (gårdsmärkning)" : "Production place number (farm ID)"}
-          helper={lang === "sv"
-            ? "Ditt gårdsnummer från Jordbruksverket. Exempel: 12345"
-            : "Your farm ID from the Swedish Board of Agriculture. Example: 12345"}
+          label={t({ sv: "Produktionsplatsnummer (gårdsmärkning)", en: "Production place number (farm ID)" })}
+          helper={t({ sv: "Ditt gårdsnummer från Jordbruksverket. Exempel: 12345", en: "Your farm ID from the Swedish Board of Agriculture. Example: 12345" })}
           value={form.production_place_number}
           onChange={(v) => setForm({ ...form, production_place_number: v.replace(/\s+/g, "") })}
         />
@@ -137,7 +131,7 @@ function ProfilePage() {
       {/* Inställningar */}
       <section className="bg-card border border-border rounded-2xl p-4 shadow-soft space-y-3">
         <h2 className="text-[11px] uppercase tracking-[0.2em] font-bold text-muted-foreground">
-          {lang === "sv" ? "Inställningar" : "Preferences"}
+          {t({ sv: "Inställningar", en: "Preferences" })}
         </h2>
         <div>
           <Label className="text-sm">{t("language")}</Label>
@@ -151,18 +145,18 @@ function ProfilePage() {
       {/* Genvägar */}
       <section className="bg-card border border-border rounded-2xl p-4 shadow-soft space-y-2">
         <h2 className="text-[11px] uppercase tracking-[0.2em] font-bold text-muted-foreground">
-          {lang === "sv" ? "Genvägar & support" : "Shortcuts & support"}
+          {t({ sv: "Genvägar & support", en: "Shortcuts & support" })}
         </h2>
         <Button asChild variant="ghost" className="w-full h-12 rounded-xl justify-start">
           <Link to="/app/bookings">
             <CalendarIcon className="w-4 h-4 mr-2" />
-            {lang === "sv" ? "Mina bokningar" : "My bookings"}
+            {t({ sv: "Mina bokningar", en: "My bookings" })}
           </Link>
         </Button>
         <Button asChild variant="ghost" className="w-full h-12 rounded-xl justify-start">
           <Link to="/app/support">
             <LifeBuoy className="w-4 h-4 mr-2" />
-            {lang === "sv" ? "Kontakta support" : "Contact support"}
+            {t({ sv: "Kontakta support", en: "Contact support" })}
           </Link>
         </Button>
       </section>

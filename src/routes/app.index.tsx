@@ -120,7 +120,7 @@ function Home() {
             {new Date().toLocaleDateString(lang === "sv" ? "sv-SE" : "en-GB", { weekday: "long", day: "numeric", month: "long" })}
           </p>
           <h2 className="font-display text-3xl font-bold text-primary mt-1">
-            {lang === "sv" ? "Hej" : "Hi"}
+            {t({ sv: "Hej", en: "Hi" })}
             {profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
           </h2>
           {profile?.farm_name && (
@@ -147,16 +147,14 @@ function Home() {
           </div>
           <div className="flex-1">
             <p className="font-semibold text-sm">
-              {lang === "sv"
-                ? `${reminders.length} ${reminders.length === 1 ? "får är" : "får är"} redo att klippas`
-                : `${reminders.length} ${reminders.length === 1 ? "sheep is" : "sheep are"} ready to shear`}
+              {t({ sv: `${reminders.length} ${reminders.length === 1 ? "får är" : "får är"} redo att klippas`, en: `${reminders.length} ${reminders.length === 1 ? "sheep is" : "sheep are"} ready to shear` })}
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {lang === "sv" ? "Hitta en klippare nu så hinner du." : "Find a shearer now to be in time."}
+              {t({ sv: "Hitta en klippare nu så hinner du.", en: "Find a shearer now to be in time." })}
             </p>
             <Button asChild size="sm" className="mt-3 rounded-xl">
               <Link to="/app/shearers" onClick={() => haptic("tap")}>
-                {lang === "sv" ? "Hitta klippare" : "Find shearer"}
+                {t({ sv: "Hitta klippare", en: "Find shearer" })}
               </Link>
             </Button>
           </div>
@@ -180,7 +178,7 @@ function Home() {
         <Button asChild variant="outline" className="h-14 rounded-2xl text-sm">
           <Link to="/app/bookings">
             <Calendar className="w-4 h-4 mr-1.5" />
-            {lang === "sv" ? "Bokningar" : "Bookings"}
+            {t({ sv: "Bokningar", en: "Bookings" })}
             {pendingBookings > 0 && (
               <span className="ml-1.5 inline-flex items-center justify-center min-w-[20px] h-[20px] px-1.5 text-[10px] font-bold rounded-full bg-primary text-primary-foreground">
                 {pendingBookings}
@@ -191,7 +189,7 @@ function Home() {
         <Button asChild variant="outline" className="h-14 rounded-2xl text-sm">
           <Link to="/app/sell">
             <Package className="w-4 h-4 mr-1.5" />
-            {lang === "sv" ? "Sälj ull" : "Sell wool"}
+            {t({ sv: "Sälj ull", en: "Sell wool" })}
           </Link>
         </Button>
       </div>
@@ -200,7 +198,7 @@ function Home() {
         <Button asChild variant="outline" className="w-full h-14 rounded-2xl text-sm">
           <Link to="/app/shearer-hub">
             <Truck className="w-4 h-4 mr-1.5" />
-            {lang === "sv" ? "Klipparhub – insamling & intäkter" : "Shearer hub – collection & earnings"}
+            {t({ sv: "Klipparhub – insamling & intäkter", en: "Shearer hub – collection & earnings" })}
           </Link>
         </Button>
       )}
@@ -209,10 +207,10 @@ function Home() {
         <Link to="/app/station">
           <Warehouse className="w-4 h-4 mr-1.5" />
           {stationStatus === "approved"
-            ? (lang === "sv" ? "Min insamlingsstation" : "My collection station")
+            ? (t({ sv: "Min insamlingsstation", en: "My collection station" }))
             : stationStatus === "pending"
-            ? (lang === "sv" ? "Stationsansökan – väntar" : "Station application – pending")
-            : (lang === "sv" ? "Driv en insamlingsstation" : "Run a collection station")}
+            ? (t({ sv: "Stationsansökan – väntar", en: "Station application – pending" }))
+            : (t({ sv: "Driv en insamlingsstation", en: "Run a collection station" }))}
         </Link>
       </Button>
 
@@ -230,9 +228,9 @@ function Home() {
         {rows.length > 0 && (
           <div className="flex gap-2 mb-3">
             {([
-              { v: "all", label: lang === "sv" ? "Alla" : "All" },
-              { v: "on_sheep", label: lang === "sv" ? "🐑 På fåret" : "🐑 On sheep" },
-              { v: "sheared", label: lang === "sv" ? "🧶 Klippt" : "🧶 Sheared" },
+              { v: "all", label: t({ sv: "Alla", en: "All" })},
+              { v: "on_sheep", label: t({ sv: "🐑 På fåret", en: "🐑 On sheep" })},
+              { v: "sheared", label: t({ sv: "🧶 Klippt", en: "🧶 Sheared" })},
             ] as const).map((p) => (
               <button
                 key={p.v}
@@ -267,7 +265,7 @@ function Home() {
             >
               <Link to="/app/classify">
                 <Camera className="w-5 h-5 mr-2" />
-                {lang === "sv" ? "Klassa din första tacka" : "Classify your first ewe"}
+                {t({ sv: "Klassa din första tacka", en: "Classify your first ewe" })}
               </Link>
             </Button>
           </div>

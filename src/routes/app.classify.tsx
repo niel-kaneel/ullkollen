@@ -729,10 +729,12 @@ function ShotSlot({
   onGallery: () => void;
   onRemove: () => void;
 }) {
+  const { t } = useTranslation();
   const title = t({ sv: shot.title_sv, en: shot.title_en });
   const desc = t({ sv: shot.desc_sv, en: shot.desc_en });
   const warn = captured?.quality.warning_sv
-    ? t({ sv: captured.quality.warning_sv, en: captured.quality.warning_en }): null;
+    ? t({ sv: captured.quality.warning_sv, en: captured.quality.warning_en })
+    : null;
 
   return (
     <div className="bg-card border border-border rounded-2xl p-3 shadow-soft">

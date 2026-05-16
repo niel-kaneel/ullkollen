@@ -82,8 +82,7 @@ function Home() {
 
   useEffect(() => {
     void load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [load]);
 
   const { pull, refreshing, threshold } = usePullToRefresh({
     onRefresh: async () => {

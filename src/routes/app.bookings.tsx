@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { BookingsTabs } from "@/components/BookingsTabs";
 import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n";
 
 type Booking = {
   id: string;
@@ -33,6 +34,7 @@ export const Route = createFileRoute("/app/bookings")({
 
 function BookingsPage() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [outgoing, setOutgoing] = useState<Booking[]>([]);
   const [incoming, setIncoming] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,7 +117,7 @@ function BookingsPage() {
             <div key={b.id} className="bg-card border border-border rounded-2xl p-4 shadow-soft space-y-2">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="font-bold">{b.farmer?.farm_name || b.farmer?.full_name || "Bonde"}</p>
+                  <p className="font-bold">{b.farmer?.farm_name || b.farmer?.full_name || t("farmer")}</p>
                   {b.farmer?.full_name && b.farmer?.farm_name && (
                     <p className="text-xs text-muted-foreground">{b.farmer.full_name}</p>
                   )}
@@ -166,7 +168,7 @@ function BookingsPage() {
         {outgoing.map((b) => (
           <div key={b.id} className="bg-card border border-border rounded-2xl p-4 shadow-soft space-y-2">
             <div className="flex justify-between items-start">
-              <p className="font-bold text-primary">{b.shearer?.display_name ?? "Klippare"}</p>
+              <p className="font-bold text-primary">{b.shearer?.display_name ?? t("shearerRole")}</p>
               <StatusBadge status={b.status} />
             </div>
             {b.preferred_date && (

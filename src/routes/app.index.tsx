@@ -46,7 +46,7 @@ function Home() {
   const [stationStatus, setStationStatus] = useState<"none" | "pending" | "approved">("none");
   const [modeFilter, setModeFilter] = useState<ModeFilter>("all");
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!user) return;
     const [{ data: classRows }, { data: bookingRows }, { data: shearerRow }, { data: stationRow }] = await Promise.all([
       supabase
@@ -78,7 +78,7 @@ function Home() {
       stationRow ? ((stationRow as { approved: boolean }).approved ? "approved" : "pending") : "none",
     );
     setLoaded(true);
-  };
+  }, [user]);
 
   useEffect(() => {
     void load();

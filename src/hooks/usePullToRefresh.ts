@@ -15,6 +15,7 @@ export function usePullToRefresh({ onRefresh, threshold = 70, enabled = true }: 
   const [refreshing, setRefreshing] = useState(false);
   const startY = useRef<number | null>(null);
   const tracking = useRef(false);
+  const pullRef = useRef(0);
 
   useEffect(() => {
     if (!enabled || typeof window === "undefined") return;

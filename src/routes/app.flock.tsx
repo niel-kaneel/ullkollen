@@ -167,7 +167,7 @@ function Flock() {
 
   const onDelete = async () => {
     if (!editing) return;
-    if (!confirm(lang === "sv" ? "Ta bort detta får?" : "Delete this sheep?")) return;
+    if (!confirm(t({ sv: "Ta bort detta får?", en: "Delete this sheep?" }))) return;
     const { error } = await supabase.from("sheep").delete().eq("id", editing.id);
     if (error) {
       toast.error(error.message);
@@ -202,7 +202,7 @@ function Flock() {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={lang === "sv" ? "Sök på namn, EID, ras..." : "Search name, EID, breed..."}
+              placeholder={t({ sv: "Sök på namn, EID, ras...", en: "Search name, EID, breed..." })}
               className="h-12 pl-9 pr-9 rounded-2xl bg-card"
             />
             {query && (
@@ -227,23 +227,20 @@ function Flock() {
       ) : sheep.length === 0 ? (
         <EmptyState
           emoji="🐑"
-          title={lang === "sv" ? "Din flock är tom" : "Your flock is empty"}
+          title={t({ sv: "Din flock är tom", en: "Your flock is empty" })}
           description={
-            lang === "sv"
-              ? "När du klassificerar ett får sparas det automatiskt här. Kom igång med din första bild."
-              : "Sheep you classify show up here automatically. Start with your first photo."
-          }
+            t({ sv: "När du klassificerar ett får sparas det automatiskt här. Kom igång med din första bild.", en: "Sheep you classify show up here automatically. Start with your first photo." })}
           action={
             <Button asChild className="rounded-xl">
               <Link to="/app/classify" onClick={() => haptic("tap")}>
-                {lang === "sv" ? "Ny klassificering" : "New classification"}
+                {t({ sv: "Ny klassificering", en: "New classification" })}
               </Link>
             </Button>
           }
         />
       ) : filtered.length === 0 ? (
         <p className="text-center text-muted-foreground text-sm py-8">
-          {lang === "sv" ? `Inga får matchar "${query}"` : `No sheep match "${query}"`}
+          {t({ sv: `Inga får matchar "${query}"`, en: `No sheep match "${query}"` })}
         </p>
       ) : (
         filtered.map((s) => {
@@ -269,7 +266,7 @@ function Flock() {
                       <>
                         {s.name || `🐑 ${s.id.slice(0, 6)}`}{" "}
                         <span className="text-[10px] uppercase tracking-wide bg-muted text-muted-foreground px-1.5 py-0.5 rounded ml-1">
-                          {lang === "sv" ? "Ej märkt än" : "Not tagged yet"}
+                          {t({ sv: "Ej märkt än", en: "Not tagged yet" })}
                         </span>
                       </>
                     )}
@@ -281,7 +278,7 @@ function Flock() {
                 </p>
                 {!lat && (
                   <p className="text-[11px] text-muted-foreground/70 mt-0.5">
-                    {lang === "sv" ? "Inga bilder än" : "No photos yet"}
+                    {t({ sv: "Inga bilder än", en: "No photos yet" })}
                   </p>
                 )}
               </div>
@@ -319,28 +316,26 @@ function Flock() {
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{lang === "sv" ? "Redigera får" : "Edit sheep"}</DialogTitle>
+            <DialogTitle>{t({ sv: "Redigera får", en: "Edit sheep" })}</DialogTitle>
           </DialogHeader>
           {editing && (
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <Label>{lang === "sv" ? "Smeknamn (valfritt)" : "Nickname (optional)"}</Label>
+                <Label>{t({ sv: "Smeknamn (valfritt)", en: "Nickname (optional)" })}</Label>
                 <Input
                   value={editing.name ?? ""}
                   onChange={(e) => setEditing({ ...editing, name: e.target.value })}
-                  placeholder={lang === "sv" ? "T.ex. Bertil" : "e.g. Bertil"}
+                  placeholder={t({ sv: "T.ex. Bertil", en: "e.g. Bertil" })}
                 />
               </div>
 
               <div className="space-y-1.5">
                 <Label>
-                  {lang === "sv" ? "Öronmärkesnummer (EID)" : "Ear tag number (EID)"}
+                  {t({ sv: "Öronmärkesnummer (EID)", en: "Ear tag number (EID)" })}
                 </Label>
                 {!ppn && (
                   <div className="text-xs bg-accent/20 border border-accent/40 rounded-lg p-2 text-accent-foreground">
-                    {lang === "sv"
-                      ? "⚠️ Ange ditt produktionsplatsnummer i din profil för att märka får med EID-nummer."
-                      : "⚠️ Add your production place number in your profile to tag sheep with EID numbers."}
+                    {t({ sv: "⚠️ Ange ditt produktionsplatsnummer i din profil för att märka får med EID-nummer.", en: "⚠️ Add your production place number in your profile to tag sheep with EID numbers." })}
                   </div>
                 )}
                 <div className="flex items-center gap-1 font-mono text-sm">
@@ -358,9 +353,7 @@ function Flock() {
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {lang === "sv"
-                    ? "Det 3–4-siffriga numret som finns på fårets öronmärke."
-                    : "The 3–4 digit number shown on the sheep's ear tag."}
+                  {t({ sv: "Det 3–4-siffriga numret som finns på fårets öronmärke.", en: "The 3–4 digit number shown on the sheep's ear tag." })}
                 </p>
                 {previewTag && (
                   <p className="text-xs font-mono text-primary">→ {previewTag}</p>
@@ -371,10 +364,10 @@ function Flock() {
                   size="sm"
                   className="w-full"
                   onClick={() =>
-                    toast.message(lang === "sv" ? "Bluetooth-skanning kommer snart" : "Bluetooth scanning coming soon")
+                    toast.message(t({ sv: "Bluetooth-skanning kommer snart", en: "Bluetooth scanning coming soon" }))
                   }
                 >
-                  {lang === "sv" ? "Skanna öronmärke 📡" : "Scan ear tag 📡"}
+                  {t({ sv: "Skanna öronmärke 📡", en: "Scan ear tag 📡" })}
                 </Button>
               </div>
 
@@ -385,7 +378,7 @@ function Flock() {
                   onValueChange={(v) => setEditing({ ...editing, breed_code: v })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={lang === "sv" ? "Välj ras" : "Select breed"} />
+                    <SelectValue placeholder={t({ sv: "Välj ras", en: "Select breed" })} />
                   </SelectTrigger>
                   <SelectContent>
                     {BREEDS.map((b) => (
@@ -398,13 +391,13 @@ function Flock() {
               </div>
 
               <div className="space-y-1.5">
-                <Label>{lang === "sv" ? "Ålder" : "Age"}</Label>
+                <Label>{t({ sv: "Ålder", en: "Age" })}</Label>
                 <Select
                   value={editing.age_category ?? ""}
                   onValueChange={(v) => setEditing({ ...editing, age_category: v })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={lang === "sv" ? "Välj ålder" : "Select age"} />
+                    <SelectValue placeholder={t({ sv: "Välj ålder", en: "Select age" })} />
                   </SelectTrigger>
                   <SelectContent>
                     {AGE_CATEGORIES.map((a) => (
@@ -419,7 +412,7 @@ function Flock() {
           )}
           <DialogFooter className="flex-row justify-between sm:justify-between gap-2">
             <Button variant="destructive" onClick={onDelete} disabled={saving}>
-              <Trash2 /> {lang === "sv" ? "Ta bort" : "Delete"}
+              <Trash2 /> {t({ sv: "Ta bort", en: "Delete" })}
             </Button>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setEditing(null)} disabled={saving}>
@@ -427,10 +420,7 @@ function Flock() {
               </Button>
               <Button onClick={onSave} disabled={saving}>
                 {saving
-                  ? lang === "sv"
-                    ? "Sparar…"
-                    : "Saving…"
-                  : lang === "sv"
+                  ? t({ sv: "Sparar…", en: "Saving…" }): lang === "sv"
                     ? "Spara"
                     : "Save"}
               </Button>

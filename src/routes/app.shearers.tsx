@@ -414,7 +414,7 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
   const submit = async () => {
     if (!user) return;
     if (!date) {
-      toast.error(lang === "sv" ? "Välj ett datum" : "Pick a date");
+      toast.error(t({ sv: "Välj ett datum", en: "Pick a date" }));
       return;
     }
     setBusy(true);
@@ -465,7 +465,7 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
         {suggestions.length > 0 && (
           <div className="bg-secondary/50 rounded-xl p-3 mt-2 space-y-2">
             <p className="text-xs font-semibold text-muted-foreground">
-              {lang === "sv" ? "Förslag på lediga datum:" : "Suggested free dates:"}
+              {t({ sv: "Förslag på lediga datum:", en: "Suggested free dates:" })}
             </p>
             <div className="flex flex-wrap gap-2">
               {suggestions.map((s) => (
@@ -483,9 +483,7 @@ function BookingForm({ shearerId, defaultPhone, onDone, onCancel }: { shearerId:
         )}
         {noAlts && suggestions.length === 0 && (
           <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-3 mt-2 text-xs text-destructive">
-            {lang === "sv"
-              ? "Inga lediga datum hittades inom 30 dagar. Prova att välja ett datum längre fram."
-              : "No free dates found within 30 days. Try picking a date further ahead."}
+            {t({ sv: "Inga lediga datum hittades inom 30 dagar. Prova att välja ett datum längre fram.", en: "No free dates found within 30 days. Try picking a date further ahead." })}
           </div>
         )}
       </div>

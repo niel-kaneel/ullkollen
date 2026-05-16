@@ -66,8 +66,8 @@ function Result() {
   const onShare = async () => {
     if (!data) return;
     haptic("tap");
-    const className = lang === "sv" ? data.wool_class_name_sv : data.wool_class_name_en;
-    const recText = lang === "sv" ? data.recommendation_text_sv : data.recommendation_text_en;
+    const className = t({ sv: data.wool_class_name_sv, en: data.wool_class_name_en });
+    const recText = t({ sv: data.recommendation_text_sv, en: data.recommendation_text_en });
     const text = [
       `🐑 Ullkollen — ${data.wool_class ?? "?"}${className ? ` (${className})` : ""}`,
       data.breed ? `Ras: ${data.breed}` : null,
@@ -81,7 +81,7 @@ function Result() {
         await navigator.share({ title: "Ullkollen", text, url: shareUrl });
       } else if (navigator.clipboard) {
         await navigator.clipboard.writeText(`${text}\n${shareUrl}`);
-        toast.success(lang === "sv" ? "Kopierat till urklipp" : "Copied to clipboard");
+        toast.success(t({ sv: "Kopierat till urklipp", en: "Copied to clipboard" }));
       }
     } catch {
       // användaren avbröt, ingen åtgärd
@@ -175,7 +175,7 @@ function Result() {
     setEditing(false);
     const wasCorrection = draft.wool_class && draft.wool_class !== data.original_wool_class;
     toast.success(wasCorrection
-      ? (lang === "sv" ? "Korrigering sparad — AI:n lär sig" : "Correction saved — AI is learning")
+      ? (t({ sv: "Korrigering sparad — AI:n lär sig", en: "Correction saved — AI is learning" }))
       : (lang === "sv" ? "Sparat" : "Saved"));
   };
 
@@ -188,7 +188,7 @@ function Result() {
       .eq("id", id);
     if (error) return toast.error(error.message);
     setData({ ...data, user_confirmed: true });
-    toast.success(lang === "sv" ? "Tack! AI:n blir bättre med varje bekräftelse" : "Thanks! AI improves with every confirmation");
+    toast.success(t({ sv: "Tack! AI:n blir bättre med varje bekräftelse", en: "Thanks! AI improves with every confirmation" }));
   };
 
   if (!data) {
@@ -202,15 +202,13 @@ function Result() {
     );
   }
 
-  const rawRecText = lang === "sv" ? data.recommendation_text_sv : data.recommendation_text_en;
+  const rawRecText = t({ sv: data.recommendation_text_sv, en: data.recommendation_text_en });
   // Safety net: if the wool is already sheared, never display a "shear now / wait to shear" suggestion.
   const looksLikeShearAdvice = !!rawRecText && /\b(klipp|shear)/i.test(rawRecText);
   const recText = data.mode === "sheared" && looksLikeShearAdvice
-    ? (lang === "sv"
-        ? `Sortera som ${data.wool_class ?? "klassad"} och leverera till uppsamlingsstation.`
-        : `Sort as ${data.wool_class ?? "classified"} and deliver to a collection station.`)
+    ? (t({ sv: `Sortera som ${data.wool_class ?? "klassad"} och leverera till uppsamlingsstation.`, en: `Sort as ${data.wool_class ?? "classified"} and deliver to a collection station.` }))
     : rawRecText;
-  const className = lang === "sv" ? data.wool_class_name_sv : data.wool_class_name_en;
+  const className = t({ sv: data.wool_class_name_sv, en: data.wool_class_name_en });
 
   if (data.status !== "completed") {
     return (
@@ -291,7 +289,7 @@ function Result() {
               type="button"
               onClick={() => { haptic("tap"); setLightbox(i); }}
               className="h-32 w-32 rounded-2xl flex-shrink-0 overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary"
-              aria-label={lang === "sv" ? "Förstora bild" : "Zoom photo"}
+              aria-label={t({ sv: "Förstora bild", en: "Zoom photo" })}
             >
               <img src={p} alt="" className="h-full w-full object-cover" />
             </button>
@@ -310,7 +308,7 @@ function Result() {
             type="button"
             onClick={(e) => { e.stopPropagation(); setLightbox(null); }}
             className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/15 text-white flex items-center justify-center"
-            aria-label={lang === "sv" ? "Stäng" : "Close"}
+            aria-label={t({ sv: "Stäng", en: "Close" })}
           >
             <X className="w-5 h-5" />
           </button>
@@ -346,8 +344,8 @@ function Result() {
         <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-secondary text-secondary-foreground">
           {data.mode === "sheared" ? "🧶" : "🐑"}
           {data.mode === "sheared"
-            ? (lang === "sv" ? "Klippt ull" : "Sheared")
-            : (lang === "sv" ? "På fåret" : "On sheep")}
+            ? (t({ sv: "Klippt ull", en: "Sheared" }))
+            : (t({ sv: "På fåret", en: "On sheep" }))}
         </span>
         {data.mode === "on_sheep" && data.body_area && (
           <span className="inline-flex items-center text-[11px] px-2 py-1 rounded-full bg-secondary/60 text-muted-foreground">
@@ -368,7 +366,7 @@ function Result() {
 
       {data.needs_retake || !data.wool_class ? (
         <div className="bg-destructive/10 border border-destructive/30 rounded-2xl p-5">
-          <p className="font-semibold text-destructive">{lang === "sv" ? "Behöver bättre bilder" : "Needs better photos"}</p>
+          <p className="font-semibold text-destructive">{t({ sv: "Behöver bättre bilder", en: "Needs better photos" })}</p>
           <p className="text-sm mt-2">{data.retake_reason_sv ?? data.reasoning_sv}</p>
           <Button onClick={() => navigate({ to: "/app/classify" })} className="mt-4 w-full h-12 rounded-xl">
             {t("newClassification")}
@@ -394,7 +392,7 @@ function Result() {
             </div>
           </div>
           <div>
-            <Label htmlFor="cn">{lang === "sv" ? "Klassnamn (SV)" : "Class name (SV)"}</Label>
+            <Label htmlFor="cn">{t({ sv: "Klassnamn (SV)", en: "Class name (SV)" })}</Label>
             <Input id="cn" value={draft.wool_class_name_sv ?? ""} onChange={(e) => setDraft({ ...draft, wool_class_name_sv: e.target.value })} />
           </div>
           <div>
@@ -410,8 +408,8 @@ function Result() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="rt">{lang === "sv" ? "Rekommendationstext" : "Recommendation text"}</Label>
-            <Textarea id="rt" rows={2} value={(lang === "sv" ? draft.recommendation_text_sv : draft.recommendation_text_en) ?? ""}
+            <Label htmlFor="rt">{t({ sv: "Rekommendationstext", en: "Recommendation text" })}</Label>
+            <Textarea id="rt" rows={2} value={(t({ sv: draft.recommendation_text_sv, en: draft.recommendation_text_en })) ?? ""}
               onChange={(e) => setDraft({ ...draft, [lang === "sv" ? "recommendation_text_sv" : "recommendation_text_en"]: e.target.value })} />
           </div>
           <div>
@@ -435,7 +433,7 @@ function Result() {
             />
             <div className="relative">
               <p className="text-[11px] uppercase tracking-[0.3em] text-primary-foreground/70 font-bold">
-                {lang === "sv" ? "Klassad ull" : "Wool class"}
+                {t({ sv: "Klassad ull", en: "Wool class" })}
               </p>
               <div className="text-6xl font-black text-primary-foreground tracking-wider mt-1 leading-none">
                 {data.wool_class}
@@ -473,7 +471,7 @@ function Result() {
               >
                 <span className="flex items-center gap-2 text-sm font-semibold">
                   <Info className="w-4 h-4 text-primary" />
-                  {lang === "sv" ? "Varför denna klass?" : "Why this class?"}
+                  {t({ sv: "Varför denna klass?", en: "Why this class?" })}
                 </span>
                 <ChevronDown
                   className={`w-4 h-4 text-muted-foreground transition-transform ${showReasoning ? "rotate-180" : ""}`}
@@ -483,9 +481,7 @@ function Result() {
                 <div className="px-4 pb-4 text-sm text-foreground/85 leading-relaxed border-t border-border pt-3">
                   {data.reasoning_sv}
                   <p className="text-xs text-muted-foreground mt-3 italic">
-                    {lang === "sv"
-                      ? "Tycker du klassen är fel? Tryck på Redigera ovan för att korrigera."
-                      : "Think the class is wrong? Tap Edit above to correct it."}
+                    {t({ sv: "Tycker du klassen är fel? Tryck på Redigera ovan för att korrigera.", en: "Think the class is wrong? Tap Edit above to correct it." })}
                   </p>
                 </div>
               )}
@@ -497,17 +493,15 @@ function Result() {
               <div className="text-2xl">🎯</div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold">
-                  {lang === "sv" ? "Stämmer klassen?" : "Is this class right?"}
+                  {t({ sv: "Stämmer klassen?", en: "Is this class right?" })}
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  {lang === "sv"
-                    ? "Bekräfta så lär sig AI:n din gårds ull bättre."
-                    : "Confirm so the AI learns your farm's wool better."}
+                  {t({ sv: "Bekräfta så lär sig AI:n din gårds ull bättre.", en: "Confirm so the AI learns your farm's wool better." })}
                 </p>
               </div>
               <Button size="sm" onClick={confirmClass} className="rounded-xl shrink-0">
                 <Check className="w-4 h-4 mr-1" />
-                {lang === "sv" ? "Bekräfta" : "Confirm"}
+                {t({ sv: "Bekräfta", en: "Confirm" })}
               </Button>
             </div>
           )}
@@ -515,8 +509,8 @@ function Result() {
             <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-3 flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-400">
               <Check className="w-4 h-4" />
               {data.wool_class !== data.original_wool_class
-                ? (lang === "sv" ? `Korrigerad från ${data.original_wool_class ?? "?"} → ${data.wool_class} — AI:n lär sig` : `Corrected from ${data.original_wool_class ?? "?"} → ${data.wool_class} — AI is learning`)
-                : (lang === "sv" ? "Bekräftad — bidrar till AI-träning" : "Confirmed — contributing to AI training")}
+                ? (t({ sv: `Korrigerad från ${data.original_wool_class ?? "?"} → ${data.wool_class} — AI:n lär sig`, en: `Corrected from ${data.original_wool_class ?? "?"} → ${data.wool_class} — AI is learning` }))
+                : (t({ sv: "Bekräftad — bidrar till AI-träning", en: "Confirmed — contributing to AI training" }))}
             </div>
           )}
 

@@ -275,7 +275,7 @@ function Classify() {
     const preview = URL.createObjectURL(processed);
     setShots((s) => ({ ...s, [slot]: { file: processed, preview, quality } }));
     if (quality.warning_sv) {
-      toast.warning(lang === "sv" ? quality.warning_sv : quality.warning_en ?? "");
+      toast.warning(t({ sv: quality.warning_sv, en: quality.warning_en ?? "" }));
     }
   };
 
@@ -300,7 +300,7 @@ function Classify() {
   const submit = async () => {
     if (!user || !mode) return;
     if (!hasRequired) {
-      toast.error(lang === "sv" ? "Lägg till båda obligatoriska bilderna." : "Add both required photos.");
+      toast.error(t({ sv: "Lägg till båda obligatoriska bilderna.", en: "Add both required photos." }));
       return;
     }
     setBusy(true);
@@ -419,7 +419,7 @@ function Classify() {
           <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
         </div>
         <p className="text-sm text-muted-foreground">
-          {progress < 60 ? t("uploading") : lang === "sv" ? "AI analyserar bilderna..." : "AI is analyzing photos..."}
+          {progress < 60 ? t("uploading") : t({ sv: "AI analyserar bilderna...", en: "AI is analyzing photos..." })}
         </p>
       </div>
     );
@@ -430,38 +430,29 @@ function Classify() {
     return (
       <div className="space-y-5">
         <PageHeader
-          title={lang === "sv" ? "Vad ska du skanna?" : "What are you scanning?"}
+          title={t({ sv: "Vad ska du skanna?", en: "What are you scanning?" })}
           subtitle={
-            lang === "sv"
-              ? "Välj sammanhang så anpassar vi vägledningen i kameran."
-              : "Pick the context — we'll tailor the camera guidance."
-          }
+            t({ sv: "Välj sammanhang så anpassar vi vägledningen i kameran.", en: "Pick the context — we'll tailor the camera guidance." })}
         />
         <StepIndicator
           current={1}
           total={3}
-          labels={lang === "sv" ? ["Läge", "Bilder", "Detaljer"] : ["Mode", "Photos", "Details"]}
+          labels={t({ sv: ["Läge", "Bilder", "Detaljer"], en: ["Mode", "Photos", "Details"] })}
         />
 
         <div className="grid gap-3">
           <ModeCard
             emoji="🐑"
-            title={lang === "sv" ? "Skanna på fåret" : "Scan on sheep"}
+            title={t({ sv: "Skanna på fåret", en: "Scan on sheep" })}
             desc={
-              lang === "sv"
-                ? "Levande får med ullen kvar. Bra inför beslut om klippning."
-                : "Live sheep with wool still attached. Useful before deciding to shear."
-            }
+              t({ sv: "Levande får med ullen kvar. Bra inför beslut om klippning.", en: "Live sheep with wool still attached. Useful before deciding to shear." })}
             onClick={() => pickMode("on_sheep")}
           />
           <ModeCard
             emoji="🧶"
-            title={lang === "sv" ? "Skanna klippt ull" : "Scan sheared wool"}
+            title={t({ sv: "Skanna klippt ull", en: "Scan sheared wool" })}
             desc={
-              lang === "sv"
-                ? "Lös fleece efter klippning. För kvalitetskontroll och sortering."
-                : "Loose fleece after shearing. For quality grading and sorting."
-            }
+              t({ sv: "Lös fleece efter klippning. För kvalitetskontroll och sortering.", en: "Loose fleece after shearing. For quality grading and sorting." })}
             onClick={() => pickMode("sheared")}
           />
         </div>
@@ -480,8 +471,8 @@ function Classify() {
           >
             <ArrowLeft className="w-3 h-3" />
             {mode === "on_sheep"
-              ? (lang === "sv" ? "Läge: På fåret" : "Mode: On sheep")
-              : (lang === "sv" ? "Läge: Klippt ull" : "Mode: Sheared")}
+              ? (t({ sv: "Läge: På fåret", en: "Mode: On sheep" }))
+              : (t({ sv: "Läge: Klippt ull", en: "Mode: Sheared" }))}
           </button>
         }
       />
@@ -490,32 +481,22 @@ function Classify() {
         current={step === 1 ? 2 : step === 2 ? 3 : 1}
         total={3}
         labels={
-          lang === "sv"
-            ? ["Läge", "Bilder", "Detaljer"]
-            : ["Mode", "Photos", "Details"]
-        }
+          t({ sv: ["Läge", "Bilder", "Detaljer"], en: ["Mode", "Photos", "Details"] })}
       />
 
       {step === 1 && (
         <>
           <p className="text-sm text-muted-foreground">
-            {lang === "sv"
-              ? "Ta varje bild i sin egen ruta. Fler bilder = säkrare AI-bedömning."
-              : "Capture each shot in its own slot. More shots = more confident AI grading."}
+            {t({ sv: "Ta varje bild i sin egen ruta. Fler bilder = säkrare AI-bedömning.", en: "Capture each shot in its own slot. More shots = more confident AI grading." })}
           </p>
 
           <div className="bg-card border border-border rounded-3xl p-4 shadow-soft">
             <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground font-semibold mb-1">
-              {lang === "sv" ? "Bästa bilder" : "Best photos"}
+              {t({ sv: "Bästa bilder", en: "Best photos" })}
             </p>
             <p className="text-xs text-muted-foreground leading-relaxed">
               💡 {mode === "on_sheep"
-                ? lang === "sv"
-                  ? "Utomhus i jämnt dagsljus, undvik direkt motljus. Fota från sida, rygg eller bog."
-                  : "Outdoors in even daylight, avoid backlight. Shoot the flank, back or shoulder."
-                : lang === "sv"
-                  ? "Lägg fleecen platt på ett neutralt underlag. Använd gärna en linjal eller ett mynt som skala."
-                  : "Lay the fleece flat on a neutral background. A ruler or coin gives helpful scale."}
+                ? t({ sv: "Utomhus i jämnt dagsljus, undvik direkt motljus. Fota från sida, rygg eller bog.", en: "Outdoors in even daylight, avoid backlight. Shoot the flank, back or shoulder." }): t({ sv: "Lägg fleecen platt på ett neutralt underlag. Använd gärna en linjal eller ett mynt som skala.", en: "Lay the fleece flat on a neutral background. A ruler or coin gives helpful scale." })}
             </p>
           </div>
 
@@ -554,9 +535,7 @@ function Classify() {
           />
 
           <div className="text-xs text-muted-foreground text-center">
-            {lang === "sv"
-              ? `${totalShots}/${SHOTS.length} bilder · ${hasRequired ? "redo" : "lägg till de två obligatoriska"}`
-              : `${totalShots}/${SHOTS.length} photos · ${hasRequired ? "ready" : "add the two required shots"}`}
+            {t({ sv: `${totalShots}/${SHOTS.length} bilder · ${hasRequired ? "redo" : "lägg till de två obligatoriska"}`, en: `${totalShots}/${SHOTS.length} photos · ${hasRequired ? "ready" : "add the two required shots"}` })}
           </div>
 
           <Button
@@ -576,16 +555,11 @@ function Classify() {
             <div className="text-2xl leading-none mt-0.5">{mode === "sheared" ? "🧶" : "🐑"}</div>
             <div className="flex-1 min-w-0">
               <Label htmlFor="sheared-toggle" className="text-base font-semibold cursor-pointer">
-                {lang === "sv" ? "Ullen är redan klippt" : "Wool is already shorn"}
+                {t({ sv: "Ullen är redan klippt", en: "Wool is already shorn" })}
               </Label>
               <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                 {mode === "sheared"
-                  ? lang === "sv"
-                    ? "Rekommendationen handlar om sortering och leverans — inte om när du ska klippa."
-                    : "Recommendation will cover sorting and delivery — not when to shear."
-                  : lang === "sv"
-                    ? "Rekommendationen handlar om när det är bäst att klippa fåret."
-                    : "Recommendation will advise when to shear the sheep."}
+                  ? t({ sv: "Rekommendationen handlar om sortering och leverans — inte om när du ska klippa.", en: "Recommendation will cover sorting and delivery — not when to shear." }): t({ sv: "Rekommendationen handlar om när det är bäst att klippa fåret.", en: "Recommendation will advise when to shear the sheep." })}
               </p>
             </div>
             <Switch
@@ -608,10 +582,10 @@ function Classify() {
                 {sheepList.length > 0 && (
                   <div>
                     <Label className="text-base">
-                      {lang === "sv" ? "Koppla till får (valfritt)" : "Link to sheep (optional)"}
+                      {t({ sv: "Koppla till får (valfritt)", en: "Link to sheep (optional)" })}
                     </Label>
                     <Select value={meta.sheep_id} onValueChange={(v) => setMeta({ ...meta, sheep_id: v })}>
-                      <SelectTrigger className="h-14 mt-2 rounded-xl text-base"><SelectValue placeholder={lang === "sv" ? "— Inget specifikt får —" : "— No specific sheep —"} /></SelectTrigger>
+                      <SelectTrigger className="h-14 mt-2 rounded-xl text-base"><SelectValue placeholder={t({ sv: "— Inget specifikt får —", en: "— No specific sheep —" })} /></SelectTrigger>
                       <SelectContent>
                         {sheepList.map((s) => (
                           <SelectItem key={s.id} value={s.id}>{s.name || s.ear_tag_id || s.id.slice(0, 6)}</SelectItem>
@@ -621,12 +595,12 @@ function Classify() {
                   </div>
                 )}
                 <div>
-                  <Label className="text-base">{lang === "sv" ? "Kroppsdel på bilden" : "Body area shown"}</Label>
+                  <Label className="text-base">{t({ sv: "Kroppsdel på bilden", en: "Body area shown" })}</Label>
                   <Select value={meta.body_area} onValueChange={(v) => setMeta({ ...meta, body_area: v })}>
                     <SelectTrigger className="h-14 mt-2 rounded-xl text-base"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {BODY_AREAS.map((a) => (
-                        <SelectItem key={a.value} value={a.value}>{lang === "sv" ? a.sv : a.en}</SelectItem>
+                        <SelectItem key={a.value} value={a.value}>{t({ sv: a.sv, en: a.en })}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -637,16 +611,16 @@ function Classify() {
             {mode === "sheared" && (
               <>
                 <div>
-                  <Label className="text-base">{lang === "sv" ? "Fleece-ID (valfritt)" : "Fleece ID (optional)"}</Label>
+                  <Label className="text-base">{t({ sv: "Fleece-ID (valfritt)", en: "Fleece ID (optional)" })}</Label>
                   <Input
                     value={meta.fleece_id}
                     onChange={(e) => setMeta({ ...meta, fleece_id: e.target.value })}
-                    placeholder={lang === "sv" ? "t.ex. F-2026-014" : "e.g. F-2026-014"}
+                    placeholder={t({ sv: "t.ex. F-2026-014", en: "e.g. F-2026-014" })}
                     className="h-14 text-base mt-2 rounded-xl"
                   />
                 </div>
                 <div>
-                  <Label className="text-base">{lang === "sv" ? "Klippdatum" : "Shearing date"}</Label>
+                  <Label className="text-base">{t({ sv: "Klippdatum", en: "Shearing date" })}</Label>
                   <Input
                     type="date"
                     value={meta.shearing_date}
@@ -660,9 +634,7 @@ function Classify() {
             <div>
               <Label className="text-base">{t("breed")}</Label>
               <p className="text-xs text-muted-foreground mt-1">
-                {lang === "sv"
-                  ? "Välj en eller flera raser (t.ex. korsning eller blandfäll)."
-                  : "Pick one or more breeds (e.g. crossbreed or mixed fleece)."}
+                {t({ sv: "Välj en eller flera raser (t.ex. korsning eller blandfäll).", en: "Pick one or more breeds (e.g. crossbreed or mixed fleece)." })}
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {BREEDS.map((b) => {
@@ -758,13 +730,10 @@ function ShotSlot({
   onGallery: () => void;
   onRemove: () => void;
 }) {
-  const title = lang === "sv" ? shot.title_sv : shot.title_en;
-  const desc = lang === "sv" ? shot.desc_sv : shot.desc_en;
+  const title = t({ sv: shot.title_sv, en: shot.title_en });
+  const desc = t({ sv: shot.desc_sv, en: shot.desc_en });
   const warn = captured?.quality.warning_sv
-    ? lang === "sv"
-      ? captured.quality.warning_sv
-      : captured.quality.warning_en
-    : null;
+    ? t({ sv: captured.quality.warning_sv, en: captured.quality.warning_en }): null;
 
   return (
     <div className="bg-card border border-border rounded-2xl p-3 shadow-soft">
@@ -780,7 +749,7 @@ function ShotSlot({
             <p className="text-sm font-semibold text-foreground">{title}</p>
             {shot.required ? (
               <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/10 text-primary font-bold">
-                {lang === "sv" ? "Krävs" : "Required"}
+                {t({ sv: "Krävs", en: "Required" })}
               </span>
             ) : (
               <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-secondary text-muted-foreground font-bold">
@@ -811,21 +780,21 @@ function ShotSlot({
                 <div>
                   <p className="font-semibold">{warn}</p>
                   <button onClick={onCamera} className="underline mt-1">
-                    {lang === "sv" ? "Ta om" : "Retake"}
+                    {t({ sv: "Ta om", en: "Retake" })}
                   </button>
                 </div>
               </div>
             ) : (
               <div className="flex gap-1.5 items-start text-emerald-600 dark:text-emerald-400">
                 <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                <p className="font-semibold">{lang === "sv" ? "Bra bild" : "Good photo"}</p>
+                <p className="font-semibold">{t({ sv: "Bra bild", en: "Good photo" })}</p>
               </div>
             )}
             <button
               onClick={onCamera}
               className="block mt-2 text-muted-foreground underline"
             >
-              {lang === "sv" ? "Byt bild" : "Replace"}
+              {t({ sv: "Byt bild", en: "Replace" })}
             </button>
           </div>
         </div>
@@ -836,7 +805,7 @@ function ShotSlot({
             className="h-11 rounded-xl border-2 border-dashed border-border bg-background flex items-center justify-center gap-2 text-foreground font-semibold active:scale-95 transition"
           >
             <Camera className="w-4 h-4" />
-            <span className="text-xs">{lang === "sv" ? "Ta bild" : "Take"}</span>
+            <span className="text-xs">{t({ sv: "Ta bild", en: "Take" })}</span>
           </button>
           <button
             onClick={onGallery}

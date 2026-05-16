@@ -84,7 +84,7 @@ function Onboarding() {
       <div className="flex flex-col items-center mb-6">
         <SheepLogo className="w-14 h-14 text-primary" />
         <h1 className="text-2xl font-bold text-primary mt-2">{t("appName")}</h1>
-        <p className="text-sm text-muted-foreground">{lang === "sv" ? "Berätta om dig själv" : "Tell us about yourself"}</p>
+        <p className="text-sm text-muted-foreground">{t({ sv: "Berätta om dig själv", en: "Tell us about yourself" })}</p>
       </div>
       <form onSubmit={onSubmit} className="space-y-4">
         <Field label={t("fullName")} value={form.full_name} onChange={(v) => setForm({ ...form, full_name: v })} required />
@@ -100,14 +100,14 @@ function Onboarding() {
               onClick={() => setForm({ ...form, role: "farmer" })}
               emoji="🐑"
               title={t("farmer")}
-              desc={lang === "sv" ? "Jag har får och vill klassificera ull" : "I keep sheep and want to classify wool"}
+              desc={t({ sv: "Jag har får och vill klassificera ull", en: "I keep sheep and want to classify wool" })}
             />
             <RoleCard
               active={form.role === "shearer"}
               onClick={() => setForm({ ...form, role: "shearer" })}
               emoji="✂️"
               title={t("shearerRole")}
-              desc={lang === "sv" ? "Jag klipper får åt andra" : "I shear sheep for others"}
+              desc={t({ sv: "Jag klipper får åt andra", en: "I shear sheep for others" })}
             />
           </div>
         </div>

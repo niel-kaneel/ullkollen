@@ -96,10 +96,10 @@ function CalendarPage() {
       .eq("id", reschedule.id);
     setSaving(false);
     if (error) {
-      toast.error(lang === "sv" ? "Kunde inte uppdatera" : "Could not update");
+      toast.error(t({ sv: "Kunde inte uppdatera", en: "Could not update" }));
       return;
     }
-    toast.success(lang === "sv" ? "Bokning ombokad" : "Booking rescheduled");
+    toast.success(t({ sv: "Bokning ombokad", en: "Booking rescheduled" }));
     setSelectedDate(reschedule.date);
     setReschedule(null);
     setSuggestions([]);
@@ -154,7 +154,7 @@ function CalendarPage() {
           counterparty: b.shearer?.display_name ?? (lang === "sv" ? "Klippare" : "Shearer"),
           sheep_name: b.sheep?.name || b.sheep?.ear_tag_id || null,
           expected_class_code: b.expected_wool_class,
-          expected_class_name: lang === "sv" ? b.expected_wool_class_name_sv : b.expected_wool_class_name_en,
+          expected_class_name: t({ sv: b.expected_wool_class_name_sv, en: b.expected_wool_class_name_en }),
           expected_confidence: b.expected_confidence,
         });
       });
@@ -173,7 +173,7 @@ function CalendarPage() {
           counterparty: b._farmer?.farm_name || b._farmer?.full_name || (lang === "sv" ? "Bonde" : "Farmer"),
           sheep_name: b.sheep?.name || b.sheep?.ear_tag_id || null,
           expected_class_code: b.expected_wool_class,
-          expected_class_name: lang === "sv" ? b.expected_wool_class_name_sv : b.expected_wool_class_name_en,
+          expected_class_name: t({ sv: b.expected_wool_class_name_sv, en: b.expected_wool_class_name_en }),
           expected_confidence: b.expected_confidence,
         });
       });
@@ -212,9 +212,7 @@ function CalendarPage() {
     return m;
   }, [events]);
 
-  const dayLabels = lang === "sv"
-    ? ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"]
-    : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const dayLabels = t({ sv: ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"], en: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] });
 
   const todayStr = ymd(new Date());
   const selectedEvents = eventsByDate.get(selectedDate) ?? [];
@@ -224,7 +222,7 @@ function CalendarPage() {
       <PageHeader
         back="/app"
         icon={<CalendarIcon className="w-6 h-6" />}
-        title={lang === "sv" ? "Mina bokningar" : "My bookings"}
+        title={t({ sv: "Mina bokningar", en: "My bookings" })}
       />
       <BookingsTabs active="calendar" />
 
@@ -288,7 +286,7 @@ function CalendarPage() {
           <Skeleton className="h-24 rounded-2xl" />
         ) : selectedEvents.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            {lang === "sv" ? "Inga klippningar denna dag." : "No shearings this day."}
+            {t({ sv: "Inga klippningar denna dag.", en: "No shearings this day." })}
           </p>
         ) : (
           <div className="space-y-3">
@@ -311,21 +309,21 @@ function CalendarPage() {
                   <p className="text-sm">🐑 {e.sheep_name}</p>
                 )}
                 {e.sheep_count != null && (
-                  <p className="text-sm">{lang === "sv" ? "Antal får" : "Sheep count"}: <span className="font-semibold">{e.sheep_count}</span></p>
+                  <p className="text-sm">{t({ sv: "Antal får", en: "Sheep count" })}: <span className="font-semibold">{e.sheep_count}</span></p>
                 )}
                 {e.expected_class_code && (
                   <div className="bg-primary/5 border border-primary/20 rounded-xl p-2.5 text-sm flex items-start gap-2">
                     <Sparkles className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="text-[10px] uppercase font-semibold text-primary">
-                        {lang === "sv" ? "Förväntad ullkvalitet (AI)" : "Expected wool quality (AI)"}
+                        {t({ sv: "Förväntad ullkvalitet (AI)", en: "Expected wool quality (AI)" })}
                       </p>
                       <p className="font-semibold">
                         {e.expected_class_code}{e.expected_class_name ? ` — ${e.expected_class_name}` : ""}
                       </p>
                       {e.expected_confidence && (
                         <p className="text-[11px] text-muted-foreground">
-                          {lang === "sv" ? "Säkerhet" : "Confidence"}: {e.expected_confidence}
+                          {t({ sv: "Säkerhet", en: "Confidence" })}: {e.expected_confidence}
                         </p>
                       )}
                     </div>
@@ -346,7 +344,7 @@ function CalendarPage() {
                       className="w-full"
                     >
                       <CalendarClock className="w-4 h-4" />
-                      {lang === "sv" ? "Boka om / ändra tid" : "Reschedule"}
+                      {t({ sv: "Boka om / ändra tid", en: "Reschedule" })}
                     </Button>
                   </div>
                 )}
@@ -359,10 +357,10 @@ function CalendarPage() {
       <Dialog open={!!reschedule} onOpenChange={(o) => { if (!o) { setReschedule(null); setSuggestions([]); setNoAlts(false); } }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{lang === "sv" ? "Boka om klippning" : "Reschedule shearing"}</DialogTitle>
+            <DialogTitle>{t({ sv: "Boka om klippning", en: "Reschedule shearing" })}</DialogTitle>
           </DialogHeader>
           <div className="space-y-2">
-            <Label htmlFor="new-date">{lang === "sv" ? "Nytt datum" : "New date"}</Label>
+            <Label htmlFor="new-date">{t({ sv: "Nytt datum", en: "New date" })}</Label>
             <Input
               id="new-date"
               type="date"
@@ -377,7 +375,7 @@ function CalendarPage() {
             {suggestions.length > 0 && (
               <div className="bg-secondary/50 rounded-xl p-3 space-y-2">
                 <p className="text-xs font-semibold text-muted-foreground">
-                  {lang === "sv" ? "Förslag på lediga datum:" : "Suggested free dates:"}
+                  {t({ sv: "Förslag på lediga datum:", en: "Suggested free dates:" })}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {suggestions.map((s) => (
@@ -399,15 +397,11 @@ function CalendarPage() {
             )}
             {noAlts && suggestions.length === 0 && (
               <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-3 text-xs text-destructive">
-                {lang === "sv"
-                  ? "Inga lediga datum hittades inom 30 dagar. Prova att välja ett datum längre fram."
-                  : "No free dates found within 30 days. Try picking a date further ahead."}
+                {t({ sv: "Inga lediga datum hittades inom 30 dagar. Prova att välja ett datum längre fram.", en: "No free dates found within 30 days. Try picking a date further ahead." })}
               </div>
             )}
             <p className="text-xs text-muted-foreground">
-              {lang === "sv"
-                ? "Status sätts till väntande tills motparten bekräftar."
-                : "Status will be set to pending until the other party confirms."}
+              {t({ sv: "Status sätts till väntande tills motparten bekräftar.", en: "Status will be set to pending until the other party confirms." })}
             </p>
           </div>
           <DialogFooter>
@@ -415,7 +409,7 @@ function CalendarPage() {
               {lang === "sv" ? "Avbryt" : "Cancel"}
             </Button>
             <Button onClick={handleReschedule} disabled={saving || !reschedule?.date}>
-              {saving ? (lang === "sv" ? "Sparar…" : "Saving…") : (lang === "sv" ? "Spara" : "Save")}
+              {saving ? (t({ sv: "Sparar…", en: "Saving…" })) : (lang === "sv" ? "Spara" : "Save")}
             </Button>
           </DialogFooter>
         </DialogContent>

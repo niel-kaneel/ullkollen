@@ -295,7 +295,7 @@ function ShearerHubPage() {
             deliveries.slice(0, 8).map((d) => (
               <div key={d.id} className="flex items-center justify-between border border-border rounded-xl px-3 py-2 text-sm">
                 <div>
-                  <p className="font-medium capitalize">{deliveryStatusLabel(d.status, t)}</p>
+                  <p className="font-medium">{deliveryStatusLabel(d.status, t)}</p>
                   <p className="text-xs text-muted-foreground">
                     {d.scheduled_for ?? d.completed_at?.slice(0, 10) ?? "—"}
                     {d.distance_km != null ? ` • ${Number(d.distance_km).toFixed(0)} km` : ""}

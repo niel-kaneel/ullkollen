@@ -159,7 +159,8 @@ function Flock() {
       .eq("id", editing.id);
     setSaving(false);
     if (error) {
-      toast.error(error.message);
+      console.warn(error);
+      toast.error(t("error"));
       return;
     }
     toast.success(t("savedSuccess"));
@@ -172,7 +173,8 @@ function Flock() {
     if (!confirm(t("deleteSheepConfirm"))) return;
     const { error } = await supabase.from("sheep").delete().eq("id", editing.id);
     if (error) {
-      toast.error(error.message);
+      console.warn(error);
+      toast.error(t("error"));
       return;
     }
     toast.success(t("deletedSuccess"));

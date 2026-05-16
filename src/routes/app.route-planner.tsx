@@ -56,6 +56,7 @@ type Shearer = {
 
 function RoutePlanner() {
   const { user, isAdmin, loading } = useAuth();
+  const { t } = useTranslation();
   const [shearer, setShearer] = useState<Shearer | null>(null);
   const [pickups, setPickups] = useState<Pickup[]>([]);
   const [stations, setStations] = useState<Station[]>([]);

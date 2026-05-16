@@ -192,6 +192,7 @@ function BookingsPage() {
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation();
   const map: Record<string, { label: string; cls: string; icon: any }> = {
     pending: { label: t("statusPending"), cls: "bg-yellow-100 text-yellow-900", icon: Clock },
     accepted: { label: "Accepterad", cls: "bg-green-100 text-green-900", icon: CheckCircle2 },

@@ -324,7 +324,7 @@ function ShearerHubPage() {
                 <div>
                   <p className="font-medium">{s.percent}{t("sharePercentLabel")}</p>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(s.created_at).toLocaleDateString("sv-SE")}
+                    {new Date(s.created_at).toLocaleDateString(lang === "sv" ? "sv-SE" : "en-GB")}
                     {s.paid_at ? ` • ${t("paidOut")}` : ` • ${t("pending")}`}
                   </p>
                 </div>

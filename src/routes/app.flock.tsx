@@ -77,7 +77,7 @@ function Flock() {
 
   const ppn = profile?.production_place_number ?? null;
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!user) return;
     const { data, error } = await supabase
       .from("sheep")
@@ -116,7 +116,7 @@ function Flock() {
     } else {
       setLatest({});
     }
-  };
+  }, [user]);
 
   useEffect(() => { void load(); /* eslint-disable-next-line */ }, [user]);
 

@@ -174,10 +174,17 @@ const dict = {
 } as const;
 
 type Key = keyof typeof dict.sv;
+type Inline = { sv: string; en: string };
+export type Translatable = Key | Inline;
 
-const I18nCtx = createContext<{ lang: Lang; t: (k: Key) => string; setLang: (l: Lang) => void }>({
+function translate(lang: Lang, k: Translatable): string {
+  if (typeof k === "string") return dict[lang][k] ?? dict.sv[k];
+  return k[lang] ?? k.sv;
+}
+
+const I18nCtx = createContext<{ lang: Lang; t: (k: Translatable) => string; setLang: (l: Lang) => void }>({
   lang: "sv",
-  t: (k) => dict.sv[k],
+  t: (k) => translate("sv", k),
   setLang: () => {},
 });
 
@@ -194,7 +201,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     if (typeof window !== "undefined") localStorage.setItem("ullkollen.lang", l);
   };
 
-  const t = (k: Key) => dict[lang][k] ?? dict.sv[k];
+  const t = (k: Translatable) => translate(lang, k);
 
   return <I18nCtx.Provider value={{ lang, t, setLang }}>{children}</I18nCtx.Provider>;
 }

@@ -143,7 +143,7 @@ function ShearerHubPage() {
       toast.error(error.message);
       return;
     }
-    toast.success("Sparat");
+    toast.success(t("savedSuccess"));
   };
 
   if (loading) {
@@ -157,18 +157,18 @@ function ShearerHubPage() {
   if (!shearer) {
     return (
       <div className="space-y-4 pb-8">
-        <PageHeader title="Klipparhub" subtitle="Endast för klippare" />
+        <PageHeader title={t("shearerHub")} subtitle={t("shearerHubSubtitle")} />
         <Card>
           <CardHeader>
-            <CardTitle>Ingen klipparprofil</CardTitle>
+            <CardTitle>{t("noShearerProfile")}</CardTitle>
             <CardDescription>
-              Du har ingen klipparprofil ännu. Skapa ett klipparkonto för att hantera ullinsamling och tjäna pengar.
+              {t("noShearerProfileDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild>
               <Link to="/auth" search={{ role: "shearer" } as any}>
-                Skapa klipparprofil
+                {t("createShearerProfile")}
               </Link>
             </Button>
           </CardContent>
@@ -179,24 +179,24 @@ function ShearerHubPage() {
 
   return (
     <div className="space-y-4 pb-10">
-      <PageHeader title="Klipparhub" subtitle={shearer.display_name} />
+      <PageHeader title={t("shearerHub")} subtitle={shearer.display_name} />
 
       <Button asChild variant="outline" className="w-full rounded-2xl">
-        <Link to="/app/route-planner"><Truck className="w-4 h-4 mr-2" />Planera hämtningsrutt</Link>
+        <Link to="/app/route-planner"><Truck className="w-4 h-4 mr-2" />{t("planPickupRoute")}</Link>
       </Button>
 
       {/* Earnings summary */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base">
-            <Wallet className="w-4 h-4" /> Mina intäkter
+            <Wallet className="w-4 h-4" /> {t("myEarnings")}
           </CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-3">
-          <Stat label="Intjänat (totalt)" value={`${fmt(totals.earned)} kr`} />
-          <Stat label="Utbetalt" value={`${fmt(totals.paid)} kr`} />
-          <Stat label="Väntar" value={`${fmt(totals.pending)} kr`} highlight />
-          <Stat label="Milersättning" value={`${fmt(totals.mileage)} kr`} sub={`${totals.km.toFixed(0)} km`} />
+          <Stat label={t("totalEarned")} value={`${fmt(totals.earned)} kr`} />
+          <Stat label={t("paid")} value={`${fmt(totals.paid)} kr`} />
+          <Stat label={t("pending")} value={`${fmt(totals.pending)} kr`} highlight />
+          <Stat label={t("mileageComp")} value={`${fmt(totals.mileage)} kr`} sub={`${totals.km.toFixed(0)} km`} />
         </CardContent>
       </Card>
 
@@ -204,16 +204,16 @@ function ShearerHubPage() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base">
-            <Truck className="w-4 h-4" /> Ullinsamling
+            <Truck className="w-4 h-4" /> {t("woolCollection")}
           </CardTitle>
           <CardDescription>
-            Aktivera om du också samlar in och transporterar ull åt fårägare.
+            {t("woolCollectionDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <Label htmlFor="collects" className="text-sm font-medium">
-              Jag samlar in ull
+              {t("iCollectWool")}
             </Label>
             <Switch id="collects" checked={collectsWool} onCheckedChange={setCollectsWool} />
           </div>
@@ -222,7 +222,7 @@ function ShearerHubPage() {
             <>
               <div className="space-y-1.5">
                 <Label htmlFor="capacity" className="text-xs uppercase tracking-wide text-muted-foreground">
-                  Kapacitet (kg per tur)
+                  {t("capacityLabel")}
                 </Label>
                 <Input
                   id="capacity"
@@ -236,7 +236,7 @@ function ShearerHubPage() {
 
               <div className="flex items-center justify-between">
                 <Label htmlFor="trailer" className="text-sm font-medium">
-                  Jag har släp/transport
+                  {t("iHaveTrailer")}
                 </Label>
                 <Switch id="trailer" checked={hasTrailer} onCheckedChange={setHasTrailer} />
               </div>
@@ -244,7 +244,7 @@ function ShearerHubPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="rate-with" className="text-xs uppercase tracking-wide text-muted-foreground">
-                    Med släp (kr/km)
+                    {t("rateWithTrailer")}
                   </Label>
                   <Input
                     id="rate-with"
@@ -257,7 +257,7 @@ function ShearerHubPage() {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="rate-without" className="text-xs uppercase tracking-wide text-muted-foreground">
-                    Utan släp (kr/km)
+                    {t("rateWithoutTrailer")}
                   </Label>
                   <Input
                     id="rate-without"
@@ -271,14 +271,14 @@ function ShearerHubPage() {
               </div>
 
               <p className="text-xs text-muted-foreground">
-                Riktvärde: 30 kr/km med släp, 20 kr/km utan. Beräknas automatiskt på dina leveranser.
+                {t("rateGuideline")}
               </p>
             </>
           )}
 
           <Button onClick={save} disabled={saving} className="w-full">
             <Save className="w-4 h-4 mr-1.5" />
-            {saving ? "Sparar…" : "Spara"}
+            {saving ? t("saving") : t("save")}
           </Button>
         </CardContent>
       </Card>
@@ -286,16 +286,16 @@ function ShearerHubPage() {
       {/* Recent deliveries */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Mina leveranser</CardTitle>
+          <CardTitle className="text-base">{t("myDeliveries")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {deliveries.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Inga leveranser ännu.</p>
+            <p className="text-sm text-muted-foreground">{t("noDeliveriesYet")}</p>
           ) : (
             deliveries.slice(0, 8).map((d) => (
               <div key={d.id} className="flex items-center justify-between border border-border rounded-xl px-3 py-2 text-sm">
                 <div>
-                  <p className="font-medium capitalize">{d.status}</p>
+                  <p className="font-medium capitalize">{deliveryStatusLabel(d.status, t)}</p>
                   <p className="text-xs text-muted-foreground">
                     {d.scheduled_for ?? d.completed_at?.slice(0, 10) ?? "—"}
                     {d.distance_km != null ? ` • ${Number(d.distance_km).toFixed(0)} km` : ""}
@@ -313,19 +313,19 @@ function ShearerHubPage() {
       {/* Recent shares */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Andelar från ullpartier</CardTitle>
+          <CardTitle className="text-base">{t("sharesFromLots")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {shares.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Inga andelar ännu. När en fårägare väljer dig som klippare och anger intäktsdelning syns det här.</p>
+            <p className="text-sm text-muted-foreground">{t("noSharesYet")}</p>
           ) : (
             shares.slice(0, 8).map((s) => (
               <div key={s.id} className="flex items-center justify-between border border-border rounded-xl px-3 py-2 text-sm">
                 <div>
-                  <p className="font-medium">{s.percent}% andel</p>
+                  <p className="font-medium">{s.percent}{t("sharePercentLabel")}</p>
                   <p className="text-xs text-muted-foreground">
                     {new Date(s.created_at).toLocaleDateString("sv-SE")}
-                    {s.paid_at ? " • Utbetalt" : " • Väntar"}
+                    {s.paid_at ? ` • ${t("paidOut")}` : ` • ${t("pending")}`}
                   </p>
                 </div>
                 <div className="text-right font-semibold">

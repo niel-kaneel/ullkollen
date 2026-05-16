@@ -174,12 +174,12 @@ const dict = {
 } as const;
 
 type Key = keyof typeof dict.sv;
-type Inline = { sv: string; en: string };
+type Inline = { sv: string | null | undefined; en: string | null | undefined };
 export type Translatable = Key | Inline;
 
 function translate(lang: Lang, k: Translatable): string {
   if (typeof k === "string") return dict[lang][k] ?? dict.sv[k];
-  return k[lang] ?? k.sv;
+  return (k[lang] ?? k.sv ?? "") as string;
 }
 
 const I18nCtx = createContext<{ lang: Lang; t: (k: Translatable) => string; setLang: (l: Lang) => void }>({

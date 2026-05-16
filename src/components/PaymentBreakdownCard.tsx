@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Banknote, Package } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { calcBreakdown, formatSEK, WOOL_PRICE_SEK_PER_KG } from "@/lib/wool-pricing";
+import { useTranslation, type Translatable } from "@/lib/i18n";
 
 type Lot = {
   id: string;
@@ -13,6 +14,19 @@ type Lot = {
 
 type Share = { percent: number; amount_sek: number | null; paid_at: string | null; shearer: { display_name: string } | null };
 
+function lotStatusLabel(s: string, t: (k: Translatable) => string): string {
+  const map: Record<string, string> = {
+    registered: t("statusRegistered"),
+    in_transit: t("statusInTransit"),
+    at_station: t("statusAtStation"),
+    at_holma: t("statusAtHolma"),
+    classified: t("statusClassified"),
+    paid: t("statusPaid"),
+    cancelled: t("statusCancelled"),
+  };
+  return map[s] ?? s;
+}
+
 export function PaymentBreakdownCard({
   classificationId,
   woolClass,
@@ -20,6 +34,7 @@ export function PaymentBreakdownCard({
   classificationId: string;
   woolClass: string | null;
 }) {
+  const { t, lang } = useTranslation();
   const [lot, setLot] = useState<Lot | null>(null);
   const [share, setShare] = useState<Share | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -60,8 +75,8 @@ export function PaymentBreakdownCard({
             <Package className="w-5 h-5 text-primary" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-sm">Sälj denna ull</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Registrera kvantitet och välj leveranssätt.</p>
+            <p className="font-semibold text-sm">{t("sellThisWool")}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{t("sellThisWoolDesc")}</p>
           </div>
           <span className="text-primary text-sm font-semibold">→</span>
         </div>
@@ -78,46 +93,46 @@ export function PaymentBreakdownCard({
     <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
       <div className="flex items-center gap-2">
         <Banknote className="w-4 h-4 text-primary" />
-        <h3 className="text-sm font-semibold">Försäljning &amp; utbetalning</h3>
+        <h3 className="text-sm font-semibold">{t("saleAndPayout")}</h3>
         <span className="ml-auto text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">
-          {lot.status}
+          {lotStatusLabel(lot.status, t)}
         </span>
       </div>
 
       {!known && (
         <p className="text-xs text-muted-foreground">
-          Indikativt pris saknas för klass <strong>{woolClass ?? "?"}</strong>. Priset bestäms vid mottagning på Holma.
+          {t("noPriceForClass")} <strong>{woolClass ?? "?"}</strong>. {t("priceSetAtHolma")}
         </p>
       )}
 
       <div className="space-y-2 text-sm">
-        <Row label="Mängd">{kg.toFixed(1)} kg</Row>
-        <Row label={`Pris per kg${!known ? " (uppskattat)" : ""}`}>
+        <Row label={t("quantity")}>{kg.toFixed(1)} kg</Row>
+        <Row label={`${t("pricePerKg")}${!known ? ` ${t("estimated")}` : ""}`}>
           {known ? formatSEK(b.pricePerKg) : "—"}
         </Row>
-        <Row label="Bruttointäkt" bold>{known ? formatSEK(b.gross) : "—"}</Row>
+        <Row label={t("grossRevenue")} bold>{known ? formatSEK(b.gross) : "—"}</Row>
         {share && (
-          <Row label={`Klipparens andel${share.shearer ? ` (${share.shearer.display_name})` : ""} · ${pct}%`}>
+          <Row label={`${t("shearerShare")}${share.shearer ? ` (${share.shearer.display_name})` : ""} · ${pct}%`}>
             {known ? `– ${formatSEK(b.shearerAmount)}` : "—"}
           </Row>
         )}
         <div className="border-t border-border pt-2 mt-2">
-          <Row label="Du får" bold>{known ? formatSEK(b.ownerAmount) : "—"}</Row>
+          <Row label={t("youReceive")} bold>{known ? formatSEK(b.ownerAmount) : "—"}</Row>
         </div>
       </div>
 
       {share?.paid_at ? (
         <p className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold">
-          ✓ Klipparens andel utbetald {new Date(share.paid_at).toLocaleDateString("sv-SE")}
+          ✓ {t("shearerSharePaid")} {new Date(share.paid_at).toLocaleDateString(lang === "sv" ? "sv-SE" : "en-GB")}
         </p>
       ) : share ? (
         <p className="text-xs text-muted-foreground italic">
-          Klipparens andel betalas ut automatiskt när ullen sålts.
+          {t("shearerSharePending")}
         </p>
       ) : null}
 
       <p className="text-[10px] text-muted-foreground">
-        Riktpriser: {Object.entries(WOOL_PRICE_SEK_PER_KG).map(([k, v]) => `${k} ${v}`).join(" · ")} kr/kg.
+        {t("indicativePrices")}: {Object.entries(WOOL_PRICE_SEK_PER_KG).map(([k, v]) => `${k} ${v}`).join(" · ")} kr/kg.
       </p>
     </div>
   );

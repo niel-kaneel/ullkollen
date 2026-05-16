@@ -152,7 +152,8 @@ const dict = {
     bookShearer: "Book shearer",
     saveToFlock: "Save to flock",
     saved: "Saved",
-    shearersNearYou: "Shearers near you",
+    savedSuccess: "Saved",
+    // shearers
     findShearers: "Find shearers",
     filterAll: "All",
     filterCertified: "Certified",

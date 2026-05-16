@@ -437,7 +437,7 @@ function Classify() {
         <StepIndicator
           current={1}
           total={3}
-          labels={t({ sv: ["Läge", "Bilder", "Detaljer"], en: ["Mode", "Photos", "Details"] })}
+          labels={lang === "sv" ? ["Läge", "Bilder", "Detaljer"] : ["Mode", "Photos", "Details"]}
         />
 
         <div className="grid gap-3">
@@ -480,8 +480,7 @@ function Classify() {
       <StepIndicator
         current={step === 1 ? 2 : step === 2 ? 3 : 1}
         total={3}
-        labels={
-          t({ sv: ["Läge", "Bilder", "Detaljer"], en: ["Mode", "Photos", "Details"] })}
+        labels={lang === "sv" ? ["Läge", "Bilder", "Detaljer"] : ["Mode", "Photos", "Details"]}
       />
 
       {step === 1 && (

@@ -15,18 +15,20 @@ import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/PullToRefreshIndicator";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { haptic } from "@/lib/haptics";
+import type { Tables } from "@/integrations/supabase/types";
 
-type Row = {
-  id: string;
-  created_at: string;
-  wool_class: string | null;
-  wool_class_name_sv: string | null;
-  recommendation_text_sv: string | null;
-  status: string;
-  photo_urls: string[];
-  shear_recommendation: string | null;
-  mode: string | null;
-};
+type Row = Pick<
+  Tables<"classifications">,
+  | "id"
+  | "created_at"
+  | "wool_class"
+  | "wool_class_name_sv"
+  | "recommendation_text_sv"
+  | "status"
+  | "photo_urls"
+  | "shear_recommendation"
+  | "mode"
+>;
 
 type ModeFilter = "all" | "on_sheep" | "sheared";
 
@@ -69,7 +71,7 @@ function Home() {
         .eq("manager_user_id", user.id)
         .maybeSingle(),
     ]);
-    setRows((classRows as Row[]) ?? []);
+    setRows(classRows ?? []);
     setPendingBookings(bookingRows?.length ?? 0);
     setIsShearer(!!shearerRow);
     setStationStatus(

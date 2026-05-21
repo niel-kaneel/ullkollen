@@ -22,6 +22,9 @@ import {
 
 export const Route = createFileRoute("/app/admin/expertkunskap")({
   beforeLoad: async () => {
+    // Skip during SSR — localStorage isn't available, so getSession would
+    // always return null and incorrectly redirect signed-in users to /auth.
+    if (typeof window === "undefined") return;
     const { data } = await supabase.auth.getSession();
     if (!data.session) throw redirect({ to: "/auth", search: { mode: "signin" } });
   },

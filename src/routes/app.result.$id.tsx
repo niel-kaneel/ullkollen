@@ -475,6 +475,28 @@ function Result() {
             <p className="text-lg font-bold mt-1">{recText}</p>
           </div>
 
+          {data.wool_class && (
+            <TactileSelfCheck
+              classificationId={data.id}
+              woolClass={data.wool_class}
+              onCorrectionSuggested={(suggested) => {
+                setDraft({
+                  wool_class: suggested,
+                  wool_class_name_sv: data.wool_class_name_sv,
+                  wool_class_name_en: data.wool_class_name_en,
+                  confidence: data.confidence,
+                  shear_recommendation: data.shear_recommendation,
+                  recommendation_text_sv: data.recommendation_text_sv,
+                  recommendation_text_en: data.recommendation_text_en,
+                  reasoning_sv: data.reasoning_sv,
+                });
+                setEditing(true);
+                setPolling(false);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            />
+          )}
+
           {data.reasoning_sv && lang === "sv" && (
             <div className="bg-card border border-border rounded-2xl overflow-hidden">
               <button

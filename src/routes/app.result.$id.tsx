@@ -369,6 +369,11 @@ function Result() {
             {new Date(data.shearing_date + "T00:00:00").toLocaleDateString(lang === "sv" ? "sv-SE" : "en-GB")}
           </span>
         )}
+        {linkedSheep && (
+          <span className="inline-flex items-center text-[11px] px-2 py-1 rounded-full bg-secondary/60 text-muted-foreground">
+            {linkedSheep.name ?? linkedSheep.ear_tag_id ?? t({ sv: "Får", en: "Sheep" })}
+          </span>
+        )}
       </div>
 
       {data.needs_retake || !data.wool_class ? (

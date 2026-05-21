@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, Outlet, Link, useLocation } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   Shield, Users, Trash2, ShieldOff, ShieldCheck, ChevronDown, ChevronUp,
@@ -65,11 +65,21 @@ type Dashboard = {
 // ─── Route ───────────────────────────────────────────────────────────────
 export const Route = createFileRoute("/app/admin")({
   beforeLoad: async () => {
+    // Only check the persisted browser session on the client. During SSR the
+    // session storage is unavailable, so this would otherwise redirect signed-in
+    // admins when opening nested admin pages such as Expertkunskap.
+    if (typeof window === "undefined") return;
     const { data } = await supabase.auth.getSession();
     if (!data.session) throw redirect({ to: "/auth", search: { mode: "signin" } });
   },
-  component: Admin,
+  component: AdminRoute,
 });
+
+function AdminRoute() {
+  const location = useLocation();
+  if (location.pathname !== "/app/admin") return <Outlet />;
+  return <Admin />;
+}
 
 function Admin() {
   const { t } = useTranslation();
@@ -191,7 +201,7 @@ function Admin() {
           </div>
           <div className="flex gap-2 shrink-0 flex-wrap">
             <Button asChild size="sm" variant="outline" className="rounded-lg">
-              <a href="/app/admin/expertkunskap"><Shield className="w-4 h-4 mr-1.5" /> Expertkunskap</a>
+              <Link to="/app/admin/expertkunskap"><Shield className="w-4 h-4 mr-1.5" /> Expertkunskap</Link>
             </Button>
             <Button size="sm" variant="outline" onClick={loadAll} className="rounded-lg">
               <Activity className="w-4 h-4 mr-1.5" /> Uppdatera

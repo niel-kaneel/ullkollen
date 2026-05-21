@@ -220,7 +220,7 @@ export const compareTactile = createServerFn({ method: "POST" })
       {
         query_embedding: embedding as unknown as string,
         match_count: 5,
-        wool_class_filter: cls.wool_class,
+        wool_class_filter: cls.wool_class ?? undefined,
       },
     );
     if (matchErr) throw new Error(matchErr.message);

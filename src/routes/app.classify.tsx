@@ -682,8 +682,11 @@ function Classify() {
                 type="number"
                 min={0}
                 max={24}
-                value={meta.months_since_last_shear}
-                onChange={(e) => setMeta({ ...meta, months_since_last_shear: parseInt(e.target.value) || 0 })}
+                value={meta.months_since_last_shear ?? ""}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setMeta({ ...meta, months_since_last_shear: v === "" ? undefined : parseInt(v) });
+                }}
                 className="h-14 text-base mt-2 rounded-xl"
               />
             </div>

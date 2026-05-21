@@ -321,7 +321,7 @@ function Classify() {
           body_area: mode === "on_sheep" ? meta.body_area : null,
           fleece_id: mode === "sheared" ? meta.fleece_id || null : null,
           shearing_date: mode === "sheared" ? meta.shearing_date || null : null,
-          sheep_id: mode === "on_sheep" && meta.sheep_id ? meta.sheep_id : null,
+          sheep_id: meta.sheep_id || null,
           breed: meta.breed_codes.map((c) => BREED_BY_CODE[c]?.name_sv ?? c).join(" + ") || null,
           breed_code: meta.breed_codes.join(","),
           age_category: meta.age_category,

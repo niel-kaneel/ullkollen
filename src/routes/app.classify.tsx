@@ -142,7 +142,7 @@ function Classify() {
     body_area: "flank",
     breed_codes: [] as string[],
     age_category: "Tacka" as "Lamm" | "Tacka" | "Bagge",
-    months_since_last_shear: 6,
+    months_since_last_shear: undefined as number | undefined,
     fleece_id: "",
     shearing_date: "",
   });
@@ -682,8 +682,11 @@ function Classify() {
                 type="number"
                 min={0}
                 max={24}
-                value={meta.months_since_last_shear}
-                onChange={(e) => setMeta({ ...meta, months_since_last_shear: parseInt(e.target.value) || 0 })}
+                value={meta.months_since_last_shear ?? ""}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setMeta({ ...meta, months_since_last_shear: v === "" ? undefined : parseInt(v) });
+                }}
                 className="h-14 text-base mt-2 rounded-xl"
               />
             </div>

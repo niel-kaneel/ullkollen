@@ -104,6 +104,12 @@ function Result() {
         );
         setPhotos(signed.map((s) => s.data?.signedUrl).filter(Boolean) as string[]);
       }
+      if (row.sheep_id) {
+        const { data: sheepRow } = await supabase.from("sheep").select("name, ear_tag_id").eq("id", row.sheep_id).maybeSingle();
+        if (!cancelled) setLinkedSheep(sheepRow as { name: string | null; ear_tag_id: string | null } | null);
+      } else {
+        setLinkedSheep(null);
+      }
     };
     load();
     const iv = polling ? setInterval(load, 2500) : null;

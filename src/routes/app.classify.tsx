@@ -321,7 +321,7 @@ function Classify() {
           body_area: mode === "on_sheep" ? meta.body_area : null,
           fleece_id: mode === "sheared" ? meta.fleece_id || null : null,
           shearing_date: mode === "sheared" ? meta.shearing_date || null : null,
-          sheep_id: mode === "on_sheep" && meta.sheep_id ? meta.sheep_id : null,
+          sheep_id: meta.sheep_id || null,
           breed: meta.breed_codes.map((c) => BREED_BY_CODE[c]?.name_sv ?? c).join(" + ") || null,
           breed_code: meta.breed_codes.join(","),
           age_category: meta.age_category,
@@ -572,27 +572,34 @@ function Classify() {
           </div>
 
           <div className="space-y-4">
+            {sheepList.length > 0 && (
+              <div>
+                <Label className="text-base">
+                  {t({ sv: "Koppla till får (valfritt)", en: "Link to sheep (optional)" })}
+                </Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t({
+                    sv: "Koppla denna klassificering till ett specifikt får — så kan du jämföra på fåret vs. efter klippning.",
+                    en: "Link this classification to a specific sheep — useful for comparing on-sheep vs. after shearing.",
+                  })}
+                </p>
+                <Select value={meta.sheep_id} onValueChange={(v) => setMeta({ ...meta, sheep_id: v })}>
+                  <SelectTrigger className="h-14 mt-2 rounded-xl text-base"><SelectValue placeholder={t({ sv: "— Inget specifikt får —", en: "— No specific sheep —" })} /></SelectTrigger>
+                  <SelectContent>
+                    {sheepList.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>{s.name || s.ear_tag_id || s.id.slice(0, 6)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             {mode === "on_sheep" && (
               <>
                 <div>
                   <Label className="text-base">{t("sheepName")}</Label>
                   <Input value={meta.sheepName} onChange={(e) => setMeta({ ...meta, sheepName: e.target.value })} className="h-14 text-base mt-2 rounded-xl" />
                 </div>
-                {sheepList.length > 0 && (
-                  <div>
-                    <Label className="text-base">
-                      {t({ sv: "Koppla till får (valfritt)", en: "Link to sheep (optional)" })}
-                    </Label>
-                    <Select value={meta.sheep_id} onValueChange={(v) => setMeta({ ...meta, sheep_id: v })}>
-                      <SelectTrigger className="h-14 mt-2 rounded-xl text-base"><SelectValue placeholder={t({ sv: "— Inget specifikt får —", en: "— No specific sheep —" })} /></SelectTrigger>
-                      <SelectContent>
-                        {sheepList.map((s) => (
-                          <SelectItem key={s.id} value={s.id}>{s.name || s.ear_tag_id || s.id.slice(0, 6)}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
                 <div>
                   <Label className="text-base">{t({ sv: "Kroppsdel på bilden", en: "Body area shown" })}</Label>
                   <Select value={meta.body_area} onValueChange={(v) => setMeta({ ...meta, body_area: v })}>

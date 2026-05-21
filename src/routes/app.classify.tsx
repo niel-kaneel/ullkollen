@@ -142,7 +142,7 @@ function Classify() {
     body_area: "flank",
     breed_codes: [] as string[],
     age_category: "Tacka" as "Lamm" | "Tacka" | "Bagge",
-    months_since_last_shear: 6,
+    months_since_last_shear: undefined as number | undefined,
     fleece_id: "",
     shearing_date: "",
   });

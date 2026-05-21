@@ -189,7 +189,10 @@ function Admin() {
               </p>
             </div>
           </div>
-          <div className="flex gap-2 shrink-0">
+          <div className="flex gap-2 shrink-0 flex-wrap">
+            <Button asChild size="sm" variant="outline" className="rounded-lg">
+              <a href="/app/admin/expertkunskap"><Shield className="w-4 h-4 mr-1.5" /> Expertkunskap</a>
+            </Button>
             <Button size="sm" variant="outline" onClick={loadAll} className="rounded-lg">
               <Activity className="w-4 h-4 mr-1.5" /> Uppdatera
             </Button>

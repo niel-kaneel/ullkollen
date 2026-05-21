@@ -30,6 +30,7 @@ import { Route as AppCalendarRouteImport } from './routes/app.calendar'
 import { Route as AppBookingsRouteImport } from './routes/app.bookings'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppResultIdRouteImport } from './routes/app.result.$id'
+import { Route as AppAdminExpertkunskapRouteImport } from './routes/app.admin.expertkunskap'
 
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
@@ -136,13 +137,18 @@ const AppResultIdRoute = AppResultIdRouteImport.update({
   path: '/result/$id',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAdminExpertkunskapRoute = AppAdminExpertkunskapRouteImport.update({
+  id: '/expertkunskap',
+  path: '/expertkunskap',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
   '/onboarding': typeof OnboardingRoute
-  '/app/admin': typeof AppAdminRoute
+  '/app/admin': typeof AppAdminRouteWithChildren
   '/app/bookings': typeof AppBookingsRoute
   '/app/calendar': typeof AppCalendarRoute
   '/app/classify': typeof AppClassifyRoute
@@ -158,13 +164,14 @@ export interface FileRoutesByFullPath {
   '/auth/confirm': typeof AuthConfirmRoute
   '/auth/reset': typeof AuthResetRoute
   '/app/': typeof AppIndexRoute
+  '/app/admin/expertkunskap': typeof AppAdminExpertkunskapRoute
   '/app/result/$id': typeof AppResultIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteWithChildren
   '/onboarding': typeof OnboardingRoute
-  '/app/admin': typeof AppAdminRoute
+  '/app/admin': typeof AppAdminRouteWithChildren
   '/app/bookings': typeof AppBookingsRoute
   '/app/calendar': typeof AppCalendarRoute
   '/app/classify': typeof AppClassifyRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/auth/confirm': typeof AuthConfirmRoute
   '/auth/reset': typeof AuthResetRoute
   '/app': typeof AppIndexRoute
+  '/app/admin/expertkunskap': typeof AppAdminExpertkunskapRoute
   '/app/result/$id': typeof AppResultIdRoute
 }
 export interface FileRoutesById {
@@ -188,7 +196,7 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRouteWithChildren
   '/onboarding': typeof OnboardingRoute
-  '/app/admin': typeof AppAdminRoute
+  '/app/admin': typeof AppAdminRouteWithChildren
   '/app/bookings': typeof AppBookingsRoute
   '/app/calendar': typeof AppCalendarRoute
   '/app/classify': typeof AppClassifyRoute
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/auth/confirm': typeof AuthConfirmRoute
   '/auth/reset': typeof AuthResetRoute
   '/app/': typeof AppIndexRoute
+  '/app/admin/expertkunskap': typeof AppAdminExpertkunskapRoute
   '/app/result/$id': typeof AppResultIdRoute
 }
 export interface FileRouteTypes {
@@ -229,6 +238,7 @@ export interface FileRouteTypes {
     | '/auth/confirm'
     | '/auth/reset'
     | '/app/'
+    | '/app/admin/expertkunskap'
     | '/app/result/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -251,6 +261,7 @@ export interface FileRouteTypes {
     | '/auth/confirm'
     | '/auth/reset'
     | '/app'
+    | '/app/admin/expertkunskap'
     | '/app/result/$id'
   id:
     | '__root__'
@@ -274,6 +285,7 @@ export interface FileRouteTypes {
     | '/auth/confirm'
     | '/auth/reset'
     | '/app/'
+    | '/app/admin/expertkunskap'
     | '/app/result/$id'
   fileRoutesById: FileRoutesById
 }
@@ -433,11 +445,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppResultIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/admin/expertkunskap': {
+      id: '/app/admin/expertkunskap'
+      path: '/expertkunskap'
+      fullPath: '/app/admin/expertkunskap'
+      preLoaderRoute: typeof AppAdminExpertkunskapRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
   }
 }
 
+interface AppAdminRouteChildren {
+  AppAdminExpertkunskapRoute: typeof AppAdminExpertkunskapRoute
+}
+
+const AppAdminRouteChildren: AppAdminRouteChildren = {
+  AppAdminExpertkunskapRoute: AppAdminExpertkunskapRoute,
+}
+
+const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
+  AppAdminRouteChildren,
+)
+
 interface AppRouteChildren {
-  AppAdminRoute: typeof AppAdminRoute
+  AppAdminRoute: typeof AppAdminRouteWithChildren
   AppBookingsRoute: typeof AppBookingsRoute
   AppCalendarRoute: typeof AppCalendarRoute
   AppClassifyRoute: typeof AppClassifyRoute
@@ -455,7 +486,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppAdminRoute: AppAdminRoute,
+  AppAdminRoute: AppAdminRouteWithChildren,
   AppBookingsRoute: AppBookingsRoute,
   AppCalendarRoute: AppCalendarRoute,
   AppClassifyRoute: AppClassifyRoute,

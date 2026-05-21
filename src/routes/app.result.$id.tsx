@@ -62,6 +62,7 @@ function Result() {
   const [saving, setSaving] = useState(false);
   const [showReasoning, setShowReasoning] = useState(false);
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const [linkedSheep, setLinkedSheep] = useState<{ name: string | null; ear_tag_id: string | null } | null>(null);
 
   const onShare = async () => {
     if (!data) return;
@@ -102,6 +103,12 @@ function Result() {
           row.photo_urls.map((p: string) => supabase.storage.from("sheep-photos").createSignedUrl(p, 3600)),
         );
         setPhotos(signed.map((s) => s.data?.signedUrl).filter(Boolean) as string[]);
+      }
+      if (row.sheep_id) {
+        const { data: sheepRow } = await supabase.from("sheep").select("name, ear_tag_id").eq("id", row.sheep_id).maybeSingle();
+        if (!cancelled) setLinkedSheep(sheepRow as { name: string | null; ear_tag_id: string | null } | null);
+      } else {
+        setLinkedSheep(null);
       }
     };
     load();
@@ -360,6 +367,11 @@ function Result() {
         {data.mode === "sheared" && data.shearing_date && (
           <span className="inline-flex items-center text-[11px] px-2 py-1 rounded-full bg-secondary/60 text-muted-foreground">
             {new Date(data.shearing_date + "T00:00:00").toLocaleDateString(lang === "sv" ? "sv-SE" : "en-GB")}
+          </span>
+        )}
+        {linkedSheep && (
+          <span className="inline-flex items-center text-[11px] px-2 py-1 rounded-full bg-secondary/60 text-muted-foreground">
+            {linkedSheep.name ?? linkedSheep.ear_tag_id ?? t({ sv: "Får", en: "Sheep" })}
           </span>
         )}
       </div>

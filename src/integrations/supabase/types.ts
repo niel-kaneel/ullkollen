@@ -305,6 +305,86 @@ export type Database = {
           },
         ]
       }
+      expert_observations: {
+        Row: {
+          breed: string | null
+          chunk_text: string
+          created_at: string
+          embedding: string | null
+          fiber_characteristics: string[] | null
+          id: string
+          recording_id: string
+          wool_class: string | null
+        }
+        Insert: {
+          breed?: string | null
+          chunk_text: string
+          created_at?: string
+          embedding?: string | null
+          fiber_characteristics?: string[] | null
+          id?: string
+          recording_id: string
+          wool_class?: string | null
+        }
+        Update: {
+          breed?: string | null
+          chunk_text?: string
+          created_at?: string
+          embedding?: string | null
+          fiber_characteristics?: string[] | null
+          id?: string
+          recording_id?: string
+          wool_class?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expert_observations_recording_id_fkey"
+            columns: ["recording_id"]
+            isOneToOne: false
+            referencedRelation: "expert_recordings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expert_recordings: {
+        Row: {
+          audio_path: string
+          breed: string | null
+          created_at: string
+          id: string
+          inspelning_datum: string | null
+          klassare_namn: string | null
+          transcript_full: string | null
+          updated_at: string
+          user_id: string
+          wool_class: string | null
+        }
+        Insert: {
+          audio_path: string
+          breed?: string | null
+          created_at?: string
+          id?: string
+          inspelning_datum?: string | null
+          klassare_namn?: string | null
+          transcript_full?: string | null
+          updated_at?: string
+          user_id: string
+          wool_class?: string | null
+        }
+        Update: {
+          audio_path?: string
+          breed?: string | null
+          created_at?: string
+          id?: string
+          inspelning_datum?: string | null
+          klassare_namn?: string | null
+          transcript_full?: string | null
+          updated_at?: string
+          user_id?: string
+          wool_class?: string | null
+        }
+        Relationships: []
+      }
       pickup_requests: {
         Row: {
           created_at: string
@@ -625,6 +705,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_tactile_descriptions: {
+        Row: {
+          classification_id: string | null
+          comparison_result: Json | null
+          created_at: string
+          id: string
+          image_predicted_class: string | null
+          led_to_correction: boolean
+          retrieved_recording_ids: string[] | null
+          user_description: string
+          user_id: string
+        }
+        Insert: {
+          classification_id?: string | null
+          comparison_result?: Json | null
+          created_at?: string
+          id?: string
+          image_predicted_class?: string | null
+          led_to_correction?: boolean
+          retrieved_recording_ids?: string[] | null
+          user_description: string
+          user_id: string
+        }
+        Update: {
+          classification_id?: string | null
+          comparison_result?: Json | null
+          created_at?: string
+          id?: string
+          image_predicted_class?: string | null
+          led_to_correction?: boolean
+          retrieved_recording_ids?: string[] | null
+          user_description?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wool_lots: {
         Row: {
           actual_kg: number | null
@@ -731,6 +847,22 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      match_expert_observations: {
+        Args: {
+          match_count?: number
+          query_embedding: string
+          wool_class_filter?: string
+        }
+        Returns: {
+          breed: string
+          chunk_text: string
+          fiber_characteristics: string[]
+          id: string
+          recording_id: string
+          similarity: number
+          wool_class: string
+        }[]
       }
       nearest_shearers: {
         Args: {

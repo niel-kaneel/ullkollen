@@ -19,7 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { haptic } from "@/lib/haptics";
 import { PaymentBreakdownCard } from "@/components/PaymentBreakdownCard";
 import { TactileSelfCheck } from "@/components/TactileSelfCheck";
-import { getClassRange, isOutOfRangeCorrection } from "@/lib/wool-classes";
+import { getClassRange, isOutOfRangeCorrection, namesForClass } from "@/lib/wool-classes";
 
 type Classification = {
   id: string;

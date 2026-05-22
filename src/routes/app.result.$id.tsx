@@ -63,6 +63,7 @@ function Result() {
   const [draft, setDraft] = useState<Partial<Classification>>({});
   const [saving, setSaving] = useState(false);
   const [showReasoning, setShowReasoning] = useState(false);
+  const [showRangeInfo, setShowRangeInfo] = useState(false);
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [linkedSheep, setLinkedSheep] = useState<{ name: string | null; ear_tag_id: string | null } | null>(null);
 

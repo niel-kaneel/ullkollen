@@ -15,6 +15,7 @@ import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { haptic } from "@/lib/haptics";
 import { useTranslation, type Translatable } from "@/lib/i18n";
+import { getClassRange } from "@/lib/wool-classes";
 
 export const Route = createFileRoute("/app/sell")({
   component: SellWool,
@@ -222,7 +223,7 @@ function statusLabel(s: string, t: (k: Translatable) => string) {
 
 type ShearerOpt = { id: string; display_name: string };
 type StationOpt = { id: string; name: string; current_stock_kg: number; capacity_kg: number };
-type RecentClass = { id: string; wool_class: string | null; wool_class_name_sv: string | null; created_at: string };
+type RecentClass = { id: string; wool_class: string | null; wool_class_name_sv: string | null; confidence: string | null; user_confirmed: boolean; created_at: string };
 
 function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: () => void }) {
   const { t } = useTranslation();
@@ -237,6 +238,7 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
   const [stationId, setStationId] = useState<string | null>(null);
   const [classificationId, setClassificationId] = useState<string | null>(null);
   const [recents, setRecents] = useState<RecentClass[]>([]);
+  const [upgradedToLikely, setUpgradedToLikely] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const kgNum = Number(kg);
@@ -261,7 +263,7 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
     if (user) {
       void supabase
         .from("classifications")
-        .select("id, wool_class, wool_class_name_sv, created_at")
+        .select("id, wool_class, wool_class_name_sv, confidence, user_confirmed, created_at")
         .eq("user_id", user.id)
         .eq("status", "completed")
         .not("wool_class", "is", null)
@@ -283,12 +285,25 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
       return toast.error(t("sharePercent"));
     }
     setSaving(true);
+    // Append the chosen registered class to notes so it's persisted as part of the lot record.
+    let composedNotes = notes || null;
+    const linkedRecent = recents.find((x) => x.id === classificationId);
+    if (linkedRecent) {
+      const range = getClassRange(linkedRecent.wool_class, linkedRecent.confidence, linkedRecent.user_confirmed);
+      if (range && !range.collapsed && range.floor !== range.likely) {
+        const registered = upgradedToLikely ? range.likely : range.floor;
+        const tag = upgradedToLikely
+          ? `Registrerad som ${registered} (uppgraderad från säker klass ${range.floor}, bekräftad via känsel).`
+          : `Registrerad som ${registered} (säker klass; trolig högre klass ${range.likely}).`;
+        composedNotes = composedNotes ? `${composedNotes}\n\n${tag}` : tag;
+      }
+    }
     const { data: lot, error: e1 } = await supabase
       .from("wool_lots")
       .insert({
         owner_id: user.id,
         estimated_kg: kgNum,
-        notes: notes || null,
+        notes: composedNotes,
         status: "registered",
         classification_id: classificationId,
       })
@@ -355,19 +370,53 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
             >
               {t("noClassification")}
             </button>
-            {recents.map((r) => (
-              <button
-                key={r.id}
-                type="button"
-                onClick={() => setClassificationId(r.id)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold border-2 ${
-                  classificationId === r.id ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border"
-                }`}
-              >
-                {r.wool_class ?? "?"} {r.wool_class_name_sv ? `· ${r.wool_class_name_sv}` : ""}
-              </button>
-            ))}
+            {recents.map((r) => {
+              const range = getClassRange(r.wool_class, r.confidence, r.user_confirmed);
+              const showFloor = range && !range.collapsed && range.floor !== range.likely;
+              const label = showFloor
+                ? `${range!.floor} – ${range!.likely}`
+                : (r.wool_class ?? "?");
+              return (
+                <button
+                  key={r.id}
+                  type="button"
+                  onClick={() => { setClassificationId(r.id); setUpgradedToLikely(false); }}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border-2 ${
+                    classificationId === r.id ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border"
+                  }`}
+                >
+                  {label} {r.wool_class_name_sv ? `· ${r.wool_class_name_sv}` : ""}
+                </button>
+              );
+            })}
           </div>
+
+          {(() => {
+            const r = recents.find((x) => x.id === classificationId);
+            if (!r) return null;
+            const range = getClassRange(r.wool_class, r.confidence, r.user_confirmed);
+            if (!range || range.collapsed || range.floor === range.likely) return null;
+            const registered = upgradedToLikely ? range.likely : range.floor;
+            return (
+              <div className="mt-3 bg-primary/5 border border-primary/30 rounded-2xl p-3 text-sm">
+                <p className="font-semibold">
+                  Registreras som <span className="text-primary">{registered}</span>
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Vi föreslår <strong>{range.floor}</strong> som säker klass. Har du bekräftat högre kvalitet via känsel? Uppgradera till <strong>{range.likely}</strong>.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => { haptic("tap"); setUpgradedToLikely((v) => !v); }}
+                  className="mt-2 text-xs font-semibold text-primary underline underline-offset-2"
+                >
+                  {upgradedToLikely
+                    ? `← Återgå till ${range.floor} (säker)`
+                    : `Uppgradera till ${range.likely} →`}
+                </button>
+              </div>
+            );
+          })()}
         </div>
       )}
 

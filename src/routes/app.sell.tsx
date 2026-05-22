@@ -263,7 +263,7 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
     if (user) {
       void supabase
         .from("classifications")
-        .select("id, wool_class, wool_class_name_sv, created_at")
+        .select("id, wool_class, wool_class_name_sv, confidence, user_confirmed, created_at")
         .eq("user_id", user.id)
         .eq("status", "completed")
         .not("wool_class", "is", null)

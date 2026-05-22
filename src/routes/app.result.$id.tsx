@@ -462,10 +462,34 @@ function Result() {
               <p className="text-[11px] uppercase tracking-[0.3em] text-primary-foreground/70 font-bold">
                 {t({ sv: "Klassad ull", en: "Wool class" })}
               </p>
-              <div className="text-6xl font-black text-primary-foreground tracking-wider mt-1 leading-none">
-                {data.wool_class}
-              </div>
-              <h2 className="text-base font-semibold text-primary-foreground/95 mt-2">{className}</h2>
+              {showRange ? (
+                <>
+                  <div className="text-5xl sm:text-6xl font-black text-primary-foreground tracking-wider mt-1 leading-none">
+                    {floorClass}<span className="opacity-70 mx-2">–</span>{likelyClass}
+                  </div>
+                  <p className="text-sm font-medium text-primary-foreground/90 mt-2">
+                    {t({
+                      sv: `Troligen ${likelyClass}, lägst ${floorClass}`,
+                      en: `Likely ${likelyClass}, at least ${floorClass}`,
+                    })}
+                    {range?.widened && (
+                      <span className="opacity-75"> · {t({ sv: "vidare intervall vid låg säkerhet", en: "wider range at low confidence" })}</span>
+                    )}
+                  </p>
+                </>
+              ) : (
+                <div className="text-6xl font-black text-primary-foreground tracking-wider mt-1 leading-none">
+                  {likelyClass}
+                </div>
+              )}
+              {className && (
+                <h2 className="text-base font-semibold text-primary-foreground/95 mt-2">{className}</h2>
+              )}
+              {range?.isLowest && !range.collapsed && (
+                <p className="text-xs text-primary-foreground/75 mt-1.5 italic">
+                  {t({ sv: "Lägsta klassen — ingen lägre nivå att jämföra med.", en: "Lowest class — no lower level to compare." })}
+                </p>
+              )}
               <div className="mt-3 inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-background/15 backdrop-blur text-primary-foreground">
                 <span
                   className={`inline-block w-2 h-2 rounded-full ${
@@ -488,6 +512,30 @@ function Result() {
             <p className="text-xs font-semibold uppercase tracking-wide opacity-80">{t("recommendation")}</p>
             <p className="text-lg font-bold mt-1">{recText}</p>
           </div>
+
+          {showRange && (
+            <div className="bg-card border border-border rounded-2xl overflow-hidden">
+              <button
+                onClick={() => { haptic("select"); setShowRangeInfo((v) => !v); }}
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-secondary/50 transition"
+                aria-expanded={showRangeInfo}
+              >
+                <span className="flex items-center gap-2 text-sm font-semibold">
+                  <Info className="w-4 h-4 text-primary" />
+                  {t({ sv: "Varför ett intervall?", en: "Why a range?" })}
+                </span>
+                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showRangeInfo ? "rotate-180" : ""}`} />
+              </button>
+              {showRangeInfo && (
+                <div className="px-4 pb-4 text-sm text-foreground/85 leading-relaxed border-t border-border pt-3">
+                  {t({
+                    sv: "AI:n gör sin bedömning utifrån bilder. För att inte överlova ger vi alltid en lägstanivå och en trolig nivå. När du som klassare bekräftar via känsel kan intervallet snävas in.",
+                    en: "The AI makes its judgment from images. To avoid over-promising we always give a floor and a likely level. When you confirm by touch the range can be narrowed.",
+                  })}
+                </div>
+              )}
+            </div>
+          )}
 
           {data.wool_class && (
             <TactileSelfCheck

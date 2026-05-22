@@ -212,12 +212,24 @@ function Result() {
     );
   }
 
+  const range = getClassRange(data.wool_class, data.confidence, data.user_confirmed);
+  const floorClass = range?.floor ?? data.wool_class ?? null;
+  const likelyClass = range?.likely ?? data.wool_class ?? null;
+  const showRange = !!range && !range.collapsed && range.floor !== range.likely;
+
   const rawRecText = t({ sv: data.recommendation_text_sv, en: data.recommendation_text_en });
   // Safety net: if the wool is already sheared, never display a "shear now / wait to shear" suggestion.
   const looksLikeShearAdvice = !!rawRecText && /\b(klipp|shear)/i.test(rawRecText);
-  const recText = data.mode === "sheared" && looksLikeShearAdvice
-    ? (t({ sv: `Sortera som ${data.wool_class ?? "klassad"} och leverera till uppsamlingsstation.`, en: `Sort as ${data.wool_class ?? "classified"} and deliver to a collection station.` }))
+  const baseRecText = data.mode === "sheared" && looksLikeShearAdvice
+    ? (t({ sv: `Sortera som ${floorClass ?? "klassad"} och leverera till uppsamlingsstation.`, en: `Sort as ${floorClass ?? "classified"} and deliver to a collection station.` }))
     : rawRecText;
+  // Recommendation is anchored to the floor class so we never under-deliver.
+  const recText = showRange
+    ? t({
+        sv: `Sortera som ${floorClass} för säker leverans. Vid bekräftad högre kvalitet kan ullen omklassas till ${likelyClass}.`,
+        en: `Sort as ${floorClass} for safe delivery. If higher quality is confirmed, the wool can be reclassified to ${likelyClass}.`,
+      })
+    : baseRecText;
   const className = t({ sv: data.wool_class_name_sv, en: data.wool_class_name_en });
 
   if (data.status !== "completed") {

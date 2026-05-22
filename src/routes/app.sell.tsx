@@ -285,12 +285,25 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
       return toast.error(t("sharePercent"));
     }
     setSaving(true);
+    // Append the chosen registered class to notes so it's persisted as part of the lot record.
+    let composedNotes = notes || null;
+    const linkedRecent = recents.find((x) => x.id === classificationId);
+    if (linkedRecent) {
+      const range = getClassRange(linkedRecent.wool_class, linkedRecent.confidence, linkedRecent.user_confirmed);
+      if (range && !range.collapsed && range.floor !== range.likely) {
+        const registered = upgradedToLikely ? range.likely : range.floor;
+        const tag = upgradedToLikely
+          ? `Registrerad som ${registered} (uppgraderad från säker klass ${range.floor}, bekräftad via känsel).`
+          : `Registrerad som ${registered} (säker klass; trolig högre klass ${range.likely}).`;
+        composedNotes = composedNotes ? `${composedNotes}\n\n${tag}` : tag;
+      }
+    }
     const { data: lot, error: e1 } = await supabase
       .from("wool_lots")
       .insert({
         owner_id: user.id,
         estimated_kg: kgNum,
-        notes: notes || null,
+        notes: composedNotes,
         status: "registered",
         classification_id: classificationId,
       })

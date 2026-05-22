@@ -223,7 +223,7 @@ function statusLabel(s: string, t: (k: Translatable) => string) {
 
 type ShearerOpt = { id: string; display_name: string };
 type StationOpt = { id: string; name: string; current_stock_kg: number; capacity_kg: number };
-type RecentClass = { id: string; wool_class: string | null; wool_class_name_sv: string | null; created_at: string };
+type RecentClass = { id: string; wool_class: string | null; wool_class_name_sv: string | null; confidence: string | null; user_confirmed: boolean; created_at: string };
 
 function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: () => void }) {
   const { t } = useTranslation();

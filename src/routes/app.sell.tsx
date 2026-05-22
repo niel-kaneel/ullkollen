@@ -238,6 +238,7 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
   const [stationId, setStationId] = useState<string | null>(null);
   const [classificationId, setClassificationId] = useState<string | null>(null);
   const [recents, setRecents] = useState<RecentClass[]>([]);
+  const [upgradedToLikely, setUpgradedToLikely] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const kgNum = Number(kg);

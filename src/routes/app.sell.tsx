@@ -15,6 +15,7 @@ import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { haptic } from "@/lib/haptics";
 import { useTranslation, type Translatable } from "@/lib/i18n";
+import { getClassRange } from "@/lib/wool-classes";
 
 export const Route = createFileRoute("/app/sell")({
   component: SellWool,

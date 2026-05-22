@@ -19,7 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { haptic } from "@/lib/haptics";
 import { PaymentBreakdownCard } from "@/components/PaymentBreakdownCard";
 import { TactileSelfCheck } from "@/components/TactileSelfCheck";
-import { getClassRange, isOutOfRangeCorrection } from "@/lib/wool-classes";
+import { getClassRange, isOutOfRangeCorrection, namesForClass } from "@/lib/wool-classes";
 
 type Classification = {
   id: string;
@@ -404,7 +404,27 @@ function Result() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label htmlFor="wc">{t({ sv: "Klass", en: "Class" })}</Label>
-              <Input id="wc" value={draft.wool_class ?? ""} onChange={(e) => setDraft({ ...draft, wool_class: e.target.value })} />
+              <Input
+                id="wc"
+                value={draft.wool_class ?? ""}
+                onChange={(e) => {
+                  const newClass = e.target.value;
+                  const prevClass = draft.wool_class ?? "";
+                  const prevNames = namesForClass(prevClass);
+                  const nextNames = namesForClass(newClass);
+                  // Auto-update the descriptions to match the new class, but only
+                  // overwrite when the current name is empty or still matches the
+                  // previous class's canonical name (so manual edits are preserved).
+                  const svUntouched = !draft.wool_class_name_sv || draft.wool_class_name_sv === prevNames?.sv;
+                  const enUntouched = !draft.wool_class_name_en || draft.wool_class_name_en === prevNames?.en;
+                  setDraft({
+                    ...draft,
+                    wool_class: newClass,
+                    wool_class_name_sv: nextNames && svUntouched ? nextNames.sv : draft.wool_class_name_sv,
+                    wool_class_name_en: nextNames && enUntouched ? nextNames.en : draft.wool_class_name_en,
+                  });
+                }}
+              />
             </div>
             <div>
               <Label>{t("confidence")}</Label>

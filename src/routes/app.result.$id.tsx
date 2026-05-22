@@ -602,17 +602,30 @@ function Result() {
               </Button>
             </div>
           )}
-          {data.user_confirmed && (
-            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-3 flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-400">
-              <Check className="w-4 h-4" />
-              {data.wool_class !== data.original_wool_class
-                ? (t({ sv: `Korrigerad från ${data.original_wool_class ?? "?"} → ${data.wool_class} — AI:n lär sig`, en: `Corrected from ${data.original_wool_class ?? "?"} → ${data.wool_class} — AI is learning` }))
-                : (t({ sv: "Bekräftad — bidrar till AI-träning", en: "Confirmed — contributing to AI training" }))}
-            </div>
-          )}
+          {data.user_confirmed && (() => {
+            // Correction loop: log corrections against the LIKELY (AI's actual prediction).
+            // Flag stronger signal if the user landed outside the conservative range.
+            const aiLikely = data.original_wool_class;
+            const userClass = data.wool_class;
+            const wasCorrection = userClass !== aiLikely;
+            const outOfRange = wasCorrection && isOutOfRangeCorrection(
+              getClassRange(aiLikely, data.confidence, false),
+              userClass,
+            );
+            return (
+              <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-3 flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-400">
+                <Check className="w-4 h-4" />
+                {!wasCorrection
+                  ? t({ sv: `Bekräftad — ${userClass} matchar AI:ns bedömning`, en: `Confirmed — ${userClass} matches AI's prediction` })
+                  : outOfRange
+                  ? t({ sv: `Korrigerad ${aiLikely ?? "?"} → ${userClass} (utanför intervall) — viktig signal till AI:n`, en: `Corrected ${aiLikely ?? "?"} → ${userClass} (outside range) — important signal to AI` })
+                  : t({ sv: `Korrigerad från ${aiLikely ?? "?"} → ${userClass} — AI:n lär sig`, en: `Corrected from ${aiLikely ?? "?"} → ${userClass} — AI is learning` })}
+              </div>
+            );
+          })()}
 
-          {data.wool_class && (
-            <PaymentBreakdownCard classificationId={data.id} woolClass={data.wool_class} />
+          {floorClass && (
+            <PaymentBreakdownCard classificationId={data.id} woolClass={floorClass} />
           )}
 
           <div className={data.mode === "sheared" ? "" : "grid grid-cols-2 gap-3"}>

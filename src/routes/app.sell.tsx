@@ -357,19 +357,53 @@ function NewLotForm({ onCancel, onCreated }: { onCancel: () => void; onCreated: 
             >
               {t("noClassification")}
             </button>
-            {recents.map((r) => (
-              <button
-                key={r.id}
-                type="button"
-                onClick={() => setClassificationId(r.id)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold border-2 ${
-                  classificationId === r.id ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border"
-                }`}
-              >
-                {r.wool_class ?? "?"} {r.wool_class_name_sv ? `· ${r.wool_class_name_sv}` : ""}
-              </button>
-            ))}
+            {recents.map((r) => {
+              const range = getClassRange(r.wool_class, r.confidence, r.user_confirmed);
+              const showFloor = range && !range.collapsed && range.floor !== range.likely;
+              const label = showFloor
+                ? `${range!.floor} – ${range!.likely}`
+                : (r.wool_class ?? "?");
+              return (
+                <button
+                  key={r.id}
+                  type="button"
+                  onClick={() => { setClassificationId(r.id); setUpgradedToLikely(false); }}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border-2 ${
+                    classificationId === r.id ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border"
+                  }`}
+                >
+                  {label} {r.wool_class_name_sv ? `· ${r.wool_class_name_sv}` : ""}
+                </button>
+              );
+            })}
           </div>
+
+          {(() => {
+            const r = recents.find((x) => x.id === classificationId);
+            if (!r) return null;
+            const range = getClassRange(r.wool_class, r.confidence, r.user_confirmed);
+            if (!range || range.collapsed || range.floor === range.likely) return null;
+            const registered = upgradedToLikely ? range.likely : range.floor;
+            return (
+              <div className="mt-3 bg-primary/5 border border-primary/30 rounded-2xl p-3 text-sm">
+                <p className="font-semibold">
+                  Registreras som <span className="text-primary">{registered}</span>
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Vi föreslår <strong>{range.floor}</strong> som säker klass. Har du bekräftat högre kvalitet via känsel? Uppgradera till <strong>{range.likely}</strong>.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => { haptic("tap"); setUpgradedToLikely((v) => !v); }}
+                  className="mt-2 text-xs font-semibold text-primary underline underline-offset-2"
+                >
+                  {upgradedToLikely
+                    ? `← Återgå till ${range.floor} (säker)`
+                    : `Uppgradera till ${range.likely} →`}
+                </button>
+              </div>
+            );
+          })()}
         </div>
       )}
 
